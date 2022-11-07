@@ -18,7 +18,7 @@ struct ImageInfo {
 }
 
 fn main() {
-    let img_name = String::from("test.png");
+    let img_name = String::from("brightcolors.jpeg");
     let img = open_image(img_name);
     make_mosaic(img, 13);
 }
@@ -56,7 +56,10 @@ fn orig_tile_gen(
 
     let skip = 5;
     let mut orig_tiles: Vec<ImageInfo> = Vec::new();
+    // TODO this wont go here
+    let op_dir = String::from("op");
 
+    let i = 0;
     for x in 0..c.total_x_imgs {
         for y in 0..c.total_y_imgs {
             let temp_img = img.crop_imm(
@@ -70,6 +73,10 @@ fn orig_tile_gen(
                 //img: temp_img,
                 avg_color: get_avg_rgb(temp_img, skip)
             });
+            // TODO this will get taken out
+            let op_name = i.to_string();
+            let op_path = [op_dir, op_name].join("/");
+            temp_img.save(op_path).unwrap();
         }
     }
     orig_tiles.into_iter()
