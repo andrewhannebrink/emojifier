@@ -1,4 +1,4 @@
-use image::{GenericImageView, Rgb, RgbImage};
+use image::{GenericImage, GenericImageView, Rgb, Rgba, RgbImage, RgbaImage, GrayImage};
 use image::DynamicImage;
 use image::imageops::FilterType;
 use image::imageops::replace;
@@ -96,8 +96,9 @@ fn write_final_img(args: WriteFinalImageArgs) {
     //TODO write this method
     //TODO do not hardcode this
     let (w, h) = (1920, 1080);
-    let buffer = RgbImage::new(w, h);
-    let final_img: &dyn GenericImageView<Pixel=Rgb<u8>> = &buffer;
+    let buffer = RgbaImage::new(w, h);
+    let final_img_view: &dyn GenericImageView<Pixel=Rgba<u8>> = &buffer;
+    let final_img = final_img_view.view(0, 0, 1920, 1080);
 
     let mut i = 0;
     for y in 0..args.c.total_y_imgs {
@@ -253,39 +254,6 @@ fn get_avg_rgb(img: &DynamicImage, skip: u8) -> Color {
     let blue_avg = (blue_sum / i) as u8;
     Color(red_avg, green_avg, blue_avg)
 }
-
-// TODO
-//  fn get_avg_color(img: &DynamicImage, color: u32, skip: u32) -> i32 {
-//      let (w, h) = img.dimensions();
-//      let pixels = img.pixels();
-//      let mut i = 0;
-//      let (mut x, mut y) = (0, 0);
-//      let mut intensity_list: Vec<ImageInfo> = Vec::new();
-//          
-//      for pixel in pixels {
-//          if color == 0 {
-//          for x in 0..(xi / skip) {
-//              for y in 0..(yi / skip) {
-//                  let (r,g,b) = imgPixels[x*skip, y*skip]
-//                  intensity_list.push(img_pixels)   
-//                  let pixel_color = pixel.0;
-//              }
-//          }
-//          }
-//          if color == 1 {
-//              let pixel_color = pixel.1;
-//          }
-//          if color == 2 {
-//              let pixel_color = pixel.2;
-//          }
-//          println!("{:?}", pixel);
-//          i = i + 1;
-//      }
-
-
-//      //println!("{} {}", x, y);
-//      0
-//  }
 
 fn open_image(img_name: String) -> DynamicImage {
     // Use the open function to load an image from a Path.
