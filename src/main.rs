@@ -11,7 +11,7 @@ struct CropDetails {
     y_buf: u32
 }
 
-struct Color(i32, i32, i32);
+struct Color(u8, u8, u8);
 
 struct ImageInfo {
     //img: DynamicImage,
@@ -21,6 +21,8 @@ struct ImageInfo {
 fn main() {
     let img_name = String::from("test3.jpeg");
     let img = open_image(img_name);
+    let lil_imgs_dir = String::from("./op");
+    let lil_imgs = get_lil_imgs(lil_imgs_dir, 1 as u8);
     make_mosaic(img, 13, true);
 }
 
@@ -49,11 +51,13 @@ fn make_mosaic(
              crop_details.total_y_imgs);
 
 
-    orig_tile_gen(OrigTileGenArgs {
+    let orig_tile_iter = orig_tile_gen(OrigTileGenArgs {
         img:resized_img,
         c: crop_details,
         save_images
     });
+
+    //TODO newTileGen
 }
 
 struct OrigTileGenArgs {
@@ -93,7 +97,6 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
                 let op_name = i.to_string();
                 let op_file = [op_name, op_ext].join(".");
                 let op_path = [op_dir, op_file].join("/");
-
                 temp_img.save(op_path).unwrap();
             }
             i = i + 1;
@@ -101,20 +104,86 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
     }
     orig_tiles.into_iter()
 }
+//  def getlittleimgs(directory, skip = 5):
+//      littleimgs = []
+//      littleimgnames = os.listdir(directory)
+//      for imgname in littleimgnames:
+//          imgfile = image.open(directory + imgname).convert('rgb')
+//          try:
+//              imginfo = imageinfo(imgname, imgfile, skip)
+//              littleimgs.append(imginfo)
+//          except:
+//              print 'skipping image: ' + imgname
+//      return littleimgs
 
-fn get_avg_rgb(img: &DynamicImage, skip: u32) -> Color {
-    let r = get_avg_color(img, 0, skip);
-    let g = get_avg_color(img, 1, skip);
-    let b = get_avg_color(img, 2, skip);
-    Color(r, g, b)
+fn get_lil_imgs(lil_imgs_dir: String, skip: u8) -> Vec<ImageInfo> {
+    let mut lil_imgs: Vec<ImageInfo> = Vec::new();
+    let lil_img_names = fs::read_dir(lil_imgs_dir).unwrap();
+    for name in lil_img_names {
+        let img_path = name.unwrap().path().display().to_string();
+        let img = open_image(img_path);
+        lil_imgs.push(ImageInfo {
+            avg_color: get_avg_rgb(&img, skip as u8)
+        });
+    }
+    lil_imgs
+}
+
+fn get_avg_rgb(img: &DynamicImage, skip: u8) -> Color {
+    let (w, h) = img.dimensions();
+    let pixels = img.pixels();
+    let mut i = 0;
+    let (mut x, mut y) = (0, 0);
+    let mut red_sum: u32 = 0;
+    let mut green_sum: u32 = 0;
+    let mut blue_sum: u32 = 0;
+
+    for pixel in pixels {
+        //println!("{:?}", pixel.2.0);
+        red_sum = red_sum + pixel.2.0[0] as u32;
+        green_sum = green_sum + pixel.2.0[1] as u32;
+        blue_sum = blue_sum + pixel.2.0[2] as u32;  
+        //println!("{:?}", pixel);
+        i = i + 1;
+    }
+    let red_avg = (red_sum / i) as u8;
+    let green_avg = (green_sum / i) as u8;
+    let blue_avg = (blue_sum / i) as u8;
+    Color(red_avg, green_avg, blue_avg)
 }
 
 // TODO
-fn get_avg_color(img: &DynamicImage, color: u32, skip: u32) -> i32 {
-    let (x, y) = img.dimensions();
-    //println!("{} {}", x, y);
-    0
-}
+//  fn get_avg_color(img: &DynamicImage, color: u32, skip: u32) -> i32 {
+//      let (w, h) = img.dimensions();
+//      let pixels = img.pixels();
+//      let mut i = 0;
+//      let (mut x, mut y) = (0, 0);
+//      let mut intensity_list: Vec<ImageInfo> = Vec::new();
+//          
+//      for pixel in pixels {
+//          if color == 0 {
+//          for x in 0..(xi / skip) {
+//              for y in 0..(yi / skip) {
+//                  let (r,g,b) = imgPixels[x*skip, y*skip]
+//                  intensity_list.push(img_pixels)   
+//                  let pixel_color = pixel.0;
+//              }
+//          }
+//          }
+//          if color == 1 {
+//              let pixel_color = pixel.1;
+//          }
+//          if color == 2 {
+//              let pixel_color = pixel.2;
+//          }
+//          println!("{:?}", pixel);
+//          i = i + 1;
+//      }
+
+
+//      //println!("{} {}", x, y);
+//      0
+//  }
 
 fn open_image(img_name: String) -> DynamicImage {
     // Use the open function to load an image from a Path.
@@ -122,10 +191,10 @@ fn open_image(img_name: String) -> DynamicImage {
     let img = image::open(img_name).unwrap();
 
     // The dimensions method returns the images width and height.
-    println!("dimensions {:?}", img.dimensions());
+    //println!("dimensions {:?}", img.dimensions());
 
     // The color method returns the image's `ColorType`.
-    println!("{:?}", img.color());
+    //println!("{:?}", img.color());
 
     // Write the contents of this image to the Writer in PNG format.
     //img.save("test2.png").unwrap();
