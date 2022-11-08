@@ -52,13 +52,47 @@ fn make_mosaic(
              crop_details.total_y_imgs);
 
 
-    let orig_tile_iter = orig_tile_gen(OrigTileGenArgs {
+    let orig_tiles_iter = orig_tile_gen(OrigTileGenArgs {
         img:resized_img,
         c: crop_details,
         save_images
     });
 
     //TODO newTileGen
+    let new_tiles = new_tiles_gen(NewTileGenArgs {
+        c: crop_details,
+        orig_tiles: orig_tiles_iter,
+        lil_imgs: lil_imgs,
+    });
+}
+
+struct NewTileGenArgs {
+    orig_tiles: std::vec::IntoIter<ImageInfo>,
+    c: CropDetails,
+    lil_imgs: Vec<ImageInfo>
+}
+
+//TODO <String should be number>
+fn new_tiles_gen(args: NewTileGenArgs) -> std::vec::IntoIter<String> {
+    let mut new_tiles: Vec<String> = Vec::new();
+    for orig_tile in args.orig_tiles {
+        let new_tile = get_closest_img(orig_tile, args.lil_imgs);
+        new_tiles.push(new_tile);
+    }
+    new_tiles.into_iter()
+//      	for y in range(totalYSideImgs):
+//for x in range(totalXSideImgs):
+//			newTile = getClosestImg(next(origTiles), littleImgs, colorMap, lilImgDir)
+//			yield newTile
+
+}
+
+fn get_closest_img(orig_tile: ImageInfo, lil_imgs: Vec<ImageInfo>) -> String {
+    println!("{:?}", orig_tile.img);
+    let closest_img_name = String::from("TODO");
+    println!("{}", closest_img_name);
+    closest_img_name
+
 }
 
 struct OrigTileGenArgs {
@@ -104,17 +138,6 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
     }
     orig_tiles.into_iter()
 }
-//  def getlittleimgs(directory, skip = 5):
-//      littleimgs = []
-//      littleimgnames = os.listdir(directory)
-//      for imgname in littleimgnames:
-//          imgfile = image.open(directory + imgname).convert('rgb')
-//          try:
-//              imginfo = imageinfo(imgname, imgfile, skip)
-//              littleimgs.append(imginfo)
-//          except:
-//              print 'skipping image: ' + imgname
-//      return littleimgs
 
 fn get_lil_imgs(lil_imgs_dir: String, skip: u8) -> Vec<ImageInfo> {
     let mut lil_imgs: Vec<ImageInfo> = Vec::new();
