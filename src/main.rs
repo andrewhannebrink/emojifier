@@ -132,7 +132,7 @@ fn new_tiles_gen(args: NewTileGenArgs) -> std::vec::IntoIter<usize> {
 }
 
 fn get_closest_img(orig_tile: &ImageInfo, lil_imgs: &Vec<ImageInfo>) -> usize {
-    println!("{:?}", orig_tile.img);
+    //println!("{:?}", orig_tile.img);
     let mut closest_img_index = 0;
 
     let mut min_square_dis = 256 * 256 * 256; // TODO in V1 this was 3*266*266 which seems wrong
@@ -152,7 +152,7 @@ fn get_closest_img(orig_tile: &ImageInfo, lil_imgs: &Vec<ImageInfo>) -> usize {
             );
         if dis <= min_square_dis {
             min_square_dis = dis;
-            println!("closest_img_index? {}, distance: {}", lil_img.0, dis);
+            //println!("closest_img_index? {}, distance: {}", lil_img.0, dis);
             closest_img_index = lil_img.0;
             if dis == 0 {
                 println!("DISTANCE of 0... lil_img_colors: {:?}, orig_tile_colors: {:?}", 
