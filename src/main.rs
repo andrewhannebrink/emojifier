@@ -96,9 +96,11 @@ fn write_final_img(args: WriteFinalImageArgs) {
     //TODO write this method
     //TODO do not hardcode this
     let (w, h) = (1920, 1080);
-    let buffer = RgbaImage::new(w, h);
-    let final_img_view: &dyn GenericImageView<Pixel=Rgba<u8>> = &buffer;
-    let final_img = final_img_view.view(0, 0, 1920, 1080);
+//  let buffer = RgbaImage::new(w, h);
+//  let final_img_view: &dyn GenericImageView<Pixel=Rgba<u8>> = &buffer;
+//  let final_img = final_img_view.view(0, 0, 1920, 1080);
+//
+    let final_img = open_image("target.png")
 
     let mut i = 0;
     for y in 0..args.c.total_y_imgs {
