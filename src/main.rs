@@ -53,16 +53,22 @@ fn make_mosaic(
 
 
     let orig_tiles_iter = orig_tile_gen(OrigTileGenArgs {
-        img:resized_img,
+        img: resized_img,
         c: crop_details,
         save_images
     });
 
-    //TODO newTileGen
+    //TODO figure out how to reuse crop_details from above using lifetime params
     let new_tiles = new_tiles_gen(NewTileGenArgs {
-        c: crop_details,
+        c: CropDetails {
+            depth: depth,
+            x_buf: (xt % (xt / depth)) / 2,
+            y_buf: (yt % (yt / depth)) / 2,
+            total_y_imgs: yt / depth,
+            total_x_imgs: xt / depth
+        },
         orig_tiles: orig_tiles_iter,
-        lil_imgs: lil_imgs,
+        lil_imgs,
     });
 }
 
@@ -76,7 +82,7 @@ struct NewTileGenArgs {
 fn new_tiles_gen(args: NewTileGenArgs) -> std::vec::IntoIter<String> {
     let mut new_tiles: Vec<String> = Vec::new();
     for orig_tile in args.orig_tiles {
-        let new_tile = get_closest_img(orig_tile, args.lil_imgs);
+        let new_tile = get_closest_img(orig_tile, &(args.lil_imgs));
         new_tiles.push(new_tile);
     }
     new_tiles.into_iter()
@@ -87,7 +93,7 @@ fn new_tiles_gen(args: NewTileGenArgs) -> std::vec::IntoIter<String> {
 
 }
 
-fn get_closest_img(orig_tile: ImageInfo, lil_imgs: Vec<ImageInfo>) -> String {
+fn get_closest_img(orig_tile: ImageInfo, lil_imgs: &Vec<ImageInfo>) -> String {
     println!("{:?}", orig_tile.img);
     let closest_img_name = String::from("TODO");
     println!("{}", closest_img_name);
