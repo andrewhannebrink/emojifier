@@ -1,4 +1,5 @@
-use image::{DynamicImage, GenericImage, Rgb, RgbImage};
+use image::{GenericImageView, Rgb, RgbImage};
+use image::DynamicImage;
 use image::imageops::FilterType;
 use image::imageops::replace;
 use std::fs;
@@ -73,43 +74,43 @@ fn make_mosaic(
         lil_imgs: lil_imgs.clone(),
     });
     //TODO figure out how to reuse crop_details from above using lifetime params
-//  write_final_img(WriteFinalImageArgs {
-//      c: CropDetails {
-//          depth: depth,
-//          x_buf: (xt % (xt / depth)) / 2,
-//          y_buf: (yt % (yt / depth)) / 2,
-//          total_y_imgs: yt / depth,
-//          total_x_imgs: xt / depth
-//      },
-//      new_tiles,
-//      lil_imgs: lil_imgs.clone()
-//  });
+    write_final_img(WriteFinalImageArgs {
+        c: CropDetails {
+            depth: depth,
+            x_buf: (xt % (xt / depth)) / 2,
+            y_buf: (yt % (yt / depth)) / 2,
+            total_y_imgs: yt / depth,
+            total_x_imgs: xt / depth
+        },
+        new_tiles,
+        lil_imgs: lil_imgs.clone()
+    });
 }
 
-//  struct WriteFinalImageArgs {
-//      c: CropDetails,
-//      new_tiles: std::vec::IntoIter<usize>,
-//      lil_imgs: Vec<ImageInfo>
-//  }
-//  fn write_final_img(args: WriteFinalImageArgs) {
-//      //TODO write this method
-//      //TODO do not hardcode this
-//      let (w, h) = (1920, 1080);
-//      let buffer = RgbImage::new(w, h);
-//      let final_img: &dyn GenericImage<Pixel=Rgb<u8>> = &buffer;
+struct WriteFinalImageArgs {
+    c: CropDetails,
+    new_tiles: std::vec::IntoIter<usize>,
+    lil_imgs: Vec<ImageInfo>
+}
+fn write_final_img(args: WriteFinalImageArgs) {
+    //TODO write this method
+    //TODO do not hardcode this
+    let (w, h) = (1920, 1080);
+    let buffer = RgbImage::new(w, h);
+    let final_img: &dyn GenericImageView<Pixel=Rgb<u8>> = &buffer;
 
-//      let mut i = 0;
-//      for y in 0..args.c.total_y_imgs {
-//          for x in 0..args.c.total_x_imgs {
-//              let new_tile = &args.lil_imgs[i];
-//              replace(final_img.view(), &args.lil_imgs[i].img, 
-//                      (x*args.c.depth + args.c.x_buf) as i64, 
-//                      (y*args.c.depth + args.c.y_buf) as i64);
-//              i += 1;
-//          }
-//      }
-//      final_img.save("op.png").unwrap();
-//  }
+    let mut i = 0;
+    for y in 0..args.c.total_y_imgs {
+        for x in 0..args.c.total_x_imgs {
+            let new_tile = &args.lil_imgs[i];
+            replace(final_img, &args.lil_imgs[i].img, 
+                    (x*args.c.depth + args.c.x_buf) as i64, 
+                    (y*args.c.depth + args.c.y_buf) as i64);
+            i += 1;
+        }
+    }
+    final_img.save("op.png").unwrap();
+}
 //  finalImg = Image.new('RGB', (int(xt), int(yt)), (0,0,0))
 //  tileWidth = int(xt / totalXSideImgs)
 //  tileHeight = int(yt / totalYSideImgs)
