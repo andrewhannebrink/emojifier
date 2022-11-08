@@ -119,7 +119,7 @@ fn write_final_img(mut args: WriteFinalImageArgs) {
     for y in 0..args.c.total_y_imgs {
         for x in 0..args.c.total_x_imgs {
             println!("i: {}", i);
-            let index_in_lil_imgs = args.new_tiles.nth(i).unwrap();
+            let index_in_lil_imgs = args.new_tiles.next().unwrap();
             //println!("{:?}", index_in_lil_imgs);
             replace(&mut final_img, &args.lil_imgs[index_in_lil_imgs as usize].img, 
                     (x*args.c.depth + args.c.x_buf) as i64, 
