@@ -11,8 +11,11 @@ struct CropDetails {
     y_buf: u32
 }
 
+#[derive(Clone)]
 struct Color(u8, u8, u8);
 
+// TODO perhaps use lifetime params instead of clone()
+#[derive(Clone)]
 struct ImageInfo {
     img: DynamicImage,
     avg_color: Color
@@ -67,7 +70,7 @@ fn make_mosaic(
             total_x_imgs: xt / depth
         },
         orig_tiles: orig_tiles_iter,
-        lil_imgs,
+        lil_imgs: lil_imgs.clone(),
     });
     //TODO figure out how to reuse crop_details from above using lifetime params
     write_final_img(WriteFinalImageArgs {
@@ -79,7 +82,7 @@ fn make_mosaic(
             total_x_imgs: xt / depth
         },
         new_tiles,
-        lil_imgs
+        lil_imgs: lil_imgs.clone()
 
     });
     //finalImg = getFinalImg(totalXSideImgs, totalYSideImgs, xt, yt, xBuf, yBuf, newTiles, lilImgDir)
