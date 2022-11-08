@@ -14,7 +14,7 @@ struct CropDetails {
 struct Color(u8, u8, u8);
 
 struct ImageInfo {
-    //img: DynamicImage,
+    img: DynamicImage,
     avg_color: Color
 }
 
@@ -23,11 +23,12 @@ fn main() {
     let img = open_image(img_name);
     let lil_imgs_dir = String::from("./op");
     let lil_imgs = get_lil_imgs(lil_imgs_dir, 1 as u8);
-    make_mosaic(img, 13, true);
+    make_mosaic(img, lil_imgs, 13, true);
 }
 
 fn make_mosaic(
     img: DynamicImage, 
+    lil_imgs: Vec<ImageInfo>,
     depth: u32,
     save_images: bool) {
 
@@ -83,12 +84,6 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
                 args.c.depth);
                 //(x+1)*c.depth - 1 + c.x_buf,
                 //(y+1)*c.depth - 1 + c.y_buf);
-            orig_tiles.push(ImageInfo {
-                //img: temp_img,
-                avg_color: get_avg_rgb(&temp_img, skip)
-            });
-            // TODO this will get taken out
-                        //println!("{}", op_path);
             if args.save_images {
                 fs::remove_dir("op");
                 fs::create_dir("op");
@@ -99,6 +94,11 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
                 let op_path = [op_dir, op_file].join("/");
                 temp_img.save(op_path).unwrap();
             }
+            orig_tiles.push(ImageInfo {
+                avg_color: get_avg_rgb(&temp_img, skip),
+                img: temp_img
+            });
+
             i = i + 1;
         }
     }
@@ -123,7 +123,8 @@ fn get_lil_imgs(lil_imgs_dir: String, skip: u8) -> Vec<ImageInfo> {
         let img_path = name.unwrap().path().display().to_string();
         let img = open_image(img_path);
         lil_imgs.push(ImageInfo {
-            avg_color: get_avg_rgb(&img, skip as u8)
+            avg_color: get_avg_rgb(&img, skip as u8),
+            img: img
         });
     }
     lil_imgs
