@@ -4,6 +4,7 @@ use image::imageops::FilterType;
 use image::imageops::replace;
 use std::fs;
 
+//#[derive(Debug)]
 struct CropDetails {
     depth: u32,
     total_x_imgs: u32,
@@ -27,7 +28,7 @@ fn main() {
     let img = open_image(img_name);
     let lil_imgs_dir = String::from("./op");
     let lil_imgs = get_lil_imgs(lil_imgs_dir, 1 as u8);
-    make_mosaic(img, lil_imgs, 25, true);
+    make_mosaic(img, lil_imgs, 120, true);
 }
 
 fn make_mosaic(
@@ -63,7 +64,7 @@ fn make_mosaic(
         save_images
     });
     //TODO figure out how to reuse crop_details from above using lifetime params
-    let new_tiles = new_tiles_gen(NewTileGenArgs {
+    let mut new_tiles = new_tiles_gen(NewTileGenArgs {
         c: CropDetails {
             depth: depth,
             x_buf: (xt % (xt / depth)) / 2,
@@ -90,24 +91,37 @@ fn make_mosaic(
 
 struct WriteFinalImageArgs {
     c: CropDetails,
-    new_tiles: std::vec::IntoIter<usize>,
+    new_tiles: std::vec::IntoIter<u32>,
     lil_imgs: Vec<ImageInfo>
 }
-fn write_final_img(args: WriteFinalImageArgs) {
+fn write_final_img(mut args: WriteFinalImageArgs) {
     //TODO write this method
     //TODO do not hardcode this
     let (w, h) = (1920, 1080);
+    println!("starting write_final_img()...");
 //  let buffer = RgbaImage::new(w, h);
 //  let final_img_view: &dyn GenericImageView<Pixel=Rgba<u8>> = &buffer;
 //  let final_img = final_img_view.view(0, 0, 1920, 1080);
 //
     let mut final_img = open_image(String::from("target.jpeg"));
+    let (target_w, target_h) = final_img.dimensions();
+    println!("target_w: {}, target_w: {}", target_w, target_h);
 
+    println!("crop_details during final img: {}, {}, {}, {}, {}",
+            args.c.depth,
+            args.c.total_y_imgs,
+            args.c.total_x_imgs,
+            args.c.y_buf,
+            args.c.x_buf);
+    println!("total imgs in mosaic should be: {}", args.c.total_y_imgs * args.c.total_x_imgs);
+    println!("total imgs in new_tiles: {}", args.new_tiles.len());
     let mut i = 0;
     for y in 0..args.c.total_y_imgs {
         for x in 0..args.c.total_x_imgs {
-            let new_tile = &args.lil_imgs[i];
-            replace(&mut final_img, &args.lil_imgs[i].img, 
+            println!("i: {}", i);
+            let index_in_lil_imgs = args.new_tiles.nth(i).unwrap();
+            //println!("{:?}", index_in_lil_imgs);
+            replace(&mut final_img, &args.lil_imgs[index_in_lil_imgs as usize].img, 
                     (x*args.c.depth + args.c.x_buf) as i64, 
                     (y*args.c.depth + args.c.y_buf) as i64);
             i += 1;
@@ -123,14 +137,16 @@ struct NewTileGenArgs {
 }
 
 //TODO <String should be number>
-fn new_tiles_gen(args: NewTileGenArgs) -> std::vec::IntoIter<usize> {
+fn new_tiles_gen(args: NewTileGenArgs) -> std::vec::IntoIter<u32> {
     println!("beginning new til gen...");
-    let mut new_tiles: Vec<usize> = Vec::new();
+    let mut new_tiles: Vec<u32> = Vec::new();
     for orig_tile in args.orig_tiles {
         let new_tile = get_closest_img(&orig_tile, &(args.lil_imgs));
-        new_tiles.push(new_tile);
+        println!("new_tile: {}", new_tile);
+        new_tiles.push(new_tile as u32);
     }
-    new_tiles.into_iter()
+    let mut new_tiles_iter = new_tiles.into_iter();
+    new_tiles_iter
 }
 
 fn get_closest_img(orig_tile: &ImageInfo, lil_imgs: &Vec<ImageInfo>) -> usize {
@@ -156,6 +172,7 @@ fn get_closest_img(orig_tile: &ImageInfo, lil_imgs: &Vec<ImageInfo>) -> usize {
             min_square_dis = dis;
             //println!("closest_img_index? {}, distance: {}", lil_img.0, dis);
             closest_img_index = lil_img.0;
+            println!("closest_img_index: {}", closest_img_index);
             if dis == 0 {
                 //println!("DISTANCE of 0... lil_img_colors: {:?}, orig_tile_colors: {:?}", 
                         //(lil_img.1.avg_color.0, lil_img.1.avg_color.1, lil_img.1.avg_color.2),
