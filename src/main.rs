@@ -100,13 +100,13 @@ fn write_final_img(args: WriteFinalImageArgs) {
 //  let final_img_view: &dyn GenericImageView<Pixel=Rgba<u8>> = &buffer;
 //  let final_img = final_img_view.view(0, 0, 1920, 1080);
 //
-    let final_img = open_image("target.png")
+    let mut final_img = open_image(String::from("target.jpeg"));
 
     let mut i = 0;
     for y in 0..args.c.total_y_imgs {
         for x in 0..args.c.total_x_imgs {
             let new_tile = &args.lil_imgs[i];
-            replace(final_img, &args.lil_imgs[i].img, 
+            replace(&mut final_img, &args.lil_imgs[i].img, 
                     (x*args.c.depth + args.c.x_buf) as i64, 
                     (y*args.c.depth + args.c.y_buf) as i64);
             i += 1;
