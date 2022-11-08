@@ -57,7 +57,6 @@ fn make_mosaic(
         c: crop_details,
         save_images
     });
-
     //TODO figure out how to reuse crop_details from above using lifetime params
     let new_tiles = new_tiles_gen(NewTileGenArgs {
         c: CropDetails {
@@ -70,6 +69,30 @@ fn make_mosaic(
         orig_tiles: orig_tiles_iter,
         lil_imgs,
     });
+    //TODO figure out how to reuse crop_details from above using lifetime params
+    write_final_img(WriteFinalImageArgs {
+        c: CropDetails {
+            depth: depth,
+            x_buf: (xt % (xt / depth)) / 2,
+            y_buf: (yt % (yt / depth)) / 2,
+            total_y_imgs: yt / depth,
+            total_x_imgs: xt / depth
+        },
+        new_tiles,
+        lil_imgs
+
+    });
+    //finalImg = getFinalImg(totalXSideImgs, totalYSideImgs, xt, yt, xBuf, yBuf, newTiles, lilImgDir)
+	//finalImg.save(outputName)
+}
+
+struct WriteFinalImageArgs {
+    c: CropDetails,
+    new_tiles: std::vec::IntoIter<usize>,
+    lil_imgs: Vec<ImageInfo>
+}
+fn write_final_img(args: WriteFinalImageArgs) {
+    
 }
 
 struct NewTileGenArgs {
@@ -79,48 +102,51 @@ struct NewTileGenArgs {
 }
 
 //TODO <String should be number>
-fn new_tiles_gen(args: NewTileGenArgs) -> std::vec::IntoIter<String> {
-    let mut new_tiles: Vec<String> = Vec::new();
+fn new_tiles_gen(args: NewTileGenArgs) -> std::vec::IntoIter<usize> {
+    let mut new_tiles: Vec<usize> = Vec::new();
     for orig_tile in args.orig_tiles {
-        let new_tile = get_closest_img(&orig_tile, (&args.lil_imgs));
+        let new_tile = get_closest_img(&orig_tile, &(args.lil_imgs));
         new_tiles.push(new_tile);
     }
     new_tiles.into_iter()
 }
 
-fn get_closest_img(orig_tile: &ImageInfo, lil_imgs: &Vec<ImageInfo>) -> String {
+fn get_closest_img(orig_tile: &ImageInfo, lil_imgs: &Vec<ImageInfo>) -> usize {
     println!("{:?}", orig_tile.img);
-    let closest_img_name = String::from("TODO");
-    println!("{}", closest_img_name);
     let mut closest_img_index = 0;
 
     let mut min_square_dis = 256 * 256 * 256; // TODO in V1 this was 3*266*266 which seems wrong
-    let mut i = 0;
     for lil_img in lil_imgs.into_iter().enumerate() {
-        let dis = ((lil_img.1.avg_color.0 as i32 - orig_tile.avg_color.0 as i32) *
-            (lil_img.1.avg_color.1 as i32 - orig_tile.avg_color.1 as i32) * 
-            (lil_img.1.avg_color.2 as i32 - orig_tile.avg_color.2 as i32)).abs();
+        let dis = 
+            (
+                (lil_img.1.avg_color.0 as i32 - orig_tile.avg_color.0 as i32) *
+                (lil_img.1.avg_color.0 as i32 - orig_tile.avg_color.0 as i32)
+            ) +
+            (
+                (lil_img.1.avg_color.1 as i32 - orig_tile.avg_color.1 as i32) *
+                (lil_img.1.avg_color.1 as i32 - orig_tile.avg_color.1 as i32)
+            ) +
+            (
+                (lil_img.1.avg_color.2 as i32 - orig_tile.avg_color.2 as i32) *
+                (lil_img.1.avg_color.2 as i32 - orig_tile.avg_color.2 as i32)
+            );
         if dis <= min_square_dis {
             min_square_dis = dis;
             println!("closest_img_index? {}, distance: {}", lil_img.0, dis);
             closest_img_index = lil_img.0;
+            if dis == 0 {
+                println!("DISTANCE of 0... lil_img_colors: {:?}, orig_tile_colors: {:?}", 
+                        (lil_img.1.avg_color.0, lil_img.1.avg_color.1, lil_img.1.avg_color.2),
+                        (orig_tile.avg_color.0, orig_tile.avg_color.1, orig_tile.avg_color.2));
+            }
 
         }
-        i += 1;
-        println!("dis: {}", dis);
-            //(lil_img.avg_color[r] - orig_tile.avg_color[r])
     }
-
-//  for littleImg in littleImgs:
-//      if oneColor == False:
-//          dis = (littleImg.avgRGB[0] - origTile.avgRGB[0])* (littleImg.avgRGB[0] - origTile.avgRGB[0]) + (littleImg.avgRGB[1] - origTile.avgRGB[1])*(littleImg.avgRGB[1] - origTile.avgRGB[1]) + (littleImg.avgRGB[2] - origTile.avgRGB[2])* (littleImg.avgRGB[2] - origTile.avgRGB[2])
-//      else:
-//          dis = (littleImg.avgRGB[0] - ogAvgRGB[0])* (littleImg.avgRGB[0] - ogAvgRGB[0]) + (littleImg.avgRGB[1] - ogAvgRGB[1])*(littleImg.avgRGB[1] - ogAvgRGB[1]) + (littleImg.avgRGB[2] - ogAvgRGB[2])* (littleImg.avgRGB[2] - ogAvgRGB[2])
-//      if dis < minSquareDis:
-//          minSquareDis = dis
-//          closestImg = littleImg.name
-//  return closestImg
-    closest_img_name
+    let closest_img = &lil_imgs[closest_img_index];
+    //println!("closest_img.avg_color: {:?}, distance {}", 
+    //            (closest_img.avg_color.0, closest_img.avg_color.1, closest_img.avg_color.2),
+    //            min_square_dis);
+    closest_img_index
 }
 
 struct OrigTileGenArgs {
@@ -128,7 +154,6 @@ struct OrigTileGenArgs {
     c: CropDetails,
     save_images: bool
 }
-
 fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
 
     let skip = 5;
