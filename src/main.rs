@@ -36,6 +36,7 @@ fn make_mosaic(
     depth: u32,
     save_images: bool) {
 
+    println!("beginning make_mosaic....");
     let (xt, yt) = (1920, 1080);
     let (xi, yi) = img.dimensions();
     let crop_details = CropDetails {
@@ -123,6 +124,7 @@ struct NewTileGenArgs {
 
 //TODO <String should be number>
 fn new_tiles_gen(args: NewTileGenArgs) -> std::vec::IntoIter<usize> {
+    println!("beginning new til gen...");
     let mut new_tiles: Vec<usize> = Vec::new();
     for orig_tile in args.orig_tiles {
         let new_tile = get_closest_img(&orig_tile, &(args.lil_imgs));
@@ -155,9 +157,9 @@ fn get_closest_img(orig_tile: &ImageInfo, lil_imgs: &Vec<ImageInfo>) -> usize {
             //println!("closest_img_index? {}, distance: {}", lil_img.0, dis);
             closest_img_index = lil_img.0;
             if dis == 0 {
-                println!("DISTANCE of 0... lil_img_colors: {:?}, orig_tile_colors: {:?}", 
-                        (lil_img.1.avg_color.0, lil_img.1.avg_color.1, lil_img.1.avg_color.2),
-                        (orig_tile.avg_color.0, orig_tile.avg_color.1, orig_tile.avg_color.2));
+                //println!("DISTANCE of 0... lil_img_colors: {:?}, orig_tile_colors: {:?}", 
+                        //(lil_img.1.avg_color.0, lil_img.1.avg_color.1, lil_img.1.avg_color.2),
+                        //(orig_tile.avg_color.0, orig_tile.avg_color.1, orig_tile.avg_color.2));
             }
 
         }
