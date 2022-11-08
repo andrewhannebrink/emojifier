@@ -1,6 +1,7 @@
 use image::GenericImageView;
 use image::DynamicImage;
 use image::imageops::FilterType;
+use std::fs;
 
 struct CropDetails {
     depth: u32,
@@ -18,14 +19,15 @@ struct ImageInfo {
 }
 
 fn main() {
-    let img_name = String::from("brightcolors.jpeg");
+    let img_name = String::from("test3.jpeg");
     let img = open_image(img_name);
-    make_mosaic(img, 13);
+    make_mosaic(img, 13, true);
 }
 
 fn make_mosaic(
     img: DynamicImage, 
-    depth: u32) {
+    depth: u32,
+    save_images: bool) {
 
     let (xt, yt) = (1920, 1080);
     let (xi, yi) = img.dimensions();
@@ -37,7 +39,8 @@ fn make_mosaic(
         total_x_imgs: xt / depth
     };
 
-    let resized_img = img.resize(xt, yt, FilterType::Nearest);
+    println!("{} {}", xt, yt);
+    let resized_img = img.resize(xt, yt, FilterType::Gaussian);
 
     println!("{} {} {} {}", 
              crop_details.x_buf, 
@@ -45,47 +48,64 @@ fn make_mosaic(
              crop_details.total_x_imgs,
              crop_details.total_y_imgs);
 
-    orig_tile_gen(resized_img, crop_details);
+
+    orig_tile_gen(OrigTileGenArgs {
+        img:resized_img,
+        c: crop_details,
+        save_images
+    });
 }
 
-
-fn orig_tile_gen(
+struct OrigTileGenArgs {
     img: DynamicImage,
-    c: CropDetails
-    ) -> std::vec::IntoIter<ImageInfo> {
+    c: CropDetails,
+    save_images: bool
+}
+
+fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
 
     let skip = 5;
     let mut orig_tiles: Vec<ImageInfo> = Vec::new();
     // TODO this wont go here
 
-    let i = 0;
-    for x in 0..c.total_x_imgs {
-        for y in 0..c.total_y_imgs {
-            let temp_img = img.crop_imm(
-                x*c.depth + c.x_buf,
-                y*c.depth + c.y_buf,
-                c.depth, 
-                c.depth);
+    let mut i = 0;
+    println!("{:?}", args.img.dimensions());
+    for x in 0..args.c.total_x_imgs {
+        for y in 0..args.c.total_y_imgs {
+            let temp_img = args.img.crop_imm(
+                x*args.c.depth + args.c.x_buf,
+                y*args.c.depth + args.c.y_buf,
+                args.c.depth, 
+                args.c.depth);
                 //(x+1)*c.depth - 1 + c.x_buf,
                 //(y+1)*c.depth - 1 + c.y_buf);
             orig_tiles.push(ImageInfo {
                 //img: temp_img,
-                avg_color: get_avg_rgb(temp_img, skip)
+                avg_color: get_avg_rgb(&temp_img, skip)
             });
             // TODO this will get taken out
-            let op_dir = String::from("op");
-            let op_name = i.to_string();
-            let op_path = [op_dir, op_name].join("/");
-            temp_img.save(op_path).unwrap();
+                        //println!("{}", op_path);
+            if args.save_images {
+                fs::remove_dir("op");
+                fs::create_dir("op");
+                let op_dir = String::from("op");
+                let op_ext = String::from("png");
+                let op_name = i.to_string();
+                let op_file = [op_name, op_ext].join(".");
+                let op_path = [op_dir, op_file].join("/");
+
+                temp_img.save(op_path).unwrap();
+            }
+            i = i + 1;
         }
     }
     orig_tiles.into_iter()
 }
 
-fn get_avg_rgb(img: DynamicImage, skip: u32) -> Color {
-    let r = get_avg_color(&img, 0, skip);
-    let g = get_avg_color(&img, 1, skip);
-    let b = get_avg_color(&img, 2, skip);
+fn get_avg_rgb(img: &DynamicImage, skip: u32) -> Color {
+    let r = get_avg_color(img, 0, skip);
+    let g = get_avg_color(img, 1, skip);
+    let b = get_avg_color(img, 2, skip);
     Color(r, g, b)
 }
 
