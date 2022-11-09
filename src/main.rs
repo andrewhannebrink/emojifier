@@ -4,7 +4,7 @@ use image::imageops::FilterType;
 use image::imageops::replace;
 use std::fs;
 
-//#[derive(Debug)]
+#[derive(Clone)]
 struct CropDetails {
     depth: u32,
     total_x_imgs: u32,
@@ -24,30 +24,18 @@ struct ImageInfo {
 }
 
 fn main() {
-    let only_make_lil_imgs = true;
-    let save_imgs = true;
-    // TODO implement this
-    //let lil_imgs_from_dir = false;
-    let lil_img_parent_name = String::from("test3.jpeg");
-    let target_img_name = String::from("target.jpeg");
-    let parent_img = open_image(lil_img_parent_name);
-    let target_img = open_image(target_img_name);
+
+    //let only_make_lil_imgs = true;
+    //let img_name = String::from("test3.jpeg");
+    let img_name = String::from("target.jpeg");
+    let only_make_lil_imgs = false;
+    let img = open_image(img_name);
+
     let lil_imgs_dir = String::from("./op");
     let lil_imgs = get_lil_imgs(lil_imgs_dir, 1 as u8);
-    make_mosaic(parent_img, target_img, lil_imgs, 20, save_imgs, only_make_lil_imgs);
-}
 
-fn make_mosaic(
-    parent_img: DynamicImage,
-    target_img: DynamicImage,
-    lil_imgs: Vec<ImageInfo>,
-    depth: u32,
-    save_images: bool,
-    only_make_lil_imgs: bool) {
-
-    println!("beginning make_mosaic....");
+    let depth = 16;
     let (xt, yt) = (1920, 1080);
-    let (xi, yi) = target_img.dimensions();
     let crop_details = CropDetails {
         depth: depth,
         x_buf: (xt % (xt / depth)) / 2,
@@ -55,6 +43,37 @@ fn make_mosaic(
         total_y_imgs: yt / depth,
         total_x_imgs: xt / depth
     };
+
+    if only_make_lil_imgs == true {
+        save_lil_img_dir(OrigTileGenArgs {
+            img, 
+            c: crop_details,
+            save_images: true
+        });
+    }
+    else {
+        let save_imgs = false;
+        make_mosaic(img, lil_imgs, crop_details, only_make_lil_imgs);
+    }
+}
+
+fn save_lil_img_dir(args: OrigTileGenArgs) {
+    orig_tile_gen(OrigTileGenArgs {
+        img: args.img,
+        c: args.c,
+        save_images: args.save_images,
+    });
+}
+
+fn make_mosaic(
+    img: DynamicImage,
+    lil_imgs: Vec<ImageInfo>,
+    crop_details: CropDetails,
+    only_make_lil_imgs: bool) {
+
+    println!("beginning make_mosaic....");
+    let (xt, yt) = (1920, 1080);
+    let (xi, yi) = img.dimensions();
 
     println!("{} {}", xt, yt);
     //TODO maybe re add this later
@@ -66,35 +85,22 @@ fn make_mosaic(
              crop_details.total_x_imgs,
              crop_details.total_y_imgs);
 
-
     let orig_tiles_iter = orig_tile_gen(OrigTileGenArgs {
-        img: parent_img,
-        c: crop_details,
-        save_images,
+        img,
+        c: crop_details.clone(),
+        save_images: false,
     });
 
     if only_make_lil_imgs == false {
         //TODO figure out how to reuse crop_details from above using lifetime params
         let mut new_tiles = new_tiles_gen(NewTileGenArgs {
-            c: CropDetails {
-                depth: depth,
-                x_buf: (xt % (xt / depth)) / 2,
-                y_buf: (yt % (yt / depth)) / 2,
-                total_y_imgs: yt / depth,
-                total_x_imgs: xt / depth
-            },
+            c: crop_details.clone(),
             orig_tiles: orig_tiles_iter,
             lil_imgs: lil_imgs.clone(),
         });
         //TODO figure out how to reuse crop_details from above using lifetime params
         write_final_img(WriteFinalImageArgs {
-            c: CropDetails {
-                depth: depth,
-                x_buf: (xt % (xt / depth)) / 2,
-                y_buf: (yt % (yt / depth)) / 2,
-                total_y_imgs: yt / depth,
-                total_x_imgs: xt / depth
-            },
+            c: crop_details.clone(),
             new_tiles,
             lil_imgs: lil_imgs.clone(),
         });
@@ -231,10 +237,12 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
                 let op_path = [op_dir, op_file].join("/");
                 temp_img.save(op_path).unwrap();
             }
-            orig_tiles.push(ImageInfo {
-                avg_color: get_avg_rgb(&temp_img, skip),
-                img: temp_img
-            });
+            if !args.save_images {
+                orig_tiles.push(ImageInfo {
+                    avg_color: get_avg_rgb(&temp_img, skip),
+                    img: temp_img
+                });
+            }
             i = i + 1;
         }
     }
