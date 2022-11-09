@@ -34,7 +34,6 @@ fn compose_mosaic_from_paths(
         only_make_lil_imgs: bool,
         quadrant_dir: String) {
 
-    let lil_imgs_dir = String::from("./op");
 
     let depth = 16;
     let (xt, yt) = (1920, 1080);
@@ -57,6 +56,7 @@ fn compose_mosaic_from_paths(
         return;
     }
     else {
+        let lil_imgs_dir = String::from("io/lil_imgs/b");
         let save_imgs = false;
         mosaic::make_mosaic(img, lil_imgs_dir, crop_details, quadrant_dir);
     }
