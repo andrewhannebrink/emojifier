@@ -28,13 +28,15 @@ pub fn save_lil_img_dir(args: OrigTileGenArgs) {
         img: args.img,
         c: args.c,
         save_images: args.save_images,
+        quadrant_dir: args.quadrant_dir,
     });
 }
 
 pub fn make_mosaic(
     img: DynamicImage,
     lil_imgs_dir: String,
-    crop_details: CropDetails) {
+    crop_details: CropDetails,
+    quadrant_dir: String) {
 
     println!("beginning make_mosaic....");
     let (xt, yt) = (1920, 1080);
@@ -56,6 +58,7 @@ pub fn make_mosaic(
         img,
         c: crop_details.clone(),
         save_images: false,
+        quadrant_dir,
     });
 
     //TODO figure out how to reuse crop_details from above using lifetime params
@@ -174,7 +177,8 @@ fn get_closest_img(orig_tile: &ImageInfo, lil_imgs: &Vec<ImageInfo>) -> usize {
 pub struct OrigTileGenArgs {
     pub img: DynamicImage,
     pub c: CropDetails,
-    pub save_images: bool
+    pub save_images: bool,
+    pub quadrant_dir: String,
 }
 fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
 
@@ -193,13 +197,16 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
                 //(x+1)*c.depth - 1 + c.x_buf,
                 //(y+1)*c.depth - 1 + c.y_buf);
             if args.save_images {
-                fs::remove_dir("op");
-                fs::create_dir("op");
-                let op_dir = String::from("op");
-                let op_ext = String::from("png");
-                let op_name = i.to_string();
-                let op_file = [op_name, op_ext].join(".");
+                fs::remove_dir("io/lil_imgs");
+                fs::create_dir("io/lil_imgs");
+                let op_dir = [
+                        String::from("io/lil_imgs"),
+                        args.quadrant_dir.clone()
+                ].join("/");
+                let op_ext = String::from("jpeg");
+                let op_file = [i.to_string(), op_ext].join(".");
                 let op_path = [op_dir, op_file].join("/");
+                println!("op_path: {}", op_path);
                 temp_img.save(op_path).unwrap();
             }
             if !args.save_images {
@@ -254,6 +261,7 @@ fn get_avg_rgb(img: &DynamicImage, skip: u8) -> Color {
 pub fn open_image(img_name: String) -> DynamicImage {
     // Use the open function to load an image from a Path.
     // `open` returns a `DynamicImage` on success.
+    println!("opening img at {}", img_name);
     let img = image::open(img_name).unwrap();
 
     // The dimensions method returns the images width and height.
