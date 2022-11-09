@@ -42,7 +42,7 @@ pub fn make_mosaic(
     let (xt, yt) = (1920, 1080);
     let (xi, yi) = img.dimensions();
 
-    let lil_imgs: Vec<ImageInfo> = get_lil_imgs(lil_imgs_dir, 1 as u8);
+    let lil_imgs: Vec<ImageInfo> = get_lil_imgs(lil_imgs_dir.clone(), 1 as u8);
 
     println!("{} {}", xt, yt);
     //TODO maybe re add this later
@@ -58,7 +58,7 @@ pub fn make_mosaic(
         img,
         c: crop_details.clone(),
         save_images: false,
-        quadrant_dir,
+        quadrant_dir: quadrant_dir.clone(),
     });
 
     //TODO figure out how to reuse crop_details from above using lifetime params
@@ -72,13 +72,20 @@ pub fn make_mosaic(
         c: crop_details.clone(),
         new_tiles,
         lil_imgs: lil_imgs.clone(),
+        dest_path: [
+            lil_imgs_dir.clone(),
+            quadrant_dir.clone(),
+            String::from("0.jpeg")
+        ].join("/")
+        //final_img.save("io/output/a/0.jpeg").unwrap();
     });
 }
 
 struct WriteFinalImageArgs {
     c: CropDetails,
     new_tiles: std::vec::IntoIter<u32>,
-    lil_imgs: Vec<ImageInfo>
+    lil_imgs: Vec<ImageInfo>,
+    dest_path: String
 }
 fn write_final_img(mut args: WriteFinalImageArgs) {
     //TODO write this method
@@ -113,7 +120,8 @@ fn write_final_img(mut args: WriteFinalImageArgs) {
             i += 1;
         }
     }
-    final_img.save("io/output/a/0.jpeg").unwrap();
+    println!("dest_path: {}", args.dest_path.clone());
+    final_img.save(args.dest_path).unwrap();
 }
 
 struct NewTileGenArgs {

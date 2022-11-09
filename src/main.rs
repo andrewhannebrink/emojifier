@@ -3,7 +3,8 @@ use image::DynamicImage;
 use std::fs;
 
 fn main() {
-    render_from_quadrant_a_frame();
+    render_from_quadrant_b_frame();
+    //render_from_quadrant_a_frame();
 }
 
 fn render_from_quadrant_a_frame () {
@@ -74,8 +75,14 @@ fn compose_mosaic_from_paths(
         only_make_lil_imgs: bool,
         quadrant_dir: String) {
 
+    let mut parent_quadrant_dir = String::new();
+    if quadrant_dir == "a" {
+        parent_quadrant_dir = String::from("b");
+    } else {
+        parent_quadrant_dir = String::from("a");
+    }
 
-    let depth = 18;
+    let depth = 32;
     let (xt, yt) = (1920, 1080);
     let crop_details = mosaic::CropDetails {
         depth: depth,
@@ -96,7 +103,10 @@ fn compose_mosaic_from_paths(
         return;
     }
     else {
-        let lil_imgs_dir = String::from("io/lil_imgs/b");
+        let lil_imgs_dir = [
+            String::from("io/lil_imgs"),
+            parent_quadrant_dir.clone()
+        ].join("/");
         let save_imgs = false;
         mosaic::make_mosaic(img, lil_imgs_dir, crop_details, quadrant_dir);
     }
