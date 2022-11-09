@@ -26,8 +26,8 @@ struct ImageInfo {
 fn main() {
 
     //let only_make_lil_imgs = true;
-    //let img_name = String::from("test3.jpeg");
-    let img_name = String::from("target.jpeg");
+    //let img_name = String::from("test5.jpeg");
+    let img_name = String::from("test4.jpeg");
     let only_make_lil_imgs = false;
     let img = open_image(img_name);
 
@@ -53,7 +53,7 @@ fn main() {
     }
     else {
         let save_imgs = false;
-        make_mosaic(img, lil_imgs, crop_details, only_make_lil_imgs);
+        make_mosaic(img, lil_imgs, crop_details);
     }
 }
 
@@ -68,8 +68,7 @@ fn save_lil_img_dir(args: OrigTileGenArgs) {
 fn make_mosaic(
     img: DynamicImage,
     lil_imgs: Vec<ImageInfo>,
-    crop_details: CropDetails,
-    only_make_lil_imgs: bool) {
+    crop_details: CropDetails) {
 
     println!("beginning make_mosaic....");
     let (xt, yt) = (1920, 1080);
@@ -91,20 +90,18 @@ fn make_mosaic(
         save_images: false,
     });
 
-    if only_make_lil_imgs == false {
-        //TODO figure out how to reuse crop_details from above using lifetime params
-        let mut new_tiles = new_tiles_gen(NewTileGenArgs {
-            c: crop_details.clone(),
-            orig_tiles: orig_tiles_iter,
-            lil_imgs: lil_imgs.clone(),
-        });
-        //TODO figure out how to reuse crop_details from above using lifetime params
-        write_final_img(WriteFinalImageArgs {
-            c: crop_details.clone(),
-            new_tiles,
-            lil_imgs: lil_imgs.clone(),
-        });
-    }
+    //TODO figure out how to reuse crop_details from above using lifetime params
+    let mut new_tiles = new_tiles_gen(NewTileGenArgs {
+        c: crop_details.clone(),
+        orig_tiles: orig_tiles_iter,
+        lil_imgs: lil_imgs.clone(),
+    });
+    //TODO figure out how to reuse crop_details from above using lifetime params
+    write_final_img(WriteFinalImageArgs {
+        c: crop_details.clone(),
+        new_tiles,
+        lil_imgs: lil_imgs.clone(),
+    });
 }
 
 struct WriteFinalImageArgs {
