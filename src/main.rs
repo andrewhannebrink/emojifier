@@ -24,22 +24,30 @@ struct ImageInfo {
 }
 
 fn main() {
-    let img_name = String::from("test3.jpeg");
-    let img = open_image(img_name);
+    let only_make_lil_imgs = true;
+    let save_imgs = true;
+    // TODO implement this
+    //let lil_imgs_from_dir = false;
+    let lil_img_parent_name = String::from("test3.jpeg");
+    let target_img_name = String::from("target.jpeg");
+    let parent_img = open_image(lil_img_parent_name);
+    let target_img = open_image(target_img_name);
     let lil_imgs_dir = String::from("./op");
     let lil_imgs = get_lil_imgs(lil_imgs_dir, 1 as u8);
-    make_mosaic(img, lil_imgs, 120, true);
+    make_mosaic(parent_img, target_img, lil_imgs, 20, save_imgs, only_make_lil_imgs);
 }
 
 fn make_mosaic(
-    img: DynamicImage, 
+    parent_img: DynamicImage,
+    target_img: DynamicImage,
     lil_imgs: Vec<ImageInfo>,
     depth: u32,
-    save_images: bool) {
+    save_images: bool,
+    only_make_lil_imgs: bool) {
 
     println!("beginning make_mosaic....");
     let (xt, yt) = (1920, 1080);
-    let (xi, yi) = img.dimensions();
+    let (xi, yi) = target_img.dimensions();
     let crop_details = CropDetails {
         depth: depth,
         x_buf: (xt % (xt / depth)) / 2,
@@ -49,7 +57,8 @@ fn make_mosaic(
     };
 
     println!("{} {}", xt, yt);
-    let resized_img = img.resize(xt, yt, FilterType::Gaussian);
+    //TODO maybe re add this later
+    //let resized_img = img.resize(xt, yt, FilterType::Gaussian);
 
     println!("{} {} {} {}", 
              crop_details.x_buf, 
@@ -59,34 +68,37 @@ fn make_mosaic(
 
 
     let orig_tiles_iter = orig_tile_gen(OrigTileGenArgs {
-        img: resized_img,
+        img: parent_img,
         c: crop_details,
-        save_images
+        save_images,
     });
-    //TODO figure out how to reuse crop_details from above using lifetime params
-    let mut new_tiles = new_tiles_gen(NewTileGenArgs {
-        c: CropDetails {
-            depth: depth,
-            x_buf: (xt % (xt / depth)) / 2,
-            y_buf: (yt % (yt / depth)) / 2,
-            total_y_imgs: yt / depth,
-            total_x_imgs: xt / depth
-        },
-        orig_tiles: orig_tiles_iter,
-        lil_imgs: lil_imgs.clone(),
-    });
-    //TODO figure out how to reuse crop_details from above using lifetime params
-    write_final_img(WriteFinalImageArgs {
-        c: CropDetails {
-            depth: depth,
-            x_buf: (xt % (xt / depth)) / 2,
-            y_buf: (yt % (yt / depth)) / 2,
-            total_y_imgs: yt / depth,
-            total_x_imgs: xt / depth
-        },
-        new_tiles,
-        lil_imgs: lil_imgs.clone()
-    });
+
+    if only_make_lil_imgs == false {
+        //TODO figure out how to reuse crop_details from above using lifetime params
+        let mut new_tiles = new_tiles_gen(NewTileGenArgs {
+            c: CropDetails {
+                depth: depth,
+                x_buf: (xt % (xt / depth)) / 2,
+                y_buf: (yt % (yt / depth)) / 2,
+                total_y_imgs: yt / depth,
+                total_x_imgs: xt / depth
+            },
+            orig_tiles: orig_tiles_iter,
+            lil_imgs: lil_imgs.clone(),
+        });
+        //TODO figure out how to reuse crop_details from above using lifetime params
+        write_final_img(WriteFinalImageArgs {
+            c: CropDetails {
+                depth: depth,
+                x_buf: (xt % (xt / depth)) / 2,
+                y_buf: (yt % (yt / depth)) / 2,
+                total_y_imgs: yt / depth,
+                total_x_imgs: xt / depth
+            },
+            new_tiles,
+            lil_imgs: lil_imgs.clone(),
+        });
+    }
 }
 
 struct WriteFinalImageArgs {
@@ -105,7 +117,7 @@ fn write_final_img(mut args: WriteFinalImageArgs) {
 //
     let mut final_img = open_image(String::from("target.jpeg"));
     let (target_w, target_h) = final_img.dimensions();
-    println!("target_w: {}, target_w: {}", target_w, target_h);
+    //println!("target_w: {}, target_w: {}", target_w, target_h);
 
     println!("crop_details during final img: {}, {}, {}, {}, {}",
             args.c.depth,
@@ -118,7 +130,7 @@ fn write_final_img(mut args: WriteFinalImageArgs) {
     let mut i = 0;
     for y in 0..args.c.total_y_imgs {
         for x in 0..args.c.total_x_imgs {
-            println!("i: {}", i);
+            //println!("i: {}", i);
             let index_in_lil_imgs = args.new_tiles.next().unwrap();
             //println!("{:?}", index_in_lil_imgs);
             replace(&mut final_img, &args.lil_imgs[index_in_lil_imgs as usize].img, 
@@ -142,7 +154,7 @@ fn new_tiles_gen(args: NewTileGenArgs) -> std::vec::IntoIter<u32> {
     let mut new_tiles: Vec<u32> = Vec::new();
     for orig_tile in args.orig_tiles {
         let new_tile = get_closest_img(&orig_tile, &(args.lil_imgs));
-        println!("new_tile: {}", new_tile);
+        //println!("new_tile: {}", new_tile);
         new_tiles.push(new_tile as u32);
     }
     let mut new_tiles_iter = new_tiles.into_iter();
@@ -172,7 +184,7 @@ fn get_closest_img(orig_tile: &ImageInfo, lil_imgs: &Vec<ImageInfo>) -> usize {
             min_square_dis = dis;
             //println!("closest_img_index? {}, distance: {}", lil_img.0, dis);
             closest_img_index = lil_img.0;
-            println!("closest_img_index: {}", closest_img_index);
+            //println!("closest_img_index: {}", closest_img_index);
             if dis == 0 {
                 //println!("DISTANCE of 0... lil_img_colors: {:?}, orig_tile_colors: {:?}", 
                         //(lil_img.1.avg_color.0, lil_img.1.avg_color.1, lil_img.1.avg_color.2),
