@@ -89,7 +89,7 @@ fn write_final_img(mut args: WriteFinalImageArgs) {
 //  let final_img_view: &dyn GenericImageView<Pixel=Rgba<u8>> = &buffer;
 //  let final_img = final_img_view.view(0, 0, 1920, 1080);
 //
-    let mut final_img = open_image(String::from("target.jpeg"));
+    let mut final_img = open_image(String::from("io/input/a/0.jpeg"));
     let (target_w, target_h) = final_img.dimensions();
     //println!("target_w: {}, target_w: {}", target_w, target_h);
 
@@ -113,7 +113,7 @@ fn write_final_img(mut args: WriteFinalImageArgs) {
             i += 1;
         }
     }
-    final_img.save("op.png").unwrap();
+    final_img.save("io/output/a/0.jpeg").unwrap();
 }
 
 struct NewTileGenArgs {
@@ -197,8 +197,6 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
                 //(x+1)*c.depth - 1 + c.x_buf,
                 //(y+1)*c.depth - 1 + c.y_buf);
             if args.save_images {
-                fs::remove_dir("io/lil_imgs");
-                fs::create_dir("io/lil_imgs");
                 let op_dir = [
                         String::from("io/lil_imgs"),
                         args.quadrant_dir.clone()
@@ -206,7 +204,6 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
                 let op_ext = String::from("jpeg");
                 let op_file = [i.to_string(), op_ext].join(".");
                 let op_path = [op_dir, op_file].join("/");
-                println!("op_path: {}", op_path);
                 temp_img.save(op_path).unwrap();
             }
             if !args.save_images {
@@ -261,7 +258,6 @@ fn get_avg_rgb(img: &DynamicImage, skip: u8) -> Color {
 pub fn open_image(img_name: String) -> DynamicImage {
     // Use the open function to load an image from a Path.
     // `open` returns a `DynamicImage` on success.
-    println!("opening img at {}", img_name);
     let img = image::open(img_name).unwrap();
 
     // The dimensions method returns the images width and height.

@@ -1,5 +1,6 @@
 mod mosaic;
 use image::DynamicImage;
+use std::fs;
 
 fn main() {
     let target_img_name = String::from("input/a/0.jpeg");
@@ -10,6 +11,16 @@ fn main() {
 }
 
 fn populate_lil_imgs_dir(parent_img: DynamicImage) {
+
+    fs::remove_dir_all([
+        String::from("io/lil_imgs"), 
+        String::from("b")
+    ].join("/"));
+    fs::create_dir([
+        String::from("io/lil_imgs"), 
+        String::from("b")
+    ].join("/"));
+
     compose_mosaic_from_paths(
         parent_img, 
         true, 
@@ -35,7 +46,7 @@ fn compose_mosaic_from_paths(
         quadrant_dir: String) {
 
 
-    let depth = 16;
+    let depth = 32;
     let (xt, yt) = (1920, 1080);
     let crop_details = mosaic::CropDetails {
         depth: depth,
