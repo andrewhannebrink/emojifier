@@ -3,9 +3,24 @@ use image::DynamicImage;
 use std::fs;
 
 fn main() {
-    let i = 1;
-    let frame_number: &str = &(i.to_string());
-    transpose_one_frame(frame_number);
+    transpose_every_frame()
+}
+
+fn transpose_every_frame () {
+    let mut total_frames = 0;
+    let total_a_frames = fs::read_dir("io/input/a").unwrap().count();
+    let total_b_frames = fs::read_dir("io/input/b").unwrap().count();
+
+    if total_a_frames < total_b_frames {
+        total_frames = total_a_frames;
+    } else {
+        total_frames = total_b_frames;
+    }
+
+    for i in 0..total_frames {
+        let frame_number: &str = &(i.to_string());
+        transpose_one_frame(frame_number);
+    }
 }
 
 fn transpose_one_frame (frame_number: &str) {
@@ -104,7 +119,7 @@ fn compose_mosaic_from_paths(
         target_quadrant_dir: String,
         frame_number: &str) {
 
-    let depth = 16;
+    let depth = 32;
     let (xt, yt) = (1920, 1080);
     let crop_details = mosaic::CropDetails {
         depth: depth,
