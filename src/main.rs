@@ -4,7 +4,7 @@ use std::fs;
 
 fn main() {
     render_from_quadrant_b_frame();
-    //render_from_quadrant_a_frame();
+    render_from_quadrant_a_frame();
 }
 
 fn render_from_quadrant_a_frame () {
@@ -35,12 +35,19 @@ fn render_still_from_quadrant_frame(target_quadrant_dir: String) {
 
     populate_lil_imgs_dir(
         img_from_path(parent_img_name),
-        parent_quadrant_dir.clone());
-    render_and_save_mosaic(img_from_path(target_img_name));
+        parent_quadrant_dir.clone(),
+        target_quadrant_dir.clone());
+    render_and_save_mosaic(
+        img_from_path(target_img_name), 
+        parent_quadrant_dir.clone(),
+        target_quadrant_dir.clone());
 
 }
 
-fn populate_lil_imgs_dir(parent_img: DynamicImage, parent_quadrant_dir: String) {
+fn populate_lil_imgs_dir(
+    parent_img: DynamicImage,
+    parent_quadrant_dir: String,
+    target_quadrant_dir: String) {
 
     fs::remove_dir_all([
         String::from("io/lil_imgs"), 
@@ -54,14 +61,20 @@ fn populate_lil_imgs_dir(parent_img: DynamicImage, parent_quadrant_dir: String) 
     compose_mosaic_from_paths(
         parent_img, 
         true, 
-        parent_quadrant_dir.clone());
+        parent_quadrant_dir.clone(),
+        target_quadrant_dir.clone())
 }
 
-fn render_and_save_mosaic(target_img: DynamicImage) {
+fn render_and_save_mosaic(
+    target_img: DynamicImage,
+    parent_quadrant_dir: String,
+    target_quadrant_dir: String) {
+
     compose_mosaic_from_paths(
         target_img,
         false,
-        String::new());
+        target_quadrant_dir.clone(),
+        target_quadrant_dir.clone())
 }
 
 fn img_from_path(path: String) -> DynamicImage {
@@ -73,16 +86,10 @@ fn img_from_path(path: String) -> DynamicImage {
 fn compose_mosaic_from_paths(
         img: DynamicImage,
         only_make_lil_imgs: bool,
-        quadrant_dir: String) {
+        parent_quadrant_dir: String,
+        target_quadrant_dir: String) {
 
-    let mut parent_quadrant_dir = String::new();
-    if quadrant_dir == "a" {
-        parent_quadrant_dir = String::from("b");
-    } else {
-        parent_quadrant_dir = String::from("a");
-    }
-
-    let depth = 32;
+    let depth = 16;
     let (xt, yt) = (1920, 1080);
     let crop_details = mosaic::CropDetails {
         depth: depth,
@@ -98,7 +105,7 @@ fn compose_mosaic_from_paths(
             img, 
             c: crop_details,
             save_images: true,
-            quadrant_dir
+            quadrant_dir: target_quadrant_dir
         });
         return;
     }
@@ -108,6 +115,11 @@ fn compose_mosaic_from_paths(
             parent_quadrant_dir.clone()
         ].join("/");
         let save_imgs = false;
-        mosaic::make_mosaic(img, lil_imgs_dir, crop_details, quadrant_dir);
+        mosaic::make_mosaic(
+            img,
+            lil_imgs_dir,
+            crop_details,
+            parent_quadrant_dir,
+            target_quadrant_dir);
     }
 }

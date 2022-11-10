@@ -36,7 +36,8 @@ pub fn make_mosaic(
     img: DynamicImage,
     lil_imgs_dir: String,
     crop_details: CropDetails,
-    quadrant_dir: String) {
+    parent_quadrant_dir: String,
+    target_quadrant_dir: String) {
 
     println!("beginning make_mosaic....");
     let (xt, yt) = (1920, 1080);
@@ -58,7 +59,7 @@ pub fn make_mosaic(
         img,
         c: crop_details.clone(),
         save_images: false,
-        quadrant_dir: quadrant_dir.clone(),
+        quadrant_dir: target_quadrant_dir.clone(),
     });
 
     //TODO figure out how to reuse crop_details from above using lifetime params
@@ -73,8 +74,9 @@ pub fn make_mosaic(
         new_tiles,
         lil_imgs: lil_imgs.clone(),
         dest_path: [
-            lil_imgs_dir.clone(),
-            quadrant_dir.clone(),
+            //lil_imgs_dir.clone(),
+            String::from("io/output"),
+            target_quadrant_dir.clone(),
             String::from("0.jpeg")
         ].join("/")
         //final_img.save("io/output/a/0.jpeg").unwrap();
@@ -186,7 +188,7 @@ pub struct OrigTileGenArgs {
     pub img: DynamicImage,
     pub c: CropDetails,
     pub save_images: bool,
-    pub quadrant_dir: String,
+    pub quadrant_dir: String
 }
 fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
 
