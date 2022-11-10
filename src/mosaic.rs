@@ -38,7 +38,7 @@ pub fn make_mosaic(
     crop_details: CropDetails,
     parent_quadrant_dir: String,
     target_quadrant_dir: String,
-    frame_number: &str) {
+    frame_number: String) {
 
     println!("beginning make_mosaic....");
     let (xt, yt) = (1920, 1080);
@@ -70,7 +70,7 @@ pub fn make_mosaic(
         lil_imgs: lil_imgs.clone(),
     });
     //TODO figure out how to reuse crop_details from above using lifetime params
-    let op_file_name = [frame_number, ".jpeg"].concat();
+    let op_file_name = [frame_number.clone(), ".jpeg".to_string()].concat();
     write_final_img(WriteFinalImageArgs {
         c: crop_details.clone(),
         new_tiles,
@@ -79,7 +79,9 @@ pub fn make_mosaic(
             String::from("io/output"),
             target_quadrant_dir.clone(),
             op_file_name
-        ].join("/")
+        ].join("/"),
+        target_quadrant_dir: target_quadrant_dir.clone(),
+        frame_number
         //final_img.save("io/output/a/0.jpeg").unwrap();
     });
 }
@@ -88,7 +90,10 @@ struct WriteFinalImageArgs {
     c: CropDetails,
     new_tiles: std::vec::IntoIter<u32>,
     lil_imgs: Vec<ImageInfo>,
-    dest_path: String
+    dest_path: String,
+    target_quadrant_dir: String,
+    frame_number: String
+
 }
 fn write_final_img(mut args: WriteFinalImageArgs) {
     //TODO write this method
@@ -99,7 +104,16 @@ fn write_final_img(mut args: WriteFinalImageArgs) {
 //  let final_img_view: &dyn GenericImageView<Pixel=Rgba<u8>> = &buffer;
 //  let final_img = final_img_view.view(0, 0, 1920, 1080);
 //
-    let mut final_img = open_image(String::from("io/input/a/0.jpeg"));
+    //let mut final_img = open_image(String::from("io/input/a/.jpeg"));
+    let final_img_file_name = [args.frame_number, ".jpeg".to_string()].concat();
+    let final_img_dir = [
+        "io/input".to_string(),
+        args.target_quadrant_dir
+    ].join("/");
+    let mut final_img = open_image([
+        final_img_dir,
+        final_img_file_name
+    ].join("/"));
     let (target_w, target_h) = final_img.dimensions();
     //println!("target_w: {}, target_w: {}", target_w, target_h);
 
@@ -269,6 +283,7 @@ fn get_avg_rgb(img: &DynamicImage, skip: u8) -> Color {
 pub fn open_image(img_name: String) -> DynamicImage {
     // Use the open function to load an image from a Path.
     // `open` returns a `DynamicImage` on success.
+    println!("{}", img_name);
     let img = image::open(img_name).unwrap();
 
     // The dimensions method returns the images width and height.
@@ -280,4 +295,17 @@ pub fn open_image(img_name: String) -> DynamicImage {
     // Write the contents of this image to the Writer in PNG format.
     //img.save("test2.png").unwrap();
     img
+}
+
+pub fn prepend_zeroes(i: usize) -> String {
+    let frame_number_without_zeroes: &str = &i.to_string();
+    let mut zeroes_to_prepend = "000";
+    if i >= 10 {
+        zeroes_to_prepend = "00";
+    } else if i >= 100 {
+        zeroes_to_prepend = "0";
+    } else if i >= 1000 {
+        zeroes_to_prepend = "";
+    }
+    [zeroes_to_prepend, frame_number_without_zeroes].concat()
 }

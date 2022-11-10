@@ -17,25 +17,25 @@ fn transpose_every_frame () {
         total_frames = total_b_frames;
     }
 
-    for i in 0..total_frames {
-        let frame_number: &str = &(i.to_string());
-        transpose_one_frame(frame_number);
+    for i in 1..total_frames + 1 {
+        let frame_number_with_zeroes = mosaic::prepend_zeroes(i);
+        transpose_one_frame(frame_number_with_zeroes);
     }
 }
 
-fn transpose_one_frame (frame_number: &str) {
-    render_from_quadrant_b_frame(frame_number);
-    render_from_quadrant_a_frame(frame_number);
+fn transpose_one_frame (frame_number: String) {
+    render_from_quadrant_b_frame(frame_number.clone());
+    render_from_quadrant_a_frame(frame_number.clone());
 }
 
-fn render_from_quadrant_a_frame (frame_number: &str) {
+fn render_from_quadrant_a_frame (frame_number: String) {
     render_still_from_quadrant_frame("a", frame_number);
 }
-fn render_from_quadrant_b_frame (frame_number: &str) {
+fn render_from_quadrant_b_frame (frame_number: String) {
     render_still_from_quadrant_frame("b", frame_number);
 }
 
-fn render_still_from_quadrant_frame(target_quadrant_dir: &str, frame_number: &str) {
+fn render_still_from_quadrant_frame(target_quadrant_dir: &str, frame_number: String) {
     let mut parent_quadrant_dir = String::new();
     if target_quadrant_dir == "a" {
         parent_quadrant_dir = String::from("b");
@@ -43,7 +43,8 @@ fn render_still_from_quadrant_frame(target_quadrant_dir: &str, frame_number: &st
         parent_quadrant_dir = String::from("a");
     }
 
-    let ip_file_name = [frame_number, ".jpeg"].concat();
+    let ext: &str = ".jpeg";
+    let ip_file_name = [frame_number.clone(), ext.to_string()].concat();
         
     let target_img_name = [
         String::from("input"),
@@ -60,7 +61,7 @@ fn render_still_from_quadrant_frame(target_quadrant_dir: &str, frame_number: &st
         img_from_path(parent_img_name),
         parent_quadrant_dir.clone(),
         target_quadrant_dir.to_string(),
-        frame_number);
+        frame_number.clone());
     render_and_save_mosaic(
         img_from_path(target_img_name), 
         parent_quadrant_dir.clone(),
@@ -73,7 +74,7 @@ fn populate_lil_imgs_dir(
     parent_img: DynamicImage,
     parent_quadrant_dir: String,
     target_quadrant_dir: String,
-    frame_number: &str) {
+    frame_number: String) {
 
     fs::remove_dir_all([
         String::from("io/lil_imgs"), 
@@ -96,7 +97,7 @@ fn render_and_save_mosaic(
     target_img: DynamicImage,
     parent_quadrant_dir: String,
     target_quadrant_dir: String,
-    frame_number: &str) {
+    frame_number: String) {
 
     compose_mosaic_from_paths(
         target_img,
@@ -117,7 +118,7 @@ fn compose_mosaic_from_paths(
         only_make_lil_imgs: bool,
         parent_quadrant_dir: String,
         target_quadrant_dir: String,
-        frame_number: &str) {
+        frame_number: String) {
 
     let depth = 32;
     let (xt, yt) = (1920, 1080);
