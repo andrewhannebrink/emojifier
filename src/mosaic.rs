@@ -37,7 +37,8 @@ pub fn make_mosaic(
     lil_imgs_dir: String,
     crop_details: CropDetails,
     parent_quadrant_dir: String,
-    target_quadrant_dir: String) {
+    target_quadrant_dir: String,
+    frame_number: &str) {
 
     println!("beginning make_mosaic....");
     let (xt, yt) = (1920, 1080);
@@ -69,15 +70,15 @@ pub fn make_mosaic(
         lil_imgs: lil_imgs.clone(),
     });
     //TODO figure out how to reuse crop_details from above using lifetime params
+    let op_file_name = [frame_number, ".jpeg"].concat();
     write_final_img(WriteFinalImageArgs {
         c: crop_details.clone(),
         new_tiles,
         lil_imgs: lil_imgs.clone(),
         dest_path: [
-            //lil_imgs_dir.clone(),
             String::from("io/output"),
             target_quadrant_dir.clone(),
-            String::from("0.jpeg")
+            op_file_name
         ].join("/")
         //final_img.save("io/output/a/0.jpeg").unwrap();
     });
