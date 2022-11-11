@@ -163,3 +163,5 @@ fn compose_mosaic_from_paths(
             frame_number);
     }
 }
+
+//rm -rf io/input/b && mkdir io/input/b && ffmpeg -ss 510 -t 1 -i "io/input/vid/c.mp4" -r 30.0 "io/input/b/%4d.jpeg"

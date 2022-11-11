@@ -24,6 +24,10 @@ struct ImageInfo {
 }
 
 pub fn save_lil_img_dir(args: OrigTileGenArgs) {
+    fs::remove_dir_all("io/lil_imgs/a");
+    fs::remove_dir_all("io/lil_imgs/b");
+    fs::create_dir("io/lil_imgs/a");
+    fs::create_dir("io/lil_imgs/b");
     orig_tile_gen(OrigTileGenArgs {
         img: args.img,
         c: args.c,
