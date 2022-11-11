@@ -4,9 +4,9 @@ use image::DynamicImage;
 use std::fs;
 
 fn main() {
+    wipe_output_dirs();
+    transpose_every_frame();
     quadrants::frames_into_quadrants();
-    //wipe_output_dirs();
-    //transpose_every_frame();
 }
 
 fn wipe_output_dirs() {
