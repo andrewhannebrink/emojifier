@@ -130,7 +130,7 @@ fn compose_mosaic_from_paths(
         target_quadrant_dir: String,
         frame_number: String) {
 
-    let depth = 128;
+    let depth = 90;
     let (xt, yt) = (1920, 1080);
     let crop_details = mosaic::CropDetails {
         depth: depth,
