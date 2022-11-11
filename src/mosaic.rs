@@ -82,7 +82,6 @@ pub fn make_mosaic(
         ].join("/"),
         target_quadrant_dir: target_quadrant_dir.clone(),
         frame_number
-        //final_img.save("io/output/a/0.jpeg").unwrap();
     });
 }
 
@@ -219,8 +218,6 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
                 y*args.c.depth + args.c.y_buf,
                 args.c.depth, 
                 args.c.depth);
-                //(x+1)*c.depth - 1 + c.x_buf,
-                //(y+1)*c.depth - 1 + c.y_buf);
             if args.save_images {
                 let op_dir = [
                         String::from("io/lil_imgs"),
@@ -283,7 +280,7 @@ fn get_avg_rgb(img: &DynamicImage, skip: u8) -> Color {
 pub fn open_image(img_name: String) -> DynamicImage {
     // Use the open function to load an image from a Path.
     // `open` returns a `DynamicImage` on success.
-    println!("{}", img_name);
+    //println!("{}", img_name);
     let img = image::open(img_name).unwrap();
 
     // The dimensions method returns the images width and height.

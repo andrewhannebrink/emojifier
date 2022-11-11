@@ -3,7 +3,15 @@ use image::DynamicImage;
 use std::fs;
 
 fn main() {
+    wipe_output_dirs();
     transpose_every_frame()
+}
+
+fn wipe_output_dirs() {
+    fs::remove_dir_all("io/output/a");
+    fs::remove_dir_all("io/output/b");
+    fs::create_dir("io/output/a");
+    fs::create_dir("io/output/b");
 }
 
 fn transpose_every_frame () {
