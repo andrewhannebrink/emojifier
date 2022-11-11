@@ -4,9 +4,12 @@ use image::DynamicImage;
 use std::fs;
 
 fn main() {
+    let now = Instant::now();
     wipe_output_dirs();
     transpose_every_frame();
     quadrants::frames_into_quadrants();
+    let elapsed_time = now.elapsed();
+    println!("main() took {} seconds.", elapsed_time.as_secs());
 }
 
 fn wipe_output_dirs() {
@@ -130,7 +133,7 @@ fn compose_mosaic_from_paths(
         target_quadrant_dir: String,
         frame_number: String) {
 
-    let depth = 90;
+    let depth = 60;
     let (xt, yt) = (1920, 1080);
     let crop_details = mosaic::CropDetails {
         depth: depth,
