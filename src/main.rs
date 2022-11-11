@@ -1,10 +1,12 @@
 mod mosaic;
+mod quadrants;
 use image::DynamicImage;
 use std::fs;
 
 fn main() {
-    wipe_output_dirs();
-    transpose_every_frame()
+    quadrants::frames_into_quadrants();
+    //wipe_output_dirs();
+    //transpose_every_frame();
 }
 
 fn wipe_output_dirs() {
@@ -165,3 +167,4 @@ fn compose_mosaic_from_paths(
 }
 
 //rm -rf io/input/b && mkdir io/input/b && ffmpeg -ss 510 -t 1 -i "io/input/vid/c.mp4" -r 30.0 "io/input/b/%4d.jpeg"
+//ffmpeg -r 30 -i io/output/a/%04d.jpeg -vb 20000k -c:v libx264 -pix_fmt yuv420p io/output/vid/a.mp4
