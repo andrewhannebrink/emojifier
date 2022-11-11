@@ -2,11 +2,12 @@ use image::DynamicImage;
 use image::imageops::FilterType;
 use image::imageops::resize;
 use image::imageops::replace;
+use std::fs;
 
 pub fn frames_into_quadrants() {
-    let total_frames = 4;
+    let total_frames = fs::read_dir("io/output/a").unwrap().count();
     for i in 1..total_frames + 1 { 
-        compose_one_quadrants_frame(i);
+        compose_one_quadrants_frame(i as i32);
     }
 }
 
