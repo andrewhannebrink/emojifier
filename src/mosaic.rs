@@ -13,11 +13,11 @@ pub struct CropDetails {
     pub y_buf: u32
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct Color(u8, u8, u8);
 
 // TODO perhaps use lifetime params instead of clone()
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct ImageInfo {
     img: DynamicImage,
     avg_color: Color
@@ -40,38 +40,64 @@ pub fn save_lil_img_dir(args: OrigTileGenArgs) {
     println!("save_lil_img_dir() took {} seconds.", elapsed_time.subsec_millis());
 }
 
+fn parent_img_path (parent_quadrant_dir: String, frame_number: String) -> String {
+    [
+        ["io/input".to_string(), parent_quadrant_dir, frame_number].join("/"),
+        "jpeg".to_string()
+    ].join(".")
+}
+
+enum Quadrant {
+    A, B, C, D
+}
+
+#[derive(Clone)]
+pub struct MakeMosaicReturn {
+    prev_parent_quadrant: String,
+    prev_target_quadrant: String,
+    prev_parent_tiles: Vec<ImageInfo>,
+    prev_target_tiles: Vec<ImageInfo>
+}
+
 pub fn make_mosaic(
     img: DynamicImage,
     lil_imgs_dir: String,
     crop_details: CropDetails,
     parent_quadrant_dir: String,
     target_quadrant_dir: String,
-    frame_number: String) {
+    frame_number: String,
+    previous_return: Option<MakeMosaicReturn>) -> MakeMosaicReturn {
 
     let now = Instant::now();
 
-    let lil_imgs: Vec<ImageInfo> = get_lil_imgs(lil_imgs_dir.clone(), 1 as u8);
+    //let lil_imgs: Vec<ImageInfo> = get_lil_imgs_from_dir(lil_imgs_dir.clone(), 1 as u8);
 
-    //TODO maybe re add this later
-    //let resized_img = img.resize(xt, yt, FilterType::Gaussian);
-
-    //println!("{} {} {} {}", 
-    //         crop_details.x_buf, 
-    //         crop_details.y_buf, 
-    //         crop_details.total_x_imgs,
-    //         crop_details.total_y_imgs);
-
-    let orig_tiles_iter = orig_tile_gen(OrigTileGenArgs {
-        img,
-        c: crop_details.clone(),
-        save_images: false,
-        quadrant_dir: target_quadrant_dir.clone(),
-    });
+    let (lil_imgs, orig_tiles_iter) = match previous_return.clone() {
+        None => {
+            (
+                get_lil_imgs_from_img(
+                    parent_img_path(parent_quadrant_dir.clone(), frame_number.clone()),
+                    crop_details.clone()),
+                orig_tile_gen(OrigTileGenArgs {
+                    img,
+                    c: crop_details.clone(),
+                    save_images: false,
+                    quadrant_dir: target_quadrant_dir.clone()
+                })
+            )
+        },
+        Some(make_mosaic_return) => {
+            (
+                make_mosaic_return.prev_target_tiles,
+                make_mosaic_return.prev_parent_tiles.into_iter()
+            )
+        } 
+    };
 
     //TODO figure out how to reuse crop_details from above using lifetime params
     let mut new_tiles = new_tiles_gen(NewTileGenArgs {
         c: crop_details.clone(),
-        orig_tiles: orig_tiles_iter,
+        orig_tiles: orig_tiles_iter.clone(),
         lil_imgs: lil_imgs.clone(),
     });
     //TODO figure out how to reuse crop_details from above using lifetime params
@@ -91,6 +117,13 @@ pub fn make_mosaic(
 
     let elapsed_time = now.elapsed();
     println!("make_mosaic() took {} seconds.", elapsed_time.subsec_millis());
+
+    MakeMosaicReturn {
+        prev_parent_quadrant: parent_quadrant_dir,
+        prev_target_quadrant: target_quadrant_dir,
+        prev_parent_tiles: lil_imgs.clone(),
+        prev_target_tiles: orig_tiles_iter.collect() //TODO fix this
+    }
 }
 
 struct WriteFinalImageArgs {
@@ -116,7 +149,7 @@ fn write_final_img(mut args: WriteFinalImageArgs) {
     ].join("/"));
     let (target_w, target_h) = final_img.dimensions();
 
-    dbg!("{:?}", args.c.clone());
+    //dbg!("{:?}", args.c.clone());
 
     let mut i = 0;
     for y in 0..args.c.total_y_imgs {
@@ -129,8 +162,9 @@ fn write_final_img(mut args: WriteFinalImageArgs) {
         }
     }
     //println!("dest_path: {}", args.dest_path.clone());
-    final_img.save(args.dest_path).unwrap();
+    final_img.save(args.dest_path.clone()).unwrap();
 
+    println!("final image written to {}", args.dest_path);
     let elapsed_time = now.elapsed();
     println!("write_final_img() took {} seconds.", elapsed_time.subsec_millis());
 }
@@ -141,7 +175,6 @@ struct NewTileGenArgs {
     lil_imgs: Vec<ImageInfo>
 }
 
-//TODO <String should be number>
 fn new_tiles_gen(args: NewTileGenArgs) -> std::vec::IntoIter<u32> {
     let now = Instant::now();
     let mut new_tiles: Vec<u32> = Vec::new();
@@ -189,6 +222,11 @@ fn get_closest_img(orig_tile: &ImageInfo, lil_imgs: &Vec<ImageInfo>) -> usize {
     closest_img_index
 }
 
+
+enum SaveImagesInfo {
+    //TODO
+}
+
 pub struct OrigTileGenArgs {
     pub img: DynamicImage,
     pub c: CropDetails,
@@ -234,7 +272,25 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
     orig_tiles.into_iter()
 }
 
-fn get_lil_imgs(lil_imgs_dir: String, skip: u8) -> Vec<ImageInfo> {
+fn get_lil_imgs_from_img(parent_img_path: String, c: CropDetails) -> Vec<ImageInfo> {
+    let now = Instant::now();
+
+    let parent_img = open_image(parent_img_path);
+    
+    //TODO rename orig_tile_gen to just tile_gen?
+    let lil_imgs = orig_tile_gen(OrigTileGenArgs {
+        img: parent_img,
+        c,
+        save_images: false,
+        quadrant_dir: "".to_string()});
+    //TODO the above save_images + quadrant_dir should be an enum
+    let elapsed_time = now.elapsed();
+    println!("get_lil_imgs_from_img() took {} seconds.", elapsed_time.subsec_millis());
+
+    lil_imgs.collect()
+}
+
+fn get_lil_imgs_from_dir(lil_imgs_dir: String, skip: u8) -> Vec<ImageInfo> {
     let now = Instant::now();
 
     let mut lil_imgs: Vec<ImageInfo> = Vec::new();
@@ -277,7 +333,6 @@ fn get_avg_rgb(img: &DynamicImage, skip: u8) -> Color {
 pub fn open_image(img_name: String) -> DynamicImage {
     // Use the open function to load an image from a Path.
     // `open` returns a `DynamicImage` on success.
-    //println!("{}", img_name);
     let img = image::open(img_name).unwrap();
     img
 }

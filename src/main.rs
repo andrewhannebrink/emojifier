@@ -42,18 +42,23 @@ fn transpose_every_frame () {
 }
 
 fn transpose_one_frame (frame_number: String) {
-    render_from_quadrant_b_frame(frame_number.clone());
-    render_from_quadrant_a_frame(frame_number.clone());
+    let make_mosaic_return = render_from_quadrant_b_frame(frame_number.clone());
+    render_from_quadrant_a_frame(frame_number.clone(), Some(make_mosaic_return));
 }
 
-fn render_from_quadrant_a_frame (frame_number: String) {
-    render_still_from_quadrant_frame("a", frame_number);
+fn render_from_quadrant_a_frame (
+        frame_number: String,
+        prev_return: Option<mosaic::MakeMosaicReturn>) {
+    render_still_mosaic_from_quadrant_frame("a", frame_number, prev_return);
 }
-fn render_from_quadrant_b_frame (frame_number: String) {
-    render_still_from_quadrant_frame("b", frame_number);
+fn render_from_quadrant_b_frame (frame_number: String) -> mosaic::MakeMosaicReturn {
+    render_still_mosaic_from_quadrant_frame("b", frame_number, Option::None)
 }
 
-fn render_still_from_quadrant_frame(target_quadrant_dir: &str, frame_number: String) {
+fn render_still_mosaic_from_quadrant_frame(
+        target_quadrant_dir: &str,
+        frame_number: String,
+        make_mosaic_return: Option<mosaic::MakeMosaicReturn>) -> mosaic::MakeMosaicReturn {
     let mut parent_quadrant_dir = String::new();
     if target_quadrant_dir == "a" {
         parent_quadrant_dir = String::from("b");
@@ -75,55 +80,63 @@ fn render_still_from_quadrant_frame(target_quadrant_dir: &str, frame_number: Str
         ip_file_name.clone()
     ].join("/");
 
-    populate_lil_imgs_dir(
-        img_from_path(parent_img_name),
-        parent_quadrant_dir.clone(),
-        target_quadrant_dir.to_string(),
-        frame_number.clone());
-    render_and_save_mosaic(
+//  populate_lil_imgs_dir(
+//      img_from_path(parent_img_name),
+//      parent_quadrant_dir.clone(),
+//      target_quadrant_dir.to_string(),
+//      frame_number.clone());
+//  render_and_save_mosaic(
+//      img_from_path(target_img_name), 
+//      parent_quadrant_dir.clone(),
+//      target_quadrant_dir.to_string(),
+//      frame_number);
+    compose_mosaic_from_paths(
         img_from_path(target_img_name), 
-        parent_quadrant_dir.clone(),
+        false, 
+        parent_quadrant_dir.to_string(),
         target_quadrant_dir.to_string(),
-        frame_number);
+        frame_number,
+        make_mosaic_return)
 
 }
 
-fn populate_lil_imgs_dir(
-    parent_img: DynamicImage,
-    parent_quadrant_dir: String,
-    target_quadrant_dir: String,
-    frame_number: String) {
 
-    fs::remove_dir_all([
-        String::from("io/lil_imgs"), 
-        parent_quadrant_dir.clone()
-    ].join("/"));
-    fs::create_dir([
-        String::from("io/lil_imgs"), 
-        parent_quadrant_dir.clone()
-    ].join("/"));
+//  fn populate_lil_imgs_dir(
+//      parent_img: DynamicImage,
+//      parent_quadrant_dir: String,
+//      target_quadrant_dir: String,
+//      frame_number: String) {
 
-    compose_mosaic_from_paths(
-        parent_img, 
-        true, 
-        parent_quadrant_dir.clone(),
-        target_quadrant_dir.clone(),
-        frame_number)
-}
+ //     fs::remove_dir_all([
+ //         String::from("io/lil_imgs"), 
+ //         parent_quadrant_dir.clone()
+ //     ].join("/"));
+ //     fs::create_dir([
+ //         String::from("io/lil_imgs"), 
+ //         parent_quadrant_dir.clone()
+ //     ].join("/"));
 
-fn render_and_save_mosaic(
-    target_img: DynamicImage,
-    parent_quadrant_dir: String,
-    target_quadrant_dir: String,
-    frame_number: String) {
+//      compose_mosaic_from_paths(
+//          parent_img, 
+//          true, 
+//          parent_quadrant_dir.clone(),
+//          target_quadrant_dir.clone(),
+//          frame_number)
+//  }
 
-    compose_mosaic_from_paths(
-        target_img,
-        false,
-        target_quadrant_dir.clone(),
-        target_quadrant_dir.clone(),
-        frame_number)
-}
+//  fn render_and_save_mosaic(
+//      target_img: DynamicImage,
+//      parent_quadrant_dir: String,
+//      target_quadrant_dir: String,
+//      frame_number: String) {
+
+ //     compose_mosaic_from_paths(
+ //         target_img,
+ //         false,
+ //         target_quadrant_dir.clone(),
+ //         target_quadrant_dir.clone(),
+ //         frame_number)
+ // }
 
 fn img_from_path(path: String) -> DynamicImage {
     let io_dir_name = String::from("io");
@@ -136,7 +149,9 @@ fn compose_mosaic_from_paths(
         only_make_lil_imgs: bool,
         parent_quadrant_dir: String,
         target_quadrant_dir: String,
-        frame_number: String) {
+        frame_number: String,
+        previous_return: Option<mosaic::MakeMosaicReturn>) 
+    -> mosaic::MakeMosaicReturn {
 
     let depth = 60;
     let (xt, yt) = (1920, 1080);
@@ -148,30 +163,34 @@ fn compose_mosaic_from_paths(
         total_x_imgs: xt / depth
     };
 
-    if only_make_lil_imgs == true {
+//    if only_make_lil_imgs == true {
         
-        mosaic::save_lil_img_dir(mosaic::OrigTileGenArgs {
-            img, 
-            c: crop_details,
-            save_images: true,
-            quadrant_dir: target_quadrant_dir
-        });
-        return;
-    }
-    else {
-        let lil_imgs_dir = [
-            String::from("io/lil_imgs"),
-            parent_quadrant_dir.clone()
-        ].join("/");
-        let save_imgs = false;
-        mosaic::make_mosaic(
-            img,
-            lil_imgs_dir,
-            crop_details,
-            parent_quadrant_dir,
-            target_quadrant_dir,
-            frame_number);
-    }
+//      mosaic::save_lil_img_dir(mosaic::OrigTileGenArgs {
+//          img, 
+//          c: crop_details,
+//          save_images: true,
+//          quadrant_dir: target_quadrant_dir
+//      });
+//        return;
+//    }
+//    else {
+//    let save_imgs = false;
+//
+//    TODO lil_imgs_dir should only be passed conditionally if we want to open imgs from a dir
+//  let lil_imgs_dir = [
+//      String::from("io/lil_imgs"),
+//      parent_quadrant_dir.clone()
+//   ].join("/");
+    let lil_imgs_dir = "DONT USE FOR NOW - TODO".to_string();
+    mosaic::make_mosaic(
+        img,
+        lil_imgs_dir, 
+        crop_details,
+        parent_quadrant_dir,
+        target_quadrant_dir,
+        frame_number,
+        previous_return)
+//    }
 }
 
 //rm -rf io/input/b && mkdir io/input/b && ffmpeg -ss 510 -t 1 -i "io/input/vid/c.mp4" -r 30.0 "io/input/b/%4d.jpeg"
