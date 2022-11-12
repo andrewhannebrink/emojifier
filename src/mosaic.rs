@@ -37,7 +37,7 @@ pub fn save_lil_img_dir(args: OrigTileGenArgs) {
         quadrant_dir: args.quadrant_dir,
     });
     let elapsed_time = now.elapsed();
-    println!("save_lil_img_dir() took {} seconds.", elapsed_time.as_secs());
+    println!("save_lil_img_dir() took {} seconds.", elapsed_time.subsec_nanos());
 }
 
 pub fn make_mosaic(
@@ -95,7 +95,7 @@ pub fn make_mosaic(
     });
 
     let elapsed_time = now.elapsed();
-    println!("make_mosaic() took {} seconds.", elapsed_time.as_secs());
+    println!("make_mosaic() took {} seconds.", elapsed_time.subsec_nanos());
 }
 
 struct WriteFinalImageArgs {
@@ -172,7 +172,7 @@ fn new_tiles_gen(args: NewTileGenArgs) -> std::vec::IntoIter<u32> {
     let mut new_tiles_iter = new_tiles.into_iter();
 
     let elapsed_time = now.elapsed();
-    println!("new_tiles_gen() took {} seconds.", elapsed_time.as_secs());
+    println!("new_tiles_gen() took {} seconds.", elapsed_time.subsec_nanos());
 
     new_tiles_iter
 }
@@ -257,7 +257,7 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
         }
     }
     let elapsed_time = now.elapsed();
-    println!("orig_tile_gen() took {} seconds.", elapsed_time.as_secs());
+    println!("orig_tile_gen() took {} seconds.", elapsed_time.subsec_nanos());
 
     orig_tiles.into_iter()
 }
