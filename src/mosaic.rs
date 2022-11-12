@@ -51,6 +51,7 @@ enum Quadrant {
     A, B, C, D
 }
 
+#[derive(Clone)]
 pub struct MakeMosaicReturn {
     prev_parent_quadrant: String,
     prev_target_quadrant: String,
@@ -71,24 +72,27 @@ pub fn make_mosaic(
 
     //let lil_imgs: Vec<ImageInfo> = get_lil_imgs_from_dir(lil_imgs_dir.clone(), 1 as u8);
 
-    let lil_imgs = match previous_return {
+    let (lil_imgs, orig_tiles_iter) = match previous_return.clone() {
         None => {
-            get_lil_imgs_from_img(
-                parent_img_path(parent_quadrant_dir.clone(), frame_number.clone()),
-                crop_details.clone())
+            (
+                get_lil_imgs_from_img(
+                    parent_img_path(parent_quadrant_dir.clone(), frame_number.clone()),
+                    crop_details.clone()),
+                orig_tile_gen(OrigTileGenArgs {
+                    img,
+                    c: crop_details.clone(),
+                    save_images: false,
+                    quadrant_dir: target_quadrant_dir.clone()
+                })
+            )
         },
         Some(make_mosaic_return) => {
-            make_mosaic_return.prev_target_tiles
+            (
+                make_mosaic_return.prev_target_tiles,
+                make_mosaic_return.prev_parent_tiles.into_iter()
+            )
         } 
     };
-
-    //dbg!("{:?}", lil_imgs.clone());
-    let orig_tiles_iter = orig_tile_gen(OrigTileGenArgs {
-        img,
-        c: crop_details.clone(),
-        save_images: false,
-        quadrant_dir: target_quadrant_dir.clone(),
-    });
 
     //TODO figure out how to reuse crop_details from above using lifetime params
     let mut new_tiles = new_tiles_gen(NewTileGenArgs {
