@@ -37,7 +37,7 @@ pub fn save_lil_img_dir(args: OrigTileGenArgs) {
         quadrant_dir: args.quadrant_dir,
     });
     let elapsed_time = now.elapsed();
-    println!("save_lil_img_dir() took {} seconds.", elapsed_time.subsec_nanos());
+    println!("save_lil_img_dir() took {} seconds.", elapsed_time.subsec_millis());
 }
 
 pub fn make_mosaic(
@@ -50,7 +50,6 @@ pub fn make_mosaic(
 
     let now = Instant::now();
 
-    println!("beginning make_mosaic....");
     let (xt, yt) = (1920, 1080);
     let (xi, yi) = img.dimensions();
 
@@ -95,7 +94,7 @@ pub fn make_mosaic(
     });
 
     let elapsed_time = now.elapsed();
-    println!("make_mosaic() took {} seconds.", elapsed_time.subsec_nanos());
+    println!("make_mosaic() took {} seconds.", elapsed_time.subsec_millis());
 }
 
 struct WriteFinalImageArgs {
@@ -127,7 +126,6 @@ fn write_final_img(mut args: WriteFinalImageArgs) {
         final_img_file_name
     ].join("/"));
     let (target_w, target_h) = final_img.dimensions();
-    //println!("target_w: {}, target_w: {}", target_w, target_h);
 
     println!("crop_details during final img: depth = {}, xt = {}, yt = {}, x_buf = {}, y_buf = {}",
             args.c.depth,
@@ -135,14 +133,10 @@ fn write_final_img(mut args: WriteFinalImageArgs) {
             args.c.total_x_imgs,
             args.c.y_buf,
             args.c.x_buf);
-    //println!("total imgs in mosaic should be: {}", args.c.total_y_imgs * args.c.total_x_imgs);
-    //println!("total imgs in new_tiles: {}", args.new_tiles.len());
     let mut i = 0;
     for y in 0..args.c.total_y_imgs {
         for x in 0..args.c.total_x_imgs {
-            //println!("i: {}", i);
             let index_in_lil_imgs = args.new_tiles.next().unwrap();
-            //println!("{:?}", index_in_lil_imgs);
             replace(&mut final_img, &args.lil_imgs[index_in_lil_imgs as usize].img, 
                     (x*args.c.depth + args.c.x_buf) as i64, 
                     (y*args.c.depth + args.c.y_buf) as i64);
@@ -161,24 +155,21 @@ struct NewTileGenArgs {
 
 //TODO <String should be number>
 fn new_tiles_gen(args: NewTileGenArgs) -> std::vec::IntoIter<u32> {
-    println!("beginning new til gen...");
     let now = Instant::now();
     let mut new_tiles: Vec<u32> = Vec::new();
     for orig_tile in args.orig_tiles {
         let new_tile = get_closest_img(&orig_tile, &(args.lil_imgs));
-        //println!("new_tile: {}", new_tile);
         new_tiles.push(new_tile as u32);
     }
     let mut new_tiles_iter = new_tiles.into_iter();
 
     let elapsed_time = now.elapsed();
-    println!("new_tiles_gen() took {} seconds.", elapsed_time.subsec_nanos());
+    println!("new_tiles_gen() took {} seconds.", elapsed_time.subsec_millis());
 
     new_tiles_iter
 }
 
 fn get_closest_img(orig_tile: &ImageInfo, lil_imgs: &Vec<ImageInfo>) -> usize {
-    //println!("{:?}", orig_tile.img);
     let mut closest_img_index = 0;
 
     let mut min_square_dis = 256 * 256 * 256; // TODO in V1 this was 3*266*266 which seems wrong
@@ -198,21 +189,10 @@ fn get_closest_img(orig_tile: &ImageInfo, lil_imgs: &Vec<ImageInfo>) -> usize {
             );
         if dis <= min_square_dis {
             min_square_dis = dis;
-            //println!("closest_img_index? {}, distance: {}", lil_img.0, dis);
             closest_img_index = lil_img.0;
-            //println!("closest_img_index: {}", closest_img_index);
-            if dis == 0 {
-                //println!("DISTANCE of 0... lil_img_colors: {:?}, orig_tile_colors: {:?}", 
-                        //(lil_img.1.avg_color.0, lil_img.1.avg_color.1, lil_img.1.avg_color.2),
-                        //(orig_tile.avg_color.0, orig_tile.avg_color.1, orig_tile.avg_color.2));
-            }
-
         }
     }
     let closest_img = &lil_imgs[closest_img_index];
-    //println!("closest_img.avg_color: {:?}, distance {}", 
-    //            (closest_img.avg_color.0, closest_img.avg_color.1, closest_img.avg_color.2),
-    //            min_square_dis);
     closest_img_index
 }
 
@@ -229,7 +209,6 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
     let mut orig_tiles: Vec<ImageInfo> = Vec::new();
 
     let mut i = 0;
-    println!("{:?}", args.img.dimensions());
     for y in 0..args.c.total_y_imgs {
         for x in 0..args.c.total_x_imgs {
             let temp_img = args.img.crop_imm(
@@ -257,7 +236,7 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
         }
     }
     let elapsed_time = now.elapsed();
-    println!("orig_tile_gen() took {} seconds.", elapsed_time.subsec_nanos());
+    println!("orig_tile_gen() took {} seconds.", elapsed_time.subsec_millis());
 
     orig_tiles.into_iter()
 }
@@ -286,11 +265,9 @@ fn get_avg_rgb(img: &DynamicImage, skip: u8) -> Color {
     let mut blue_sum: u32 = 0;
 
     for pixel in pixels {
-        //println!("{:?}", pixel.2.0);
         red_sum = red_sum + pixel.2.0[0] as u32;
         green_sum = green_sum + pixel.2.0[1] as u32;
         blue_sum = blue_sum + pixel.2.0[2] as u32;  
-        //println!("{:?}", pixel);
         i = i + 1;
     }
     let red_avg = (red_sum / i) as u8;
@@ -304,15 +281,6 @@ pub fn open_image(img_name: String) -> DynamicImage {
     // `open` returns a `DynamicImage` on success.
     //println!("{}", img_name);
     let img = image::open(img_name).unwrap();
-
-    // The dimensions method returns the images width and height.
-    //println!("dimensions {:?}", img.dimensions());
-
-    // The color method returns the image's `ColorType`.
-    //println!("{:?}", img.color());
-
-    // Write the contents of this image to the Writer in PNG format.
-    //img.save("test2.png").unwrap();
     img
 }
 

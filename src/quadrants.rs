@@ -49,7 +49,7 @@ fn compose_one_quadrants_frame(frame_int: i32) {
     view_port_img.save(file_path(frame_str, "io/output/quadrants")).unwrap();
 
     let elapsed_time = now.elapsed();
-    println!("compose_one_quadrants_frame() took {} seconds.", elapsed_time.subsec_nanos());
+    println!("compose_one_quadrants_frame() took {} seconds.", elapsed_time.subsec_millis());
 }
 
 fn file_name(frame_str: String) -> String {

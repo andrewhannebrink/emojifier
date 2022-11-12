@@ -10,7 +10,7 @@ fn main() {
     transpose_every_frame();
     quadrants::frames_into_quadrants();
     let elapsed_time = now.elapsed();
-    println!("main() took {} seconds.", elapsed_time.subsec_nanos());
+    println!("main() took {} seconds.", elapsed_time.subsec_millis());
 }
 
 fn wipe_output_dirs() {
@@ -38,7 +38,7 @@ fn transpose_every_frame () {
     }
 
     let elapsed_time = now.elapsed();
-    println!("transpose_every_frame() took {} seconds.", elapsed_time.subsec_nanos());
+    println!("transpose_every_frame() took {} seconds.", elapsed_time.subsec_millis());
 }
 
 fn transpose_one_frame (frame_number: String) {
