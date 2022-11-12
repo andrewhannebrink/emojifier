@@ -175,7 +175,6 @@ struct NewTileGenArgs {
     lil_imgs: Vec<ImageInfo>
 }
 
-//TODO <String should be number>
 fn new_tiles_gen(args: NewTileGenArgs) -> std::vec::IntoIter<u32> {
     let now = Instant::now();
     let mut new_tiles: Vec<u32> = Vec::new();
@@ -286,7 +285,7 @@ fn get_lil_imgs_from_img(parent_img_path: String, c: CropDetails) -> Vec<ImageIn
         quadrant_dir: "".to_string()});
     //TODO the above save_images + quadrant_dir should be an enum
     let elapsed_time = now.elapsed();
-    println!("get_lil_imgs_from_path() took {} seconds.", elapsed_time.subsec_millis());
+    println!("get_lil_imgs_from_img() took {} seconds.", elapsed_time.subsec_millis());
 
     lil_imgs.collect()
 }
