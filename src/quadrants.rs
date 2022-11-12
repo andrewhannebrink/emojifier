@@ -3,6 +3,8 @@ use image::imageops::FilterType;
 use image::imageops::resize;
 use image::imageops::replace;
 use std::fs;
+use crate::mosaic;
+use std::time::Instant;
 
 pub fn frames_into_quadrants() {
     fs::remove_dir_all("io/output/quadrants");
@@ -14,7 +16,9 @@ pub fn frames_into_quadrants() {
 }
 
 fn compose_one_quadrants_frame(frame_int: i32) {
-    let frame_str = prepend_zeroes(frame_int as usize);
+    let now = Instant::now();
+
+    let frame_str = mosaic::prepend_zeroes(frame_int as usize);
     println!("{}", frame_str);
     let mut view_port_img = 
         image::open(file_path(frame_str.clone(), "io/input/a")).unwrap();
@@ -43,6 +47,9 @@ fn compose_one_quadrants_frame(frame_int: i32) {
     replace(&mut view_port_img, &quadrant_c_img_resized, 0, 1080/2);
     replace(&mut view_port_img, &quadrant_d_img_resized, 1920/2, 1080/2);
     view_port_img.save(file_path(frame_str, "io/output/quadrants")).unwrap();
+
+    let elapsed_time = now.elapsed();
+    println!("compose_one_quadrants_frame() took {} seconds.", elapsed_time.as_secs());
 }
 
 fn file_name(frame_str: String) -> String {

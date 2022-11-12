@@ -1,8 +1,8 @@
 use image::{GenericImage, GenericImageView, Rgb, Rgba, RgbImage, RgbaImage, GrayImage};
 use image::DynamicImage;
-use image::imageops::FilterType;
 use image::imageops::replace;
 use std::fs;
+use std::time::Instant;
 
 #[derive(Clone)]
 pub struct CropDetails {
@@ -24,6 +24,8 @@ struct ImageInfo {
 }
 
 pub fn save_lil_img_dir(args: OrigTileGenArgs) {
+    let now = Instant::now();
+
     fs::remove_dir_all("io/lil_imgs/a");
     fs::remove_dir_all("io/lil_imgs/b");
     fs::create_dir("io/lil_imgs/a");
@@ -34,6 +36,8 @@ pub fn save_lil_img_dir(args: OrigTileGenArgs) {
         save_images: args.save_images,
         quadrant_dir: args.quadrant_dir,
     });
+    let elapsed_time = now.elapsed();
+    println!("save_lil_img_dir() took {} seconds.", elapsed_time.as_secs());
 }
 
 pub fn make_mosaic(
@@ -43,6 +47,8 @@ pub fn make_mosaic(
     parent_quadrant_dir: String,
     target_quadrant_dir: String,
     frame_number: String) {
+
+    let now = Instant::now();
 
     println!("beginning make_mosaic....");
     let (xt, yt) = (1920, 1080);
@@ -87,6 +93,9 @@ pub fn make_mosaic(
         target_quadrant_dir: target_quadrant_dir.clone(),
         frame_number
     });
+
+    let elapsed_time = now.elapsed();
+    println!("make_mosaic() took {} seconds.", elapsed_time.as_secs());
 }
 
 struct WriteFinalImageArgs {
@@ -120,14 +129,14 @@ fn write_final_img(mut args: WriteFinalImageArgs) {
     let (target_w, target_h) = final_img.dimensions();
     //println!("target_w: {}, target_w: {}", target_w, target_h);
 
-    println!("crop_details during final img: {}, {}, {}, {}, {}",
+    println!("crop_details during final img: depth = {}, xt = {}, yt = {}, x_buf = {}, y_buf = {}",
             args.c.depth,
             args.c.total_y_imgs,
             args.c.total_x_imgs,
             args.c.y_buf,
             args.c.x_buf);
-    println!("total imgs in mosaic should be: {}", args.c.total_y_imgs * args.c.total_x_imgs);
-    println!("total imgs in new_tiles: {}", args.new_tiles.len());
+    //println!("total imgs in mosaic should be: {}", args.c.total_y_imgs * args.c.total_x_imgs);
+    //println!("total imgs in new_tiles: {}", args.new_tiles.len());
     let mut i = 0;
     for y in 0..args.c.total_y_imgs {
         for x in 0..args.c.total_x_imgs {
@@ -153,6 +162,7 @@ struct NewTileGenArgs {
 //TODO <String should be number>
 fn new_tiles_gen(args: NewTileGenArgs) -> std::vec::IntoIter<u32> {
     println!("beginning new til gen...");
+    let now = Instant::now();
     let mut new_tiles: Vec<u32> = Vec::new();
     for orig_tile in args.orig_tiles {
         let new_tile = get_closest_img(&orig_tile, &(args.lil_imgs));
@@ -160,6 +170,10 @@ fn new_tiles_gen(args: NewTileGenArgs) -> std::vec::IntoIter<u32> {
         new_tiles.push(new_tile as u32);
     }
     let mut new_tiles_iter = new_tiles.into_iter();
+
+    let elapsed_time = now.elapsed();
+    println!("new_tiles_gen() took {} seconds.", elapsed_time.as_secs());
+
     new_tiles_iter
 }
 
@@ -209,6 +223,7 @@ pub struct OrigTileGenArgs {
     pub quadrant_dir: String
 }
 fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
+    let now = Instant::now();
 
     let skip = 5;
     let mut orig_tiles: Vec<ImageInfo> = Vec::new();
@@ -241,6 +256,9 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
             i = i + 1;
         }
     }
+    let elapsed_time = now.elapsed();
+    println!("orig_tile_gen() took {} seconds.", elapsed_time.as_secs());
+
     orig_tiles.into_iter()
 }
 

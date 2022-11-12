@@ -2,6 +2,7 @@ mod mosaic;
 mod quadrants;
 use image::DynamicImage;
 use std::fs;
+use std::time::Instant;
 
 fn main() {
     let now = Instant::now();
