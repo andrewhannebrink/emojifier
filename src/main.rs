@@ -7,7 +7,7 @@ use std::time::Instant;
 fn main() {
     let now = Instant::now();
     transpose_every_frame();
-    quadrants::frames_into_quadrants();
+    //quadrants::frames_into_quadrants();
     let elapsed_time = now.elapsed();
     println!("main() took {} seconds.", elapsed_time.as_secs());
 }
