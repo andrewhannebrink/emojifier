@@ -55,15 +55,14 @@ pub fn make_mosaic(
 
     let lil_imgs: Vec<ImageInfo> = get_lil_imgs(lil_imgs_dir.clone(), 1 as u8);
 
-    println!("{} {}", xt, yt);
     //TODO maybe re add this later
     //let resized_img = img.resize(xt, yt, FilterType::Gaussian);
 
-    println!("{} {} {} {}", 
-             crop_details.x_buf, 
-             crop_details.y_buf, 
-             crop_details.total_x_imgs,
-             crop_details.total_y_imgs);
+    //println!("{} {} {} {}", 
+    //         crop_details.x_buf, 
+    //         crop_details.y_buf, 
+    //         crop_details.total_x_imgs,
+    //         crop_details.total_y_imgs);
 
     let orig_tiles_iter = orig_tile_gen(OrigTileGenArgs {
         img,
@@ -107,15 +106,8 @@ struct WriteFinalImageArgs {
 
 }
 fn write_final_img(mut args: WriteFinalImageArgs) {
-    //TODO write this method
-    //TODO do not hardcode this
-    let (w, h) = (1920, 1080);
-    println!("starting write_final_img()...");
-//  let buffer = RgbaImage::new(w, h);
-//  let final_img_view: &dyn GenericImageView<Pixel=Rgba<u8>> = &buffer;
-//  let final_img = final_img_view.view(0, 0, 1920, 1080);
-//
-    //let mut final_img = open_image(String::from("io/input/a/.jpeg"));
+    let now = Instant::now();
+
     let final_img_file_name = [args.frame_number, ".jpeg".to_string()].concat();
     let final_img_dir = [
         "io/input".to_string(),
@@ -143,8 +135,11 @@ fn write_final_img(mut args: WriteFinalImageArgs) {
             i += 1;
         }
     }
-    println!("dest_path: {}", args.dest_path.clone());
+    //println!("dest_path: {}", args.dest_path.clone());
     final_img.save(args.dest_path).unwrap();
+
+    let elapsed_time = now.elapsed();
+    println!("write_final_img() took {} seconds.", elapsed_time.subsec_millis());
 }
 
 struct NewTileGenArgs {
@@ -242,6 +237,8 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
 }
 
 fn get_lil_imgs(lil_imgs_dir: String, skip: u8) -> Vec<ImageInfo> {
+    let now = Instant::now();
+
     let mut lil_imgs: Vec<ImageInfo> = Vec::new();
     let lil_img_names = fs::read_dir(lil_imgs_dir).unwrap();
     for name in lil_img_names {
@@ -252,6 +249,9 @@ fn get_lil_imgs(lil_imgs_dir: String, skip: u8) -> Vec<ImageInfo> {
             img: img
         });
     }
+    let elapsed_time = now.elapsed();
+    println!("get_lil_imgs() took {} seconds.", elapsed_time.subsec_millis());
+
     lil_imgs
 }
 
