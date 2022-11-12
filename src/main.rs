@@ -21,6 +21,7 @@ fn wipe_output_dirs() {
 }
 
 fn transpose_every_frame () {
+    let now = Instant::now();
     let mut total_frames = 0;
     let total_a_frames = fs::read_dir("io/input/a").unwrap().count();
     let total_b_frames = fs::read_dir("io/input/b").unwrap().count();
@@ -35,6 +36,9 @@ fn transpose_every_frame () {
         let frame_number_with_zeroes = mosaic::prepend_zeroes(i);
         transpose_one_frame(frame_number_with_zeroes);
     }
+
+    let elapsed_time = now.elapsed();
+    println!("transpose_every_frame() took {} seconds.", elapsed_time.as_secs());
 }
 
 fn transpose_one_frame (frame_number: String) {
