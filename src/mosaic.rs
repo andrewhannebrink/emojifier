@@ -4,7 +4,7 @@ use image::imageops::replace;
 use std::fs;
 use std::time::Instant;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct CropDetails {
     pub depth: u32,
     pub total_x_imgs: u32,
@@ -49,9 +49,6 @@ pub fn make_mosaic(
     frame_number: String) {
 
     let now = Instant::now();
-
-    let (xt, yt) = (1920, 1080);
-    let (xi, yi) = img.dimensions();
 
     let lil_imgs: Vec<ImageInfo> = get_lil_imgs(lil_imgs_dir.clone(), 1 as u8);
 
@@ -119,12 +116,8 @@ fn write_final_img(mut args: WriteFinalImageArgs) {
     ].join("/"));
     let (target_w, target_h) = final_img.dimensions();
 
-    println!("crop_details during final img: depth = {}, xt = {}, yt = {}, x_buf = {}, y_buf = {}",
-            args.c.depth,
-            args.c.total_y_imgs,
-            args.c.total_x_imgs,
-            args.c.y_buf,
-            args.c.x_buf);
+    dbg!("{:?}", args.c.clone());
+
     let mut i = 0;
     for y in 0..args.c.total_y_imgs {
         for x in 0..args.c.total_x_imgs {
@@ -186,8 +179,13 @@ fn get_closest_img(orig_tile: &ImageInfo, lil_imgs: &Vec<ImageInfo>) -> usize {
             min_square_dis = dis;
             closest_img_index = lil_img.0;
         }
+        // Try to optimize by approximating
+//      if min_square_dis < 1000 {
+//          break
+//      }
     }
     let closest_img = &lil_imgs[closest_img_index];
+
     closest_img_index
 }
 

@@ -6,11 +6,10 @@ use std::time::Instant;
 
 fn main() {
     let now = Instant::now();
-    wipe_output_dirs();
     transpose_every_frame();
     quadrants::frames_into_quadrants();
     let elapsed_time = now.elapsed();
-    println!("main() took {} seconds.", elapsed_time.subsec_millis());
+    println!("main() took {} seconds.", elapsed_time.as_secs());
 }
 
 fn wipe_output_dirs() {
@@ -22,6 +21,7 @@ fn wipe_output_dirs() {
 
 fn transpose_every_frame () {
     let now = Instant::now();
+    wipe_output_dirs();
     let mut total_frames = 0;
     let total_a_frames = fs::read_dir("io/input/a").unwrap().count();
     let total_b_frames = fs::read_dir("io/input/b").unwrap().count();
