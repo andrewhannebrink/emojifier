@@ -47,13 +47,13 @@ fn transpose_one_frame (frame_number: String) {
 }
 
 fn render_from_quadrant_a_frame (frame_number: String) {
-    render_still_from_quadrant_frame("a", frame_number);
+    render_still_mosaic_from_quadrant_frame("a", frame_number);
 }
 fn render_from_quadrant_b_frame (frame_number: String) {
-    render_still_from_quadrant_frame("b", frame_number);
+    render_still_mosaic_from_quadrant_frame("b", frame_number);
 }
 
-fn render_still_from_quadrant_frame(target_quadrant_dir: &str, frame_number: String) {
+fn render_still_mosaic_from_quadrant_frame(target_quadrant_dir: &str, frame_number: String) {
     let mut parent_quadrant_dir = String::new();
     if target_quadrant_dir == "a" {
         parent_quadrant_dir = String::from("b");
@@ -75,18 +75,25 @@ fn render_still_from_quadrant_frame(target_quadrant_dir: &str, frame_number: Str
         ip_file_name.clone()
     ].join("/");
 
-    populate_lil_imgs_dir(
-        img_from_path(parent_img_name),
-        parent_quadrant_dir.clone(),
-        target_quadrant_dir.to_string(),
-        frame_number.clone());
-    render_and_save_mosaic(
+//  populate_lil_imgs_dir(
+//      img_from_path(parent_img_name),
+//      parent_quadrant_dir.clone(),
+//      target_quadrant_dir.to_string(),
+//      frame_number.clone());
+//  render_and_save_mosaic(
+//      img_from_path(target_img_name), 
+//      parent_quadrant_dir.clone(),
+//      target_quadrant_dir.to_string(),
+//      frame_number);
+    compose_mosaic_from_paths(
         img_from_path(target_img_name), 
-        parent_quadrant_dir.clone(),
+        false, 
+        parent_quadrant_dir.to_string(),
         target_quadrant_dir.to_string(),
-        frame_number);
+        frame_number)
 
 }
+
 
 fn populate_lil_imgs_dir(
     parent_img: DynamicImage,
@@ -148,30 +155,33 @@ fn compose_mosaic_from_paths(
         total_x_imgs: xt / depth
     };
 
-    if only_make_lil_imgs == true {
+//    if only_make_lil_imgs == true {
         
-        mosaic::save_lil_img_dir(mosaic::OrigTileGenArgs {
-            img, 
-            c: crop_details,
-            save_images: true,
-            quadrant_dir: target_quadrant_dir
-        });
-        return;
-    }
-    else {
-        let lil_imgs_dir = [
-            String::from("io/lil_imgs"),
-            parent_quadrant_dir.clone()
-        ].join("/");
-        let save_imgs = false;
-        mosaic::make_mosaic(
-            img,
-            lil_imgs_dir,
-            crop_details,
-            parent_quadrant_dir,
-            target_quadrant_dir,
-            frame_number);
-    }
+//      mosaic::save_lil_img_dir(mosaic::OrigTileGenArgs {
+//          img, 
+//          c: crop_details,
+//          save_images: true,
+//          quadrant_dir: target_quadrant_dir
+//      });
+//        return;
+//    }
+//    else {
+//    let save_imgs = false;
+//
+//    TODO lil_imgs_dir should only be passed conditionally if we want to open imgs from a dir
+//  let lil_imgs_dir = [
+//      String::from("io/lil_imgs"),
+//      parent_quadrant_dir.clone()
+//   ].join("/");
+    let lil_imgs_dir = "DONT USE FOR NOW - TODO".to_string();
+    mosaic::make_mosaic(
+        img,
+        lil_imgs_dir, 
+        crop_details,
+        parent_quadrant_dir,
+        target_quadrant_dir,
+        frame_number);
+//    }
 }
 
 //rm -rf io/input/b && mkdir io/input/b && ffmpeg -ss 510 -t 1 -i "io/input/vid/c.mp4" -r 30.0 "io/input/b/%4d.jpeg"
