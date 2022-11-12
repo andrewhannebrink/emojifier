@@ -46,21 +46,41 @@ fn parent_img_path (parent_quadrant_dir: String, frame_number: String) -> String
         "jpeg".to_string()
     ].join(".")
 }
+
+enum Quadrant {
+    A, B, C, D
+}
+
+pub struct MakeMosaicReturn {
+    prev_parent_quadrant: String,
+    prev_target_quadrant: String,
+    prev_parent_tiles: Vec<ImageInfo>,
+    prev_target_tiles: Vec<ImageInfo>
+}
+
 pub fn make_mosaic(
     img: DynamicImage,
     lil_imgs_dir: String,
     crop_details: CropDetails,
     parent_quadrant_dir: String,
     target_quadrant_dir: String,
-    frame_number: String) {
+    frame_number: String,
+    previous_return: Option<MakeMosaicReturn>) -> MakeMosaicReturn {
 
     let now = Instant::now();
 
     //let lil_imgs: Vec<ImageInfo> = get_lil_imgs_from_dir(lil_imgs_dir.clone(), 1 as u8);
 
-    let lil_imgs = get_lil_imgs_from_img(
-        parent_img_path(parent_quadrant_dir.clone(), frame_number.clone()),
-        crop_details.clone());
+    let lil_imgs = match previous_return {
+        None => {
+            get_lil_imgs_from_img(
+                parent_img_path(parent_quadrant_dir.clone(), frame_number.clone()),
+                crop_details.clone())
+        },
+        Some(make_mosaic_return) => {
+            make_mosaic_return.prev_target_tiles
+        } 
+    };
 
     //dbg!("{:?}", lil_imgs.clone());
     let orig_tiles_iter = orig_tile_gen(OrigTileGenArgs {
@@ -73,7 +93,7 @@ pub fn make_mosaic(
     //TODO figure out how to reuse crop_details from above using lifetime params
     let mut new_tiles = new_tiles_gen(NewTileGenArgs {
         c: crop_details.clone(),
-        orig_tiles: orig_tiles_iter,
+        orig_tiles: orig_tiles_iter.clone(),
         lil_imgs: lil_imgs.clone(),
     });
     //TODO figure out how to reuse crop_details from above using lifetime params
@@ -93,6 +113,13 @@ pub fn make_mosaic(
 
     let elapsed_time = now.elapsed();
     println!("make_mosaic() took {} seconds.", elapsed_time.subsec_millis());
+
+    MakeMosaicReturn {
+        prev_parent_quadrant: parent_quadrant_dir,
+        prev_target_quadrant: target_quadrant_dir,
+        prev_parent_tiles: lil_imgs.clone(),
+        prev_target_tiles: orig_tiles_iter.collect() //TODO fix this
+    }
 }
 
 struct WriteFinalImageArgs {
