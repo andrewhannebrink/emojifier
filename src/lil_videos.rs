@@ -1,6 +1,6 @@
 use crate::mosaic;
 
-fn hand_off_img_info () {
+fn compose_one_lil_video_frame () {
     //TODO
     return
 }
