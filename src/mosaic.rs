@@ -64,7 +64,7 @@ pub struct MakeMosaicReturn {
 
 pub fn make_mosaic(
     img: DynamicImage,
-    lil_imgs_dir: String,
+    lil_imgs_dir: Option<String>,
     crop_details: CropDetails,
     parent_quadrant_dir: String,
     target_quadrant_dir: String,
@@ -78,9 +78,19 @@ pub fn make_mosaic(
     let (lil_imgs, orig_tiles_iter) = match previous_return.clone() {
         None => {
             (
-                get_lil_imgs_from_img(
-                    parent_img_path(parent_quadrant_dir.clone(), frame_number.clone()),
-                    crop_details.clone()),
+                match lil_imgs_dir {
+                    None => {
+                        get_lil_imgs_from_img(
+                            parent_img_path(parent_quadrant_dir.clone(), frame_number.clone()),
+                            crop_details.clone())
+                    },
+                    Some(lil_imgs_dir_str) => {
+                        get_lil_imgs_from_dir(
+                            lil_imgs_dir_str,
+                            crop_details.clone(), 
+                            5)
+                    }
+                },
                 orig_tile_gen(OrigTileGenArgs {
                     img,
                     c: crop_details.clone(),
@@ -321,7 +331,10 @@ fn get_lil_imgs_from_img(parent_img_path: String, c: CropDetails) -> Vec<ImageIn
     lil_imgs.collect()
 }
 
-fn get_lil_imgs_from_dir(lil_imgs_dir: String, skip: u8) -> Vec<ImageInfo> {
+fn get_lil_imgs_from_dir(
+        lil_imgs_dir: String,
+        crop_details: CropDetails,
+        skip: u8) -> Vec<ImageInfo> {
     let now = Instant::now();
 
     let mut lil_imgs: Vec<ImageInfo> = Vec::new();
