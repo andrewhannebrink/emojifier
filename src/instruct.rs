@@ -40,7 +40,7 @@ pub fn get_instructions () -> Vec<FrameSequence> {
         mode: SequenceMode::Mosaic(MosaicInstructions {
             starting_depth: 30,
             ending_depth: 30,
-            lil_imgs_dir: Option::Some("io/lil_imgs/emoji".to_string())
+            lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
         })
     });
     instructions.push(FrameSequence{
