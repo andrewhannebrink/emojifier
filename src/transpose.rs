@@ -1,6 +1,6 @@
 use crate::mosaic;
 use crate::quadrants;
-use crate::instructions;
+use crate::instruct;
 use image::DynamicImage;
 use std::fs;
 use std::time::Instant;
@@ -12,7 +12,7 @@ fn wipe_output_dirs() {
     fs::create_dir("io/output/b");
 }
 
-pub fn transpose_every_frame (ins: Vec<instructions::FrameSequence>) {
+pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
     let now = Instant::now();
     wipe_output_dirs();
     let mut total_frames = 0;
@@ -28,8 +28,16 @@ pub fn transpose_every_frame (ins: Vec<instructions::FrameSequence>) {
     let mut total_frame_idx = 1;
     for sequence in ins {
         for seq_frame_idx in 1..sequence.total_frames + 1 {
+            let depth = match &sequence.mode {
+                instruct::SequenceMode::Mosaic(depth_change) => {
+                    depth_change.get_current_depth(seq_frame_idx as u16)
+                },
+                instruct::SequenceMode::LittleVideos => {
+                    60 //TODO do not hardcode this. instead get it from the handoff frame
+                }
+            };
             let frame_number_with_zeroes = mosaic::prepend_zeroes(total_frame_idx);
-            transpose_one_frame(frame_number_with_zeroes);
+            transpose_one_frame(frame_number_with_zeroes, depth);
             total_frame_idx += 1;
         }
     }
@@ -38,24 +46,28 @@ pub fn transpose_every_frame (ins: Vec<instructions::FrameSequence>) {
     println!("transpose_every_frame() took {} seconds.", elapsed_time.subsec_millis());
 }
 
-fn transpose_one_frame (frame_number: String) {
-    let make_mosaic_return = render_from_quadrant_b_frame(frame_number.clone());
-    render_from_quadrant_a_frame(frame_number.clone(), Some(make_mosaic_return));
+fn transpose_one_frame (frame_number: String, depth: u32) {
+    let make_mosaic_return = render_from_quadrant_b_frame(frame_number.clone(), depth);
+    render_from_quadrant_a_frame(frame_number.clone(), Some(make_mosaic_return), depth);
 }
 
 fn render_from_quadrant_a_frame (
         frame_number: String,
-        prev_return: Option<mosaic::MakeMosaicReturn>) {
-    render_still_mosaic_from_quadrant_frame("a", frame_number, prev_return);
+        prev_return: Option<mosaic::MakeMosaicReturn>,
+        depth: u32) {
+    render_still_mosaic_from_quadrant_frame("a", frame_number, prev_return, depth);
 }
-fn render_from_quadrant_b_frame (frame_number: String) -> mosaic::MakeMosaicReturn {
-    render_still_mosaic_from_quadrant_frame("b", frame_number, Option::None)
+fn render_from_quadrant_b_frame (
+        frame_number: String,
+        depth: u32) -> mosaic::MakeMosaicReturn {
+    render_still_mosaic_from_quadrant_frame("b", frame_number, Option::None, depth)
 }
 
 fn render_still_mosaic_from_quadrant_frame(
         target_quadrant_dir: &str,
         frame_number: String,
-        make_mosaic_return: Option<mosaic::MakeMosaicReturn>) -> mosaic::MakeMosaicReturn {
+        make_mosaic_return: Option<mosaic::MakeMosaicReturn>,
+        depth: u32) -> mosaic::MakeMosaicReturn {
     let mut parent_quadrant_dir = String::new();
     if target_quadrant_dir == "a" {
         parent_quadrant_dir = String::from("b");
@@ -93,7 +105,8 @@ fn render_still_mosaic_from_quadrant_frame(
         parent_quadrant_dir.to_string(),
         target_quadrant_dir.to_string(),
         frame_number,
-        make_mosaic_return)
+        make_mosaic_return,
+        depth)
 
 }
 
@@ -147,13 +160,12 @@ fn compose_mosaic_from_paths(
         parent_quadrant_dir: String,
         target_quadrant_dir: String,
         frame_number: String,
-        previous_return: Option<mosaic::MakeMosaicReturn>) 
-    -> mosaic::MakeMosaicReturn {
+        previous_return: Option<mosaic::MakeMosaicReturn>,
+        depth: u32) -> mosaic::MakeMosaicReturn {
 
-    let depth = 60;
     let (xt, yt) = (1920, 1080);
     let crop_details = mosaic::CropDetails {
-        depth: depth,
+        depth,
         x_buf: (xt % (xt / depth)) / 2,
         y_buf: (yt % (yt / depth)) / 2,
         total_y_imgs: yt / depth,

@@ -1,6 +1,13 @@
 pub struct DepthChange {
-    pub starting_depth: u8,
-    pub ending_depth: u8,
+    pub starting_depth: u32,
+    pub ending_depth: u32,
+}
+
+impl DepthChange {
+    pub fn get_current_depth (&self, seq_frame_idx: u16) -> u32 {
+        // TODO increment according to seq_frame_idx instead of hardcoding
+        self.starting_depth
+    }
 }
 
 pub enum SequenceMode {
@@ -9,7 +16,7 @@ pub enum SequenceMode {
 }
 
 pub struct FrameSequence {
-    pub total_frames: u16,
+    pub total_frames: u32,
     pub mode: SequenceMode,
 }
 
