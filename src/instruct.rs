@@ -38,8 +38,8 @@ pub fn get_instructions () -> Vec<FrameSequence> {
     instructions.push(FrameSequence {
         total_frames: 3,
         mode: SequenceMode::Mosaic(MosaicInstructions {
-            starting_depth: 200,
-            ending_depth: 200,
+            starting_depth: 30,
+            ending_depth: 30,
             lil_imgs_dir: Option::Some("io/lil_imgs/emoji".to_string())
         })
     });
