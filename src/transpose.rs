@@ -76,11 +76,11 @@ fn render_lil_videos_from_quadrant_b_frame(handoff_info: &mosaic::MakeMosaicRetu
             None => {
                 println!("NO TARGET_COORDS! parent_coords received in transpose.rs: {:?}", 
                          prev_parent_tile.parent_coords);
-                //println!("no target_coords received!");
                 //TODO
                 return
             },
             Some(target_coords) => {
+                println!("WE GOT TARGET COORDS MUFUCKA");
                 println!("target_coords received in transpose.rs: {:?}", target_coords);
                 println!("parent_coords received in transpose.rs: {:?}", 
                          prev_parent_tile.parent_coords);
