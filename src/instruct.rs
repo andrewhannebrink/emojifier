@@ -35,6 +35,14 @@ pub struct FrameSequence {
 
 pub fn get_instructions () -> Vec<FrameSequence> {
     let mut instructions: Vec<FrameSequence> = Vec::new();
+    instructions.push(FrameSequence{
+        total_frames: 3,
+        mode: SequenceMode::Mosaic(MosaicInstructions {
+            starting_depth: 30,
+            ending_depth: 30,
+            lil_imgs_dir: Option::None
+        })
+    });
     instructions.push(FrameSequence {
         total_frames: 3,
         mode: SequenceMode::Mosaic(MosaicInstructions {
@@ -46,22 +54,22 @@ pub fn get_instructions () -> Vec<FrameSequence> {
     instructions.push(FrameSequence{
         total_frames: 3,
         mode: SequenceMode::Mosaic(MosaicInstructions {
-            starting_depth: 80,
-            ending_depth: 60,
+            starting_depth: 30,
+            ending_depth: 20,
             lil_imgs_dir: Option::None
         })
     });
     instructions.push(FrameSequence{
-        total_frames: 17,
+        total_frames: 21,
         mode: SequenceMode::LittleVideos
     });
-    instructions.push(FrameSequence{
-        total_frames: 7,
-        mode: SequenceMode::Mosaic(MosaicInstructions {
-            starting_depth: 30,
-            ending_depth: 60,
-            lil_imgs_dir: Option::None
-        })
-    });
+//  instructions.push(FrameSequence{
+//      total_frames: 7,
+//      mode: SequenceMode::Mosaic(MosaicInstructions {
+//          starting_depth: 30,
+//          ending_depth: 60,
+//          lil_imgs_dir: Option::None
+//      })
+//  });
     instructions
 }
