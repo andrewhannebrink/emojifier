@@ -68,18 +68,16 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
 fn transpose_one_lil_videos_frame(
         frame_number: String,
         handoff_info: mosaic::MakeMosaicReturn) {
-    // TODO this is repeated code - make it one fn
-//  let mut parent_quadrant_dir = String::new();
-//  if target_quadrant_dir == "a" {
-//      parent_quadrant_dir = String::from("b");
-//  } else {
-//      parent_quadrant_dir = String::from("a");
-//  }
-    render_lil_videos_from_quadrant_b_frame(frame_number, handoff_info.clone());
-    render_lil_videos_from_quadrant_a_frame(handoff_info.clone());
+    render_lil_videos_from_quadrant_b_frame(frame_number.clone(), handoff_info.clone());
+    render_lil_videos_from_quadrant_a_frame(frame_number.clone(), handoff_info.clone());
 }
-fn render_lil_videos_from_quadrant_a_frame(handoff_info: mosaic::MakeMosaicReturn) {
-    return //TODO
+fn render_lil_videos_from_quadrant_a_frame(
+        frame_number: String,
+        handoff_info: mosaic::MakeMosaicReturn) {
+    lil_videos::compose_one_lil_video_frame(
+        frame_number,
+        handoff_info.prev_target_quadrant,
+        handoff_info.prev_target_tiles);
 }
 fn render_lil_videos_from_quadrant_b_frame(
         frame_number: String, 
