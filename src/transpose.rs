@@ -232,7 +232,8 @@ fn compose_mosaic_from_paths(
 //      String::from("io/lil_imgs"),
 //      parent_quadrant_dir.clone()
 //   ].join("/");
-    let lil_imgs_dir = "DONT USE FOR NOW - TODO".to_string();
+
+    let lil_imgs_dir = Option::None;
     mosaic::make_mosaic(
         img,
         lil_imgs_dir, 
