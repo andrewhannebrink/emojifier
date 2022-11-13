@@ -19,7 +19,7 @@ struct Color(u8, u8, u8);
 // TODO perhaps use lifetime params instead of clone()
 #[derive(Clone, Debug)]
 pub struct ImageInfo {
-    img: DynamicImage,
+    pub img: DynamicImage,
     avg_color: Color,
     pub parent_coords: (u32, u32),
     pub target_coords: Vec<(i64, i64)>,
