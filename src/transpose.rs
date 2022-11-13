@@ -73,18 +73,24 @@ fn render_lil_videos_from_quadrant_a_frame(handoff_info: mosaic::MakeMosaicRetur
 fn render_lil_videos_from_quadrant_b_frame(handoff_info: mosaic::MakeMosaicReturn) {
     for prev_parent_tile in handoff_info.clone().prev_parent_tiles {
         //dbg!("parent_coords in transpose.rs: {:?}", prev_parent_tile.parent_coords);
-        match prev_parent_tile.target_coords {
-            None => {
-                println!("NO TARGET_COORDS! parent_coords received in transpose.rs: {:?}", 
-                         prev_parent_tile.parent_coords);
-                //TODO
-            },
-            Some(target_coords) => {
-                println!("WE GOT TARGET COORDS MUFUCKA");
-                println!("target_coords received in transpose.rs: {:?}", target_coords);
-                println!("parent_coords received in transpose.rs: {:?}", 
-                         prev_parent_tile.parent_coords);
-            }
+//      match prev_parent_tile.target_coords {
+//          None => {
+//              println!("NO TARGET_COORDS! parent_coords received in transpose.rs: {:?}", 
+//                       prev_parent_tile.parent_coords);
+//              //TODO
+//          },
+//          Some(target_coords) => {
+//              println!("WE GOT TARGET COORDS MUFUCKA");
+//              println!("target_coords received in transpose.rs: {:?}", target_coords);
+//              println!("parent_coords received in transpose.rs: {:?}", 
+//                       prev_parent_tile.parent_coords);
+//          }
+//      }
+        println!("parent_coords received in transpose.rs: {:?}",
+                     prev_parent_tile.parent_coords);
+        for target_coord in prev_parent_tile.target_coords {
+            println!("WE GOT TARGET COORDS MUFUCKA");
+            println!("target_coord received in transpose.rs: {:?}", target_coord);
         }
     }
 }

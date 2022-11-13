@@ -22,7 +22,7 @@ pub struct ImageInfo {
     img: DynamicImage,
     avg_color: Color,
     pub parent_coords: (u32, u32),
-    pub target_coords: Option<(i64, i64)>,
+    pub target_coords: Vec<(i64, i64)>,
 
 }
 
@@ -177,7 +177,7 @@ fn write_final_img(mut args: WriteFinalImageArgs) -> MakeMosaicReturn {
             replace(&mut final_img, &args.lil_imgs[index_in_lil_imgs as usize].img, 
                     target_coords.0, target_coords.1);
             // TODO update lil_imgs target_coords here
-            args.lil_imgs[index_in_lil_imgs as usize].target_coords = Some(target_coords);
+            args.lil_imgs[index_in_lil_imgs as usize].target_coords.push(target_coords);
             //dbg!("{:?}", args.lil_imgs[index_in_lil_imgs as usize].target_coords);
             i += 1;
         }
@@ -291,7 +291,7 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
                     avg_color: get_avg_rgb(&temp_img, skip),
                     img: temp_img,
                     parent_coords,
-                    target_coords: Option::None
+                    target_coords: Vec::new()
                 });
             }
             i = i + 1;
@@ -333,7 +333,7 @@ fn get_lil_imgs_from_dir(lil_imgs_dir: String, skip: u8) -> Vec<ImageInfo> {
             avg_color: get_avg_rgb(&img, skip as u8),
             img: img,
             parent_coords: (0, 0),
-            target_coords: Option::None // TODO parent_coords are not relevant for getting from dir
+            target_coords: Vec::new() // TODO parent_coords are not relevant for getting from dir
         });
     }
     let elapsed_time = now.elapsed();
