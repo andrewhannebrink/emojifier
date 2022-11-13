@@ -123,6 +123,19 @@ pub fn make_mosaic(
     let elapsed_time = now.elapsed();
     println!("make_mosaic() took {} seconds.", elapsed_time.subsec_millis());
 
+    // debug loop TODO remove
+//  for prev_parent_tile in updated_mosaic_return.clone().prev_parent_tiles {
+//      match prev_parent_tile.target_coords {
+//          None => {
+//              continue
+//          },
+//          Some(target_coords) => {
+//              println!("parent coords in mm are: {:?}", prev_parent_tile.parent_coords);
+//              println!("target coords in mm are: {:?}", prev_parent_tile.target_coords);
+//          }
+//      }
+//  }
+
     updated_mosaic_return
 }
 
