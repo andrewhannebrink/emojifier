@@ -18,7 +18,7 @@ struct Color(u8, u8, u8);
 
 // TODO perhaps use lifetime params instead of clone()
 #[derive(Clone, Debug)]
-struct ImageInfo {
+pub struct ImageInfo {
     img: DynamicImage,
     avg_color: Color
 }
@@ -55,8 +55,8 @@ enum Quadrant {
 pub struct MakeMosaicReturn {
     prev_parent_quadrant: String,
     prev_target_quadrant: String,
-    prev_parent_tiles: Vec<ImageInfo>,
-    prev_target_tiles: Vec<ImageInfo>
+    pub prev_parent_tiles: Vec<ImageInfo>,
+    pub prev_target_tiles: Vec<ImageInfo>
 }
 
 pub fn make_mosaic(

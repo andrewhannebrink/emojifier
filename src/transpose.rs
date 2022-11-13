@@ -24,20 +24,35 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
     } else {
         total_frames = total_b_frames;
     }
+
+    let mut last_handoff_info: Option<mosaic::MakeMosaicReturn> = Option::None;
     
     let mut total_frame_idx = 1;
     for sequence in ins {
         for seq_frame_idx in 1..sequence.total_frames + 1 {
-            let depth = match &sequence.mode {
+            let frame_number_with_zeroes = mosaic::prepend_zeroes(total_frame_idx);
+            match &sequence.mode {
                 instruct::SequenceMode::Mosaic(depth_change) => {
-                    depth_change.get_current_depth(seq_frame_idx as u16, sequence.total_frames)
+                    let depth = depth_change.get_current_depth(
+                        seq_frame_idx as u16, 
+                        sequence.total_frames);
+                    last_handoff_info = Some(transpose_one_mosaic_frame(
+                        frame_number_with_zeroes, depth));
                 },
                 instruct::SequenceMode::LittleVideos => {
-                    60 //TODO do not hardcode this. instead get it from the handoff frame
+                    match &last_handoff_info {
+                        None => {
+                            println!("no handoff_info received!");
+                        },
+                        Some(make_mosaic_return) => {
+                            println!("received handoff_info!");
+                            println!("last_handoff_info prev_parent_tiles len {}", 
+                                    make_mosaic_return.prev_parent_tiles.len());
+                            transpose_one_lil_videos_frame(&last_handoff_info);
+                        }
+                    };
                 }
             };
-            let frame_number_with_zeroes = mosaic::prepend_zeroes(total_frame_idx);
-            transpose_one_frame(frame_number_with_zeroes, depth);
             total_frame_idx += 1;
         }
     }
@@ -46,18 +61,29 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
     println!("transpose_every_frame() took {} seconds.", elapsed_time.subsec_millis());
 }
 
-fn transpose_one_frame (frame_number: String, depth: u32) {
-    let make_mosaic_return = render_from_quadrant_b_frame(frame_number.clone(), depth);
-    render_from_quadrant_a_frame(frame_number.clone(), Some(make_mosaic_return), depth);
+fn transpose_one_lil_videos_frame(handoff_info: &Option<mosaic::MakeMosaicReturn>) {
+    render_lil_videos_from_quadrant_a_frame();
+    render_lil_videos_from_quadrant_b_frame();
+}
+fn render_lil_videos_from_quadrant_a_frame() {
+    return //TODO
+}
+fn render_lil_videos_from_quadrant_b_frame() {
+    return //TODO
 }
 
-fn render_from_quadrant_a_frame (
+fn transpose_one_mosaic_frame (frame_number: String, depth: u32) -> mosaic::MakeMosaicReturn {
+    let make_mosaic_return = render_mosaic_from_quadrant_b_frame(frame_number.clone(), depth);
+    render_mosaic_from_quadrant_a_frame(frame_number.clone(), Some(make_mosaic_return), depth)
+}
+
+fn render_mosaic_from_quadrant_a_frame (
         frame_number: String,
         prev_return: Option<mosaic::MakeMosaicReturn>,
-        depth: u32) {
-    render_still_mosaic_from_quadrant_frame("a", frame_number, prev_return, depth);
+        depth: u32) -> mosaic::MakeMosaicReturn {
+    render_still_mosaic_from_quadrant_frame("a", frame_number, prev_return, depth)
 }
-fn render_from_quadrant_b_frame (
+fn render_mosaic_from_quadrant_b_frame (
         frame_number: String,
         depth: u32) -> mosaic::MakeMosaicReturn {
     render_still_mosaic_from_quadrant_frame("b", frame_number, Option::None, depth)
