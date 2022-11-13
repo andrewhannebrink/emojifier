@@ -1,6 +1,8 @@
 use image::{GenericImage, GenericImageView, Rgb, Rgba, RgbImage, RgbaImage, GrayImage};
 use image::DynamicImage;
+use image::imageops::FilterType;
 use image::imageops::replace;
+use image::imageops::resize;
 use std::fs;
 use std::time::Instant;
 
@@ -72,8 +74,6 @@ pub fn make_mosaic(
     previous_return: Option<MakeMosaicReturn>) -> MakeMosaicReturn {
 
     let now = Instant::now();
-
-    //let lil_imgs: Vec<ImageInfo> = get_lil_imgs_from_dir(lil_imgs_dir.clone(), 1 as u8);
 
     let (lil_imgs, orig_tiles_iter) = match previous_return.clone() {
         None => {
@@ -340,13 +340,18 @@ fn get_lil_imgs_from_dir(
 
     let mut lil_imgs: Vec<ImageInfo> = Vec::new();
     let lil_img_names = fs::read_dir(lil_imgs_dir).unwrap();
+    println!("crop_details.depth : {}", crop_details.depth);
     for name in lil_img_names {
         //println!("lil_img_name: {:?}", name);
         let img_path = name.unwrap().path().display().to_string();
-        let img = open_image(img_path);
+        let mut img = image::open(img_path).unwrap();
+
+        // TODO only resize if the image is actually used and the dimensions are different
+        let resized_img = img.resize(
+            crop_details.depth, crop_details.depth, FilterType::Gaussian);
         lil_imgs.push(ImageInfo {
             avg_color: get_avg_rgb(&img, skip as u8),
-            img: img,
+            img: resized_img,
             parent_coords: (0, 0),
             target_coords: Vec::new() // TODO parent_coords are not relevant for getting from dir
         });
