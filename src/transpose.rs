@@ -1,5 +1,6 @@
 use crate::mosaic;
 use crate::quadrants;
+use crate::lil_videos;
 use crate::instruct;
 use image::DynamicImage;
 use std::fs;
@@ -24,20 +25,43 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
     } else {
         total_frames = total_b_frames;
     }
+
+    let mut last_handoff_info: &mut Option<mosaic::MakeMosaicReturn> = &mut Option::None;
     
     let mut total_frame_idx = 1;
     for sequence in ins {
         for seq_frame_idx in 1..sequence.total_frames + 1 {
-            let depth = match &sequence.mode {
-                instruct::SequenceMode::Mosaic(depth_change) => {
-                    depth_change.get_current_depth(seq_frame_idx as u16, sequence.total_frames)
+            let frame_number_with_zeroes = mosaic::prepend_zeroes(total_frame_idx);
+            match &sequence.mode {
+                instruct::SequenceMode::Mosaic(mosaic_instructions) => {
+                    let depth = mosaic_instructions.get_current_depth(
+                        seq_frame_idx as u16, 
+                        sequence.total_frames);
+                    let make_mosaic_return = 
+                        transpose_one_mosaic_frame(
+                            frame_number_with_zeroes,
+                            depth,
+                            mosaic_instructions.lil_imgs_dir.clone());
+                    last_handoff_info.replace(make_mosaic_return.clone());
+                    
                 },
                 instruct::SequenceMode::LittleVideos => {
-                    60 //TODO do not hardcode this. instead get it from the handoff frame
+                    match &last_handoff_info {
+                        None => {
+                            println!("no handoff_info received!");
+                            // TODO this is where code might go to find the handoff frame from
+                            // the future
+                        },
+                        Some(make_mosaic_return) => {
+                            println!("received handoff_info!");
+                            println!("last_handoff_info prev_parent_tiles len {}", 
+                                    make_mosaic_return.prev_parent_tiles.len());
+                            transpose_one_lil_videos_frame(
+                                frame_number_with_zeroes, make_mosaic_return.clone());
+                        }
+                    };
                 }
             };
-            let frame_number_with_zeroes = mosaic::prepend_zeroes(total_frame_idx);
-            transpose_one_frame(frame_number_with_zeroes, depth);
             total_frame_idx += 1;
         }
     }
@@ -46,28 +70,75 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
     println!("transpose_every_frame() took {} seconds.", elapsed_time.subsec_millis());
 }
 
-fn transpose_one_frame (frame_number: String, depth: u32) {
-    let make_mosaic_return = render_from_quadrant_b_frame(frame_number.clone(), depth);
-    render_from_quadrant_a_frame(frame_number.clone(), Some(make_mosaic_return), depth);
+fn transpose_one_lil_videos_frame(
+        frame_number: String,
+        handoff_info: mosaic::MakeMosaicReturn) {
+    render_lil_videos_from_quadrant_b_frame(frame_number.clone(), handoff_info.clone());
+    render_lil_videos_from_quadrant_a_frame(frame_number.clone(), handoff_info.clone());
+}
+fn render_lil_videos_from_quadrant_a_frame(
+        frame_number: String,
+        handoff_info: mosaic::MakeMosaicReturn) {
+    lil_videos::compose_one_lil_video_frame(
+        frame_number,
+        handoff_info.prev_target_quadrant,
+        handoff_info.prev_target_tiles);
+}
+fn render_lil_videos_from_quadrant_b_frame(
+        frame_number: String, 
+        handoff_info: mosaic::MakeMosaicReturn) {
+    lil_videos::compose_one_lil_video_frame(
+        frame_number,
+        handoff_info.prev_parent_quadrant,
+        handoff_info.prev_parent_tiles);
 }
 
-fn render_from_quadrant_a_frame (
+fn transpose_one_mosaic_frame (
+        frame_number: String,
+        depth: u32,
+        lil_imgs_dir: Option<String>) -> mosaic::MakeMosaicReturn {
+    println!("lil_imgs_dir: {:?}", lil_imgs_dir);
+    //TODO drill lil_imgs dir to make_mosaic() from here
+    let make_mosaic_return = render_mosaic_from_quadrant_b_frame(
+        frame_number.clone(),
+        depth,
+        lil_imgs_dir.clone());
+    match lil_imgs_dir.clone() {
+        None => {
+            render_mosaic_from_quadrant_a_frame(
+                frame_number.clone(), Some(make_mosaic_return), depth, Option::None)
+        },
+        // TODO passing option::none here makes me have to reload emoji dir every render
+        // This is v slow...
+        Some(lil_imgs_dir_str) => {
+            render_mosaic_from_quadrant_a_frame(
+                frame_number.clone(), Option::None, depth, lil_imgs_dir.clone())
+        }
+    }
+}
+
+fn render_mosaic_from_quadrant_a_frame (
         frame_number: String,
         prev_return: Option<mosaic::MakeMosaicReturn>,
-        depth: u32) {
-    render_still_mosaic_from_quadrant_frame("a", frame_number, prev_return, depth);
+        depth: u32,
+        lil_imgs_dir: Option<String>) -> mosaic::MakeMosaicReturn {
+    render_still_mosaic_from_quadrant_frame(
+        "a", frame_number, prev_return, depth, lil_imgs_dir)
 }
-fn render_from_quadrant_b_frame (
+fn render_mosaic_from_quadrant_b_frame (
         frame_number: String,
-        depth: u32) -> mosaic::MakeMosaicReturn {
-    render_still_mosaic_from_quadrant_frame("b", frame_number, Option::None, depth)
+        depth: u32,
+        lil_imgs_dir: Option<String>) -> mosaic::MakeMosaicReturn {
+    render_still_mosaic_from_quadrant_frame(
+        "b", frame_number, Option::None, depth, lil_imgs_dir)
 }
 
 fn render_still_mosaic_from_quadrant_frame(
         target_quadrant_dir: &str,
         frame_number: String,
         make_mosaic_return: Option<mosaic::MakeMosaicReturn>,
-        depth: u32) -> mosaic::MakeMosaicReturn {
+        depth: u32,
+        lil_imgs_dir: Option<String>) -> mosaic::MakeMosaicReturn {
     let mut parent_quadrant_dir = String::new();
     if target_quadrant_dir == "a" {
         parent_quadrant_dir = String::from("b");
@@ -106,7 +177,8 @@ fn render_still_mosaic_from_quadrant_frame(
         target_quadrant_dir.to_string(),
         frame_number,
         make_mosaic_return,
-        depth)
+        depth,
+        lil_imgs_dir)
 
 }
 
@@ -161,7 +233,8 @@ fn compose_mosaic_from_paths(
         target_quadrant_dir: String,
         frame_number: String,
         previous_return: Option<mosaic::MakeMosaicReturn>,
-        depth: u32) -> mosaic::MakeMosaicReturn {
+        depth: u32,
+        lil_imgs_dir: Option<String>) -> mosaic::MakeMosaicReturn {
 
     let (xt, yt) = (1920, 1080);
     let crop_details = mosaic::CropDetails {
@@ -190,7 +263,8 @@ fn compose_mosaic_from_paths(
 //      String::from("io/lil_imgs"),
 //      parent_quadrant_dir.clone()
 //   ].join("/");
-    let lil_imgs_dir = "DONT USE FOR NOW - TODO".to_string();
+
+    //let lil_imgs_dir = Option::None;
     mosaic::make_mosaic(
         img,
         lil_imgs_dir, 
