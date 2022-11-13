@@ -1,197 +1,214 @@
+mod transpose;
 mod mosaic;
 mod quadrants;
-use image::DynamicImage;
-use std::fs;
 use std::time::Instant;
 
 fn main() {
     let now = Instant::now();
-    transpose_every_frame();
+    let instuctions = get_instructions();
+    transpose::transpose_every_frame();
     //quadrants::frames_into_quadrants();
     let elapsed_time = now.elapsed();
     println!("main() took {} seconds.", elapsed_time.as_secs());
 }
 
-fn wipe_output_dirs() {
-    fs::remove_dir_all("io/output/a");
-    fs::remove_dir_all("io/output/b");
-    fs::create_dir("io/output/a");
-    fs::create_dir("io/output/b");
+struct DepthChange {
+    starting_depth: u8,
+    ending_depth: u8,
 }
 
-fn transpose_every_frame () {
-    let now = Instant::now();
-    wipe_output_dirs();
-    let mut total_frames = 0;
-    let total_a_frames = fs::read_dir("io/input/a").unwrap().count();
-    let total_b_frames = fs::read_dir("io/input/b").unwrap().count();
-
-    if total_a_frames < total_b_frames {
-        total_frames = total_a_frames;
-    } else {
-        total_frames = total_b_frames;
-    }
-
-    for i in 1..total_frames + 1 {
-        let frame_number_with_zeroes = mosaic::prepend_zeroes(i);
-        transpose_one_frame(frame_number_with_zeroes);
-    }
-
-    let elapsed_time = now.elapsed();
-    println!("transpose_every_frame() took {} seconds.", elapsed_time.subsec_millis());
+enum SequenceMode {
+    Mosaic(DepthChange),
+    LittleVideos
 }
 
-fn transpose_one_frame (frame_number: String) {
-    let make_mosaic_return = render_from_quadrant_b_frame(frame_number.clone());
-    render_from_quadrant_a_frame(frame_number.clone(), Some(make_mosaic_return));
+struct FrameSequence {
+    total_frames: u16,
+    mode: SequenceMode,
 }
 
-fn render_from_quadrant_a_frame (
-        frame_number: String,
-        prev_return: Option<mosaic::MakeMosaicReturn>) {
-    render_still_mosaic_from_quadrant_frame("a", frame_number, prev_return);
-}
-fn render_from_quadrant_b_frame (frame_number: String) -> mosaic::MakeMosaicReturn {
-    render_still_mosaic_from_quadrant_frame("b", frame_number, Option::None)
-}
-
-fn render_still_mosaic_from_quadrant_frame(
-        target_quadrant_dir: &str,
-        frame_number: String,
-        make_mosaic_return: Option<mosaic::MakeMosaicReturn>) -> mosaic::MakeMosaicReturn {
-    let mut parent_quadrant_dir = String::new();
-    if target_quadrant_dir == "a" {
-        parent_quadrant_dir = String::from("b");
-    } else {
-        parent_quadrant_dir = String::from("a");
-    }
-
-    let ext: &str = ".jpeg";
-    let ip_file_name = [frame_number.clone(), ext.to_string()].concat();
-        
-    let target_img_name = [
-        String::from("input"),
-        target_quadrant_dir.to_string(),
-        ip_file_name.clone()
-    ].join("/");
-    let parent_img_name = [
-        String::from("input"),
-        parent_quadrant_dir.clone(),
-        ip_file_name.clone()
-    ].join("/");
-
-//  populate_lil_imgs_dir(
-//      img_from_path(parent_img_name),
-//      parent_quadrant_dir.clone(),
-//      target_quadrant_dir.to_string(),
-//      frame_number.clone());
-//  render_and_save_mosaic(
-//      img_from_path(target_img_name), 
-//      parent_quadrant_dir.clone(),
-//      target_quadrant_dir.to_string(),
-//      frame_number);
-    compose_mosaic_from_paths(
-        img_from_path(target_img_name), 
-        false, 
-        parent_quadrant_dir.to_string(),
-        target_quadrant_dir.to_string(),
-        frame_number,
-        make_mosaic_return)
-
+fn get_instructions () -> Vec<FrameSequence> {
+    let mut instructions: Vec<FrameSequence> = Vec::new();
+    instructions.push(FrameSequence{
+        total_frames: 15,
+        mode: SequenceMode::Mosaic(DepthChange {
+            starting_depth: 90,
+            ending_depth: 90
+        })
+    });
+    instructions.push(FrameSequence{
+        total_frames: 15,
+        mode: SequenceMode::Mosaic(DepthChange {
+            starting_depth: 120,
+            ending_depth: 120
+        })
+    });
+    instructions
 }
 
+//  def readFile(instructionsFile, movDir, outputName, colorMap = {}, mp4Bool = False, secondsRange = (0, 60)):
+//      movieMaker.wipeDir('unique/')
+//      frameMap = {}
+//      specMap = {}	# { (PIVOTCOLORS, LEVELSPERPIVOTCOLOR, LILIMGDIR) : SPECTRUMDIR }
+//  #	colorMap = {} 	# { (COLOR TUPLE, LILIMGDIR) : LILIMGPATH }	
+//      definedSequences = {}
+//      lilImgMap = {}
+//      gifMap = {}
+//      seqOrder = []
+//      dbFrame = 1
+//      f = open(instructionsFile)
+//      frame = 1
+//      lines = f.readlines()
+//      curLine = 0
+//      #EVENTUALLY CHANGE THIS TO ROLLING I VALUE
+//      while curLine < len(lines):
+//          lineWords = getWords(lines[curLine])
+//          if lineWords is None:
+//              curLine += 1
+//              continue
+//          if '#' in lineWords[0]:
+//              curLine += 1
+//              continue
+//          if lineWords[0] == 'Sequence':
+//              seqLines = []
+//              seqName = lineWords[1]
+//              seqType = lineWords[2][1:-1]
+//              seq = Sequence(seqName)
+//              #SPECTRUM MODE LINE PARSING
+//              if seqType == 'spec':
+//                  lilImgDir = ''
+//                  baseDir = lineWords[3]
+//                  loopFrame = int(lineWords[4])
+//                  whiteSquare = False
+//                  if baseDir[-1] == 'w':
+//                      baseDir = baseDir[:-1]
+//                      whiteSquare = True
+//                  anims = []
+//                  j = curLine + 1
+//                  while getWords(lines[j])[0] != 'endSeq':
+//                      seqLines.append(lines[j])
+//                      if '#' in lines[j]:
+//                          curLine += 1
+//                          continue
+//                      j += 1
+//                  seqLines.append(lines[j])
+//                  curSeqLine = 0
+//                  while curSeqLine < len(seqLines):
+//                      s = re.search('^\t{1}\S', seqLines[curSeqLine])
+//                      try:
+//                          match = s.group(0)
+//                      except:
+//                          s = re.search('^\t{2}\S', seqLines[curSeqLine])
+//                          try:
+//                              match = s.group(0)
+//                          except:
+//                              s = re.search('^\t{3}\S', seqLines[curSeqLine])
+//                              try:
+//                                  match = s.group(0)
+//                                  seqLineWords = getWords(seqLines[curSeqLine])
+//                                  if len(seqLineWords) is 4:
+//                                      anim = [gifName, lilImgDir, seqLineWords[0], seqLineWords[1], seqLineWords[2], seqLineWords[3]]
+//                                      anims.append(anim)
+//                                  if len(seqLineWords) is 3:
+//                                      anim = [gifName, lilImgDir, seqLineWords[0], seqLineWords[1], seqLineWords[2]]
+//                                      anims.append(anim)
+//                              except:
+//                                  curSeqLine += 1
+//                                  continue
+//                              curSeqLine += 1
+//                              continue 
+//                          gifName = getWords(seqLines[curSeqLine])[0]
+//                          curSeqLine += 1
+//                          continue
+//                      spectrumNums = getNums(seqLines[curSeqLine])
+//                      anims.append(spectrumNums)
+//                      
+//                      curSeqLine += 1
+//                  print 'anims:', anims
+//                  (anims, specDirOrder) = modifySpecAnims(anims, colorMap, whiteSquare, baseDir)
+//                  [dbFrame, loopFrame] = getMosFrames(anims, colorMap, gifMap, frameMap, movDir, outputName, seq, dbFrame, loopFrame, specDirOrder, secondsRange = secondsRange)
 
-//  fn populate_lil_imgs_dir(
-//      parent_img: DynamicImage,
-//      parent_quadrant_dir: String,
-//      target_quadrant_dir: String,
-//      frame_number: String) {
 
- //     fs::remove_dir_all([
- //         String::from("io/lil_imgs"), 
- //         parent_quadrant_dir.clone()
- //     ].join("/"));
- //     fs::create_dir([
- //         String::from("io/lil_imgs"), 
- //         parent_quadrant_dir.clone()
- //     ].join("/"));
+ //             #MOSAIC MODE LINE PARSING
+ //             if seqType == 'mos':
+ //                 #ANIMS DESCRIBE SEGMENTS OF THE SEQUENCE
+ //                 loopFrame = int(lineWords[3])
+ //                 anims = []
+ //                 j = curLine + 1
+ //                 while getWords(lines[j])[0] != 'endSeq':
+ //                     seqLines.append(lines[j])
+ //                     if '#' in lines[j]:
+ //                         curLine += 1
+ //                         continue
+ //                     j += 1
+ //                 seqLines.append(lines[j]) 
+ //                 curSeqLine = 0
+ //                 while curSeqLine < len(seqLines):
+ //                     #MATCH SINGLE TABBED LINE
+ //                     s = re.search('^\t{1}\S', seqLines[curSeqLine])
+ //                     try:
+ //                         match = s.group(0)
+ //                     except:
+ //                         #MATCH DOUBLE TABBED LINE
+ //                         s = re.search('^\t{2}\S', seqLines[curSeqLine])
+ //                         try:
+ //                             match = s.group(0)
+ //                             seqLineWords = getWords(seqLines[curSeqLine])
+ //                             if len(seqLineWords) is 4:
+ //                                 anim = (gifName, lilImgDir, seqLineWords[0], seqLineWords[1], seqLineWords[2], seqLineWords[3])
+ //                                 anims.append(anim)
+ //                             if len(seqLineWords) is 3:
+ //                                 anim = (gifName, lilImgDir, seqLineWords[0], seqLineWords[1], seqLineWords[2])
+ //                                 anims.append(anim)
+ //                         except:
+ //                             curSeqLine += 1
+ //                             continue
+ //                         curSeqLine += 1
+ //                         continue
+ //                     seqLineWords = getWords(seqLines[curSeqLine])
+ //                     (gifName, lilImgDir) = (seqLineWords[0], seqLineWords[1])
+ //                     print gifName, lilImgDir
+ //                     curSeqLine += 1
+ //                 [dbFrame, loopFrame] = getMosFrames(anims, colorMap, gifMap, frameMap, movDir, outputName, seq, dbFrame, loopFrame, secondsRange = secondsRange)
+ //             definedSequences[seq.name] = seq
+ //         if lineWords[0] == 'makeAnim':
+ //             j = curLine + 1
+ //             while getWords(lines[j])[0] != 'endAnim':	
+ //                 if '#' in lines[j]:
+ //                     curLine += 1
+ //                     continue
+ //                 seqOrder.append(getWords(lines[j])[0])
+ //                 j += 1
+ //             frame = 1
+ //             pool = Pool(processes = 4)
+ //             inputFrameNames = []
+ //             print 'making mosaics for ' + str(len(frameMap)) + ' unique frames...'
+ //             for key in frameMap:
+ //                 (gifName, lilImgDir, loopFrame, curRes) = key
+ //                 if gifName not in gifMap:
+ //                     gifInfo = GifInfo(gifName, mp4Bool, secondsRange)
+ //                     print 'new gifInfo class'
+ //                     gifMap[gifName] = gifInfo
+ //                 if lilImgDir not in lilImgMap:
+ //                     littleImgs = remoji.getLittleImgs(lilImgDir)
+ //                     lilImgMap[lilImgDir] = littleImgs
+ //                 else:
+ //                     littleImgs = lilImgMap[lilImgDir]
+ //             for key in frameMap:
+ //                 (gifName, lilImgDir, loopFrame, curRes) = key
+ //                 inputFrameNames = os.listdir(gifMap[gifName].framesDir)
+ //                 inputFrameNames.sort()
+ //                 depthPix = curRes + 6
+ //                 pool.apply_async(remoji.makeMosaic, [gifMap[gifName].framesDir + inputFrameNames[loopFrame], 'autoScale', depthPix, lilImgMap[lilImgDir], frameMap[key], colorMap, lilImgDir])
+ //             pool.close()
+ //             pool.join()
 
-//      compose_mosaic_from_paths(
-//          parent_img, 
-//          true, 
-//          parent_quadrant_dir.clone(),
-//          target_quadrant_dir.clone(),
-//          frame_number)
-//  }
-
-//  fn render_and_save_mosaic(
-//      target_img: DynamicImage,
-//      parent_quadrant_dir: String,
-//      target_quadrant_dir: String,
-//      frame_number: String) {
-
- //     compose_mosaic_from_paths(
- //         target_img,
- //         false,
- //         target_quadrant_dir.clone(),
- //         target_quadrant_dir.clone(),
- //         frame_number)
- // }
-
-fn img_from_path(path: String) -> DynamicImage {
-    let io_dir_name = String::from("io");
-    let full_path = [io_dir_name, path].join("/");
-    mosaic::open_image(full_path)
-}
-
-fn compose_mosaic_from_paths(
-        img: DynamicImage,
-        only_make_lil_imgs: bool,
-        parent_quadrant_dir: String,
-        target_quadrant_dir: String,
-        frame_number: String,
-        previous_return: Option<mosaic::MakeMosaicReturn>) 
-    -> mosaic::MakeMosaicReturn {
-
-    let depth = 60;
-    let (xt, yt) = (1920, 1080);
-    let crop_details = mosaic::CropDetails {
-        depth: depth,
-        x_buf: (xt % (xt / depth)) / 2,
-        y_buf: (yt % (yt / depth)) / 2,
-        total_y_imgs: yt / depth,
-        total_x_imgs: xt / depth
-    };
-
-//    if only_make_lil_imgs == true {
-        
-//      mosaic::save_lil_img_dir(mosaic::OrigTileGenArgs {
-//          img, 
-//          c: crop_details,
-//          save_images: true,
-//          quadrant_dir: target_quadrant_dir
-//      });
-//        return;
-//    }
-//    else {
-//    let save_imgs = false;
-//
-//    TODO lil_imgs_dir should only be passed conditionally if we want to open imgs from a dir
-//  let lil_imgs_dir = [
-//      String::from("io/lil_imgs"),
-//      parent_quadrant_dir.clone()
-//   ].join("/");
-    let lil_imgs_dir = "DONT USE FOR NOW - TODO".to_string();
-    mosaic::make_mosaic(
-        img,
-        lil_imgs_dir, 
-        crop_details,
-        parent_quadrant_dir,
-        target_quadrant_dir,
-        frame_number,
-        previous_return)
-//    }
-}
-
-//rm -rf io/input/b && mkdir io/input/b && ffmpeg -ss 510 -t 1 -i "io/input/vid/c.mp4" -r 30.0 "io/input/b/%4d.jpeg"
-//ffmpeg -r 30 -i io/output/a/%04d.jpeg -vb 20000k -c:v libx264 -pix_fmt yuv420p io/output/vid/a.mp4
+  //            movieMaker.wipeDir(movDir)
+  //            for seqName in seqOrder:
+  //                seq = definedSequences[seqName]
+  //                for framePath in seq.framePaths:
+  //                    frameStr = movieMaker.getFrameStr(frame, 4)
+  //                    os.system('cp ' + framePath + ' ' + movDir + outputName + frameStr + '.png')
+  //                    frame += 1
+  //            break
+  //        curLine += 1
