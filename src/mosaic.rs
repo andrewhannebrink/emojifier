@@ -85,6 +85,7 @@ pub fn make_mosaic(
                             crop_details.clone())
                     },
                     Some(lil_imgs_dir_str) => {
+                        println!("==------------getting lil_imgs from dir !");
                         get_lil_imgs_from_dir(
                             lil_imgs_dir_str,
                             crop_details.clone(), 
@@ -340,6 +341,7 @@ fn get_lil_imgs_from_dir(
     let mut lil_imgs: Vec<ImageInfo> = Vec::new();
     let lil_img_names = fs::read_dir(lil_imgs_dir).unwrap();
     for name in lil_img_names {
+        //println!("lil_img_name: {:?}", name);
         let img_path = name.unwrap().path().display().to_string();
         let img = open_image(img_path);
         lil_imgs.push(ImageInfo {
