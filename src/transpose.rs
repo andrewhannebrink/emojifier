@@ -48,7 +48,7 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
                             println!("received handoff_info!");
                             println!("last_handoff_info prev_parent_tiles len {}", 
                                     make_mosaic_return.prev_parent_tiles.len());
-                            transpose_one_lil_videos_frame(&last_handoff_info);
+                            transpose_one_lil_videos_frame(make_mosaic_return);
                         }
                     };
                 }
@@ -61,15 +61,32 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
     println!("transpose_every_frame() took {} seconds.", elapsed_time.subsec_millis());
 }
 
-fn transpose_one_lil_videos_frame(handoff_info: &Option<mosaic::MakeMosaicReturn>) {
-    render_lil_videos_from_quadrant_a_frame();
-    render_lil_videos_from_quadrant_b_frame();
+fn transpose_one_lil_videos_frame(handoff_info: &mosaic::MakeMosaicReturn) {
+    render_lil_videos_from_quadrant_b_frame(handoff_info);
+    render_lil_videos_from_quadrant_a_frame(handoff_info);
 }
-fn render_lil_videos_from_quadrant_a_frame() {
+fn render_lil_videos_from_quadrant_a_frame(handoff_info: &mosaic::MakeMosaicReturn) {
     return //TODO
 }
-fn render_lil_videos_from_quadrant_b_frame() {
-    return //TODO
+fn render_lil_videos_from_quadrant_b_frame(handoff_info: &mosaic::MakeMosaicReturn) {
+    //println!("{}", )
+    for prev_parent_tile in &handoff_info.prev_parent_tiles {
+        //dbg!("parent_coords in transpose.rs: {:?}", prev_parent_tile.parent_coords);
+        match prev_parent_tile.target_coords {
+            None => {
+                println!("NO TARGET_COORDS! parent_coords received in transpose.rs: {:?}", 
+                         prev_parent_tile.parent_coords);
+                //println!("no target_coords received!");
+                //TODO
+                return
+            },
+            Some(target_coords) => {
+                println!("target_coords received in transpose.rs: {:?}", target_coords);
+                println!("parent_coords received in transpose.rs: {:?}", 
+                         prev_parent_tile.parent_coords);
+            }
+        }
+    }
 }
 
 fn transpose_one_mosaic_frame (frame_number: String, depth: u32) -> mosaic::MakeMosaicReturn {

@@ -35,14 +35,14 @@ pub struct FrameSequence {
 pub fn get_instructions () -> Vec<FrameSequence> {
     let mut instructions: Vec<FrameSequence> = Vec::new();
     instructions.push(FrameSequence{
-        total_frames: 3,
+        total_frames: 1,
         mode: SequenceMode::Mosaic(DepthChange {
             starting_depth: 80,
             ending_depth: 60
         })
     });
     instructions.push(FrameSequence{
-        total_frames: 10,
+        total_frames: 19,
         mode: SequenceMode::LittleVideos
     });
     instructions.push(FrameSequence{
