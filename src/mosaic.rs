@@ -50,14 +50,14 @@ fn parent_img_path (parent_quadrant_dir: String, frame_number: String) -> String
     ].join(".")
 }
 
-enum Quadrant {
+pub enum Quadrant {
     A, B, C, D
 }
 
 #[derive(Clone)]
 pub struct MakeMosaicReturn {
-    prev_parent_quadrant: String,
-    prev_target_quadrant: String,
+    pub prev_parent_quadrant: String,
+    pub prev_target_quadrant: String,
     pub prev_parent_tiles: Vec<ImageInfo>,
     pub prev_target_tiles: Vec<ImageInfo>
 }
