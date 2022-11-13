@@ -30,7 +30,7 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
         for seq_frame_idx in 1..sequence.total_frames + 1 {
             let depth = match &sequence.mode {
                 instruct::SequenceMode::Mosaic(depth_change) => {
-                    depth_change.get_current_depth(seq_frame_idx as u16)
+                    depth_change.get_current_depth(seq_frame_idx as u16, sequence.total_frames)
                 },
                 instruct::SequenceMode::LittleVideos => {
                     60 //TODO do not hardcode this. instead get it from the handoff frame
