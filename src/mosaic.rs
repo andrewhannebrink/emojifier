@@ -21,8 +21,8 @@ struct Color(u8, u8, u8);
 pub struct ImageInfo {
     img: DynamicImage,
     avg_color: Color,
-    parent_coords: (u32, u32),
-    target_coords: Option<(u16, u16)>,
+    pub parent_coords: (u32, u32),
+    pub target_coords: Option<(i64, i64)>,
 
 }
 
@@ -157,9 +157,15 @@ fn write_final_img(mut args: WriteFinalImageArgs) -> MakeMosaicReturn {
     for y in 0..args.c.total_y_imgs {
         for x in 0..args.c.total_x_imgs {
             let index_in_lil_imgs = args.new_tiles.next().unwrap();
+            let target_coords = (
+                (x*args.c.depth + args.c.x_buf) as i64, 
+                (y*args.c.depth + args.c.y_buf) as i64
+            );
             replace(&mut final_img, &args.lil_imgs[index_in_lil_imgs as usize].img, 
-                    (x*args.c.depth + args.c.x_buf) as i64, 
-                    (y*args.c.depth + args.c.y_buf) as i64);
+                    target_coords.0, target_coords.1);
+            // TODO update lil_imgs target_coords here
+            args.lil_imgs[index_in_lil_imgs as usize].target_coords = Some(target_coords);
+            //dbg!("{:?}", args.lil_imgs[index_in_lil_imgs as usize].target_coords);
             i += 1;
         }
     }
@@ -267,7 +273,7 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
                 temp_img.save(op_path).unwrap();
             }
             if !args.save_images {
-                println!("parent_coords: {:?}", parent_coords);
+                //println!("parent_coords: {:?}", parent_coords);
                 orig_tiles.push(ImageInfo {
                     avg_color: get_avg_rgb(&temp_img, skip),
                     img: temp_img,
