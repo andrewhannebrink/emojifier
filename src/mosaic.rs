@@ -223,10 +223,6 @@ fn get_closest_img(orig_tile: &ImageInfo, lil_imgs: &Vec<ImageInfo>) -> usize {
 }
 
 
-enum SaveImagesInfo {
-    //TODO
-}
-
 pub struct OrigTileGenArgs {
     pub img: DynamicImage,
     pub c: CropDetails,
