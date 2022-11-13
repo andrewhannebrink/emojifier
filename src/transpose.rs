@@ -25,7 +25,7 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
         total_frames = total_b_frames;
     }
 
-    let mut last_handoff_info: Option<mosaic::MakeMosaicReturn> = Option::None;
+    let mut last_handoff_info: &mut Option<mosaic::MakeMosaicReturn> = &mut Option::None;
     
     let mut total_frame_idx = 1;
     for sequence in ins {
@@ -36,8 +36,10 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
                     let depth = depth_change.get_current_depth(
                         seq_frame_idx as u16, 
                         sequence.total_frames);
-                    last_handoff_info = Some(transpose_one_mosaic_frame(
-                        frame_number_with_zeroes, depth));
+                    let make_mosaic_return = 
+                        transpose_one_mosaic_frame(frame_number_with_zeroes, depth);
+                    last_handoff_info.replace(make_mosaic_return.clone());
+                    
                 },
                 instruct::SequenceMode::LittleVideos => {
                     match &last_handoff_info {
@@ -48,7 +50,7 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
                             println!("received handoff_info!");
                             println!("last_handoff_info prev_parent_tiles len {}", 
                                     make_mosaic_return.prev_parent_tiles.len());
-                            transpose_one_lil_videos_frame(make_mosaic_return);
+                            transpose_one_lil_videos_frame(make_mosaic_return.clone());
                         }
                     };
                 }
@@ -61,23 +63,21 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
     println!("transpose_every_frame() took {} seconds.", elapsed_time.subsec_millis());
 }
 
-fn transpose_one_lil_videos_frame(handoff_info: &mosaic::MakeMosaicReturn) {
-    render_lil_videos_from_quadrant_b_frame(handoff_info);
-    render_lil_videos_from_quadrant_a_frame(handoff_info);
+fn transpose_one_lil_videos_frame(handoff_info: mosaic::MakeMosaicReturn) {
+    render_lil_videos_from_quadrant_b_frame(handoff_info.clone());
+    render_lil_videos_from_quadrant_a_frame(handoff_info.clone());
 }
-fn render_lil_videos_from_quadrant_a_frame(handoff_info: &mosaic::MakeMosaicReturn) {
+fn render_lil_videos_from_quadrant_a_frame(handoff_info: mosaic::MakeMosaicReturn) {
     return //TODO
 }
-fn render_lil_videos_from_quadrant_b_frame(handoff_info: &mosaic::MakeMosaicReturn) {
-    //println!("{}", )
-    for prev_parent_tile in &handoff_info.prev_parent_tiles {
+fn render_lil_videos_from_quadrant_b_frame(handoff_info: mosaic::MakeMosaicReturn) {
+    for prev_parent_tile in handoff_info.clone().prev_parent_tiles {
         //dbg!("parent_coords in transpose.rs: {:?}", prev_parent_tile.parent_coords);
         match prev_parent_tile.target_coords {
             None => {
                 println!("NO TARGET_COORDS! parent_coords received in transpose.rs: {:?}", 
                          prev_parent_tile.parent_coords);
                 //TODO
-                return
             },
             Some(target_coords) => {
                 println!("WE GOT TARGET COORDS MUFUCKA");
