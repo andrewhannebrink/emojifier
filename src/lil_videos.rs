@@ -34,22 +34,6 @@ pub fn compose_one_lil_video_frame (
 
     println!("length of prev_parent_tiles: {}", prev_parent_tiles.len());
     for prev_parent_tile in prev_parent_tiles {
-        //dbg!("parent_coords in transpose.rs: {:?}", prev_parent_tile.parent_coords);
-//      match prev_parent_tile.target_coords {
-//          None => {
-//              println!("NO TARGET_COORDS! parent_coords received in transpose.rs: {:?}", 
-//                       prev_parent_tile.parent_coords);
-//              //TODO
-//          },
-//          Some(target_coords) => {
-//              println!("WE GOT TARGET COORDS MUFUCKA");
-//              println!("target_coords received in transpose.rs: {:?}", target_coords);
-//              println!("parent_coords received in transpose.rs: {:?}", 
-//                       prev_parent_tile.parent_coords);
-//          }
-//      }
- //     println!("parent_coords received in transpose.rs: {:?}",
- //                  prev_parent_tile.parent_coords);
         
         // Only load the next parent_img if it has target_coords
         let mut new_parent_tile: Option<DynamicImage> = Option::None;
@@ -62,10 +46,6 @@ pub fn compose_one_lil_video_frame (
             new_parent_tile = Some(new_lil_img);
         }
         for target_coord in prev_parent_tile.target_coords {
-//          println!("WE GOT TARGET COORDS MUFUCKA");
-//          println!("parent_quadrant_dir: {}", prev_parent_quadrant);
-//          println!("target_coord received in transpose.rs: {:?}", target_coord);
-
             let new_cropped_tile = match &new_parent_tile {
                 Some(cropped_img) => {
                     cropped_img
@@ -75,8 +55,6 @@ pub fn compose_one_lil_video_frame (
                     &prev_parent_tile.img
                 }
             };
-            // TODO instead of prev_parent_tile.img this should be cropped from the current
-            // parent_frame at the parent_coords
             replace(&mut img_to_replace_tiles_onto, new_cropped_tile,
                     target_coord.0, target_coord.1);
         }
