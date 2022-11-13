@@ -1,50 +1,18 @@
 mod transpose;
 mod mosaic;
 mod quadrants;
+mod instructions;
 use std::time::Instant;
 
 fn main() {
     let now = Instant::now();
-    let instuctions = get_instructions();
-    transpose::transpose_every_frame();
+    let instructions = instructions::get_instructions();
+    transpose::transpose_every_frame(instructions);
     //quadrants::frames_into_quadrants();
     let elapsed_time = now.elapsed();
     println!("main() took {} seconds.", elapsed_time.as_secs());
 }
 
-struct DepthChange {
-    starting_depth: u8,
-    ending_depth: u8,
-}
-
-enum SequenceMode {
-    Mosaic(DepthChange),
-    LittleVideos
-}
-
-struct FrameSequence {
-    total_frames: u16,
-    mode: SequenceMode,
-}
-
-fn get_instructions () -> Vec<FrameSequence> {
-    let mut instructions: Vec<FrameSequence> = Vec::new();
-    instructions.push(FrameSequence{
-        total_frames: 15,
-        mode: SequenceMode::Mosaic(DepthChange {
-            starting_depth: 90,
-            ending_depth: 90
-        })
-    });
-    instructions.push(FrameSequence{
-        total_frames: 15,
-        mode: SequenceMode::Mosaic(DepthChange {
-            starting_depth: 120,
-            ending_depth: 120
-        })
-    });
-    instructions
-}
 
 //  def readFile(instructionsFile, movDir, outputName, colorMap = {}, mp4Bool = False, secondsRange = (0, 60)):
 //      movieMaker.wipeDir('unique/')

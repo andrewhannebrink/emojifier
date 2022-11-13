@@ -1,5 +1,6 @@
 use crate::mosaic;
 use crate::quadrants;
+use crate::instructions;
 use image::DynamicImage;
 use std::fs;
 use std::time::Instant;
@@ -11,7 +12,7 @@ fn wipe_output_dirs() {
     fs::create_dir("io/output/b");
 }
 
-pub fn transpose_every_frame () {
+pub fn transpose_every_frame (ins: Vec<instructions::FrameSequence>) {
     let now = Instant::now();
     wipe_output_dirs();
     let mut total_frames = 0;
@@ -23,10 +24,14 @@ pub fn transpose_every_frame () {
     } else {
         total_frames = total_b_frames;
     }
-
-    for i in 1..total_frames + 1 {
-        let frame_number_with_zeroes = mosaic::prepend_zeroes(i);
-        transpose_one_frame(frame_number_with_zeroes);
+    
+    let mut total_frame_idx = 1;
+    for sequence in ins {
+        for seq_frame_idx in 1..sequence.total_frames + 1 {
+            let frame_number_with_zeroes = mosaic::prepend_zeroes(total_frame_idx);
+            transpose_one_frame(frame_number_with_zeroes);
+            total_frame_idx += 1;
+        }
     }
 
     let elapsed_time = now.elapsed();
