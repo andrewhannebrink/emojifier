@@ -22,7 +22,7 @@ pub struct ImageInfo {
     img: DynamicImage,
     avg_color: Color,
     parent_coords: (u32, u32),
-    //target_coords: Option<(u16, u16)>,
+    target_coords: Option<(u16, u16)>,
 
 }
 
@@ -105,9 +105,10 @@ pub fn make_mosaic(
     });
     //TODO figure out how to reuse crop_details from above using lifetime params
     let op_file_name = [frame_number.clone(), ".jpeg".to_string()].concat();
-    write_final_img(WriteFinalImageArgs {
+    let updated_mosaic_return = write_final_img(WriteFinalImageArgs {
         c: crop_details.clone(),
         new_tiles,
+        orig_tiles: orig_tiles_iter.collect(),
         lil_imgs: lil_imgs.clone(),
         dest_path: [
             String::from("io/output"),
@@ -115,36 +116,34 @@ pub fn make_mosaic(
             op_file_name
         ].join("/"),
         target_quadrant_dir: target_quadrant_dir.clone(),
+        parent_quadrant_dir: parent_quadrant_dir.clone(),
         frame_number
     });
 
     let elapsed_time = now.elapsed();
     println!("make_mosaic() took {} seconds.", elapsed_time.subsec_millis());
 
-    MakeMosaicReturn {
-        prev_parent_quadrant: parent_quadrant_dir,
-        prev_target_quadrant: target_quadrant_dir,
-        prev_parent_tiles: lil_imgs.clone(),
-        prev_target_tiles: orig_tiles_iter.collect() //TODO fix this
-    }
+    updated_mosaic_return
 }
 
 struct WriteFinalImageArgs {
     c: CropDetails,
     new_tiles: std::vec::IntoIter<u32>,
     lil_imgs: Vec<ImageInfo>,
+    orig_tiles: Vec<ImageInfo>, // Really just here to pass back to return statement
     dest_path: String,
     target_quadrant_dir: String,
+    parent_quadrant_dir: String,
     frame_number: String
 
 }
-fn write_final_img(mut args: WriteFinalImageArgs) {
+fn write_final_img(mut args: WriteFinalImageArgs) -> MakeMosaicReturn {
     let now = Instant::now();
 
     let final_img_file_name = [args.frame_number, ".jpeg".to_string()].concat();
     let final_img_dir = [
         "io/input".to_string(),
-        args.target_quadrant_dir
+        args.target_quadrant_dir.clone()
     ].join("/");
     let mut final_img = open_image([
         final_img_dir,
@@ -170,6 +169,13 @@ fn write_final_img(mut args: WriteFinalImageArgs) {
     println!("final image written to {}", args.dest_path);
     let elapsed_time = now.elapsed();
     println!("write_final_img() took {} seconds.", elapsed_time.subsec_millis());
+
+    MakeMosaicReturn {
+        prev_parent_quadrant: args.parent_quadrant_dir,
+        prev_target_quadrant: args.target_quadrant_dir,
+        prev_parent_tiles: args.lil_imgs.clone(),
+        prev_target_tiles: args.orig_tiles
+    }
 }
 
 struct NewTileGenArgs {
@@ -265,7 +271,8 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
                 orig_tiles.push(ImageInfo {
                     avg_color: get_avg_rgb(&temp_img, skip),
                     img: temp_img,
-                    parent_coords
+                    parent_coords,
+                    target_coords: Option::None
                 });
             }
             i = i + 1;
@@ -306,7 +313,8 @@ fn get_lil_imgs_from_dir(lil_imgs_dir: String, skip: u8) -> Vec<ImageInfo> {
         lil_imgs.push(ImageInfo {
             avg_color: get_avg_rgb(&img, skip as u8),
             img: img,
-            parent_coords: (0, 0) // TODO parent_coords are not relevant for getting from dir
+            parent_coords: (0, 0),
+            target_coords: Option::None // TODO parent_coords are not relevant for getting from dir
         });
     }
     let elapsed_time = now.elapsed();
