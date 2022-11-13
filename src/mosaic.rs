@@ -57,7 +57,7 @@ pub enum Quadrant {
 }
 
 #[derive(Clone)]
-pub struct MakeMosaicReturn {
+pub struct TransposeMakeMosaicReturn {
     pub prev_parent_quadrant: String,
     pub prev_target_quadrant: String,
     pub prev_parent_tiles: Vec<ImageInfo>,
@@ -71,7 +71,7 @@ pub fn make_mosaic(
     parent_quadrant_dir: String,
     target_quadrant_dir: String,
     frame_number: String,
-    previous_return: Option<MakeMosaicReturn>) -> MakeMosaicReturn {
+    previous_return: Option<TransposeMakeMosaicReturn>) -> TransposeMakeMosaicReturn {
 
     let now = Instant::now();
 
@@ -161,7 +161,7 @@ struct WriteFinalImageArgs {
     frame_number: String
 
 }
-fn write_final_img(mut args: WriteFinalImageArgs) -> MakeMosaicReturn {
+fn write_final_img(mut args: WriteFinalImageArgs) -> TransposeMakeMosaicReturn {
     let now = Instant::now();
 
     let final_img_file_name = [args.frame_number, ".jpeg".to_string()].concat();
@@ -218,7 +218,7 @@ fn write_final_img(mut args: WriteFinalImageArgs) -> MakeMosaicReturn {
     let elapsed_time = now.elapsed();
     println!("write_final_img() took {} seconds.", elapsed_time.subsec_millis());
 
-    MakeMosaicReturn {
+    TransposeMakeMosaicReturn {
         prev_parent_quadrant: args.parent_quadrant_dir,
         prev_target_quadrant: args.target_quadrant_dir,
         prev_parent_tiles: args.lil_imgs.clone(),
