@@ -20,7 +20,10 @@ struct Color(u8, u8, u8);
 #[derive(Clone, Debug)]
 pub struct ImageInfo {
     img: DynamicImage,
-    avg_color: Color
+    avg_color: Color,
+    parent_coords: (u32, u32),
+    //target_coords: Option<(u16, u16)>,
+
 }
 
 pub fn save_lil_img_dir(args: OrigTileGenArgs) {
@@ -238,9 +241,13 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
     let mut i = 0;
     for y in 0..args.c.total_y_imgs {
         for x in 0..args.c.total_x_imgs {
-            let temp_img = args.img.crop_imm(
+            let parent_coords = (
                 x*args.c.depth + args.c.x_buf,
-                y*args.c.depth + args.c.y_buf,
+                y*args.c.depth + args.c.y_buf
+            );
+            let temp_img = args.img.crop_imm(
+                parent_coords.0,
+                parent_coords.1,
                 args.c.depth, 
                 args.c.depth);
             if args.save_images {
@@ -254,9 +261,11 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
                 temp_img.save(op_path).unwrap();
             }
             if !args.save_images {
+                println!("parent_coords: {:?}", parent_coords);
                 orig_tiles.push(ImageInfo {
                     avg_color: get_avg_rgb(&temp_img, skip),
-                    img: temp_img
+                    img: temp_img,
+                    parent_coords
                 });
             }
             i = i + 1;
@@ -296,7 +305,8 @@ fn get_lil_imgs_from_dir(lil_imgs_dir: String, skip: u8) -> Vec<ImageInfo> {
         let img = open_image(img_path);
         lil_imgs.push(ImageInfo {
             avg_color: get_avg_rgb(&img, skip as u8),
-            img: img
+            img: img,
+            parent_coords: (0, 0) // TODO parent_coords are not relevant for getting from dir
         });
     }
     let elapsed_time = now.elapsed();
