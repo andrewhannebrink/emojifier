@@ -43,40 +43,80 @@ pub fn get_instructions () -> Vec<FrameSequence> {
 //          lil_imgs_dir: Option::None
 //      })
 //  });
-    instructions.push(FrameSequence {
-        total_frames: 10,
-        mode: SequenceMode::Mosaic(MosaicInstructions {
-            starting_depth: 30,
-            ending_depth: 60,
-            lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
-        })
-    });
-    instructions.push(FrameSequence{
-        total_frames: 10,
-        mode: SequenceMode::Mosaic(MosaicInstructions {
-            starting_depth: 60,
-            ending_depth: 20,
-            lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
-        })
-    });
-    instructions.push(FrameSequence{
-        total_frames: 10,
-        mode: SequenceMode::Mosaic(MosaicInstructions {
-            starting_depth: 20,
-            ending_depth: 20,
-            lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
-        })
-    });
+//  instructions.push(FrameSequence {
+//      total_frames: 10,
+//      mode: SequenceMode::Mosaic(MosaicInstructions {
+//          starting_depth: 30,
+//          ending_depth: 60,
+//          lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
+//      })
+//  });
 //  instructions.push(FrameSequence{
-//      total_frames: 3,
+//      total_frames: 10,
+//      mode: SequenceMode::Mosaic(MosaicInstructions {
+//          starting_depth: 60,
+//          ending_depth: 20,
+//          lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
+//      })
+//  });
+//  instructions.push(FrameSequence{
+//      total_frames: 10,
 //      mode: SequenceMode::Mosaic(MosaicInstructions {
 //          starting_depth: 20,
-//          ending_depth: 10,
-//          lil_imgs_dir: Option::None
+//          ending_depth: 20,
+//          lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
 //      })
 //  });
     instructions.push(FrameSequence{
-        total_frames: 4,
+        total_frames: 30,
+        mode: SequenceMode::Mosaic(MosaicInstructions {
+            starting_depth: 20,
+            ending_depth: 20,
+            lil_imgs_dir: Option::None
+        })
+    });
+    instructions.push(FrameSequence{
+        total_frames: 30,
+        mode: SequenceMode::Mosaic(MosaicInstructions {
+            starting_depth: 20,
+            ending_depth: 40,
+            lil_imgs_dir: Option::None
+        })
+    });
+    instructions.push(FrameSequence{
+        total_frames: 60,
+        mode: SequenceMode::LittleVideos
+    });
+    instructions.push(FrameSequence{
+        total_frames: 30,
+        mode: SequenceMode::Mosaic(MosaicInstructions {
+            starting_depth: 40,
+            ending_depth: 90,
+            lil_imgs_dir: Option::None
+        })
+    });
+    instructions.push(FrameSequence{
+        total_frames: 60,
+        mode: SequenceMode::LittleVideos
+    });
+    instructions.push(FrameSequence{
+        total_frames: 60,
+        mode: SequenceMode::Mosaic(MosaicInstructions {
+            starting_depth: 90,
+            ending_depth: 20,
+            lil_imgs_dir: Option::None
+        })
+    });
+    instructions.push(FrameSequence{
+        total_frames: 60,
+        mode: SequenceMode::Mosaic(MosaicInstructions {
+            starting_depth: 20,
+            ending_depth: 20,
+            lil_imgs_dir: Option::None
+        })
+    });
+    instructions.push(FrameSequence{
+        total_frames: 60,
         mode: SequenceMode::LittleVideos
     });
 //  instructions.push(FrameSequence{

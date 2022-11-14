@@ -17,6 +17,7 @@ pub fn compose_one_lil_video_frame (
         target_quadrant_dir = String::from("a");
     }
     let final_img_file_name = [frame_number, ".jpeg".to_string()].concat();
+    println!("frame_number: {}", frame_number)
     let mut img_to_repace_tiles_onto_path = [
             "io/input".to_string(),
             target_quadrant_dir.clone(),
