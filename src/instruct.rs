@@ -10,10 +10,11 @@ pub struct MosaicInstructions {
 impl MosaicInstructions {
     pub fn get_current_depth (&self, seq_frame_idx: u16, total_seq_frames: u32) -> u32 {
         // This is a fraction percentage of the progress that's been made in the frame seq
+        println!("starting get_current_depth()");
         let depth_step_size =
             (self.ending_depth as i32 - self.starting_depth as i32) as f32 / 
             total_seq_frames as f32;
-        if depth_step_size as i32 == 0 {
+        if depth_step_size == 0.0 {
             return self.starting_depth;
         }
         let current_depth = 
@@ -108,7 +109,11 @@ pub fn get_instructions () -> Vec<FrameSequence> {
         })
     });
     instructions.push(FrameSequence{
-        total_frames: 60,
+        total_frames: 30,
+        mode: SequenceMode::LittleVideos
+    });
+    instructions.push(FrameSequence{
+        total_frames: 30,
         mode: SequenceMode::Mosaic(MosaicInstructions {
             starting_depth: 20,
             ending_depth: 20,
@@ -116,7 +121,31 @@ pub fn get_instructions () -> Vec<FrameSequence> {
         })
     });
     instructions.push(FrameSequence{
-        total_frames: 60,
+        total_frames: 30,
+        mode: SequenceMode::Mosaic(MosaicInstructions {
+            starting_depth: 20,
+            ending_depth: 180,
+            lil_imgs_dir: Option::None
+        })
+    });
+    instructions.push(FrameSequence{
+        total_frames: 30,
+        mode: SequenceMode::Mosaic(MosaicInstructions {
+            starting_depth: 180,
+            ending_depth: 180,
+            lil_imgs_dir: Option::None
+        })
+    });
+    instructions.push(FrameSequence{
+        total_frames: 30,
+        mode: SequenceMode::Mosaic(MosaicInstructions {
+            starting_depth: 180,
+            ending_depth: 20,
+            lil_imgs_dir: Option::None
+        })
+    });
+    instructions.push(FrameSequence{
+        total_frames: 30,
         mode: SequenceMode::LittleVideos
     });
 //  instructions.push(FrameSequence{
