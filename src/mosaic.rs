@@ -411,9 +411,9 @@ pub fn open_image(img_name: String) -> DynamicImage {
 pub fn prepend_zeroes(i: usize) -> String {
     let frame_number_without_zeroes: &str = &i.to_string();
     let mut zeroes_to_prepend = "000";
-    if i >= 10 {
+    if i >= 10 && i < 100 {
         zeroes_to_prepend = "00";
-    } else if i >= 100 {
+    } else if i >= 100 && i < 1000 {
         zeroes_to_prepend = "0";
     } else if i >= 1000 {
         zeroes_to_prepend = "";
