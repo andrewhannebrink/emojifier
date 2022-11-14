@@ -38,6 +38,7 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
                     let depth = mosaic_instructions.get_current_depth(
                         seq_frame_idx as u16, 
                         sequence.total_frames);
+                    println!("depth: {}", depth);
                     let make_mosaic_return = 
                         transpose_one_mosaic_frame(
                             frame_number_with_zeroes,
