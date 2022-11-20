@@ -3,4 +3,9 @@
 test4.jpeg
 test5.jpeg
 op.png
-/io
+/io/input
+/io/output
+/io/lil_imgs/emoji
+/io/lil_imgs/emoji_raw
+/io/lil_imgs/emoji_trim
+
