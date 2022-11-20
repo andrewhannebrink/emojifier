@@ -26,7 +26,8 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
         total_frames = total_b_frames;
     }
 
-    let mut last_handoff_info: &mut Option<mosaic::MakeMosaicReturn> = &mut Option::None;
+    let mut last_handoff_info: &mut Option<mosaic::TransposeMakeMosaicReturn> = 
+        &mut Option::None;
     
     let mut total_frame_idx = 1;
     for sequence in ins {
@@ -37,6 +38,7 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
                     let depth = mosaic_instructions.get_current_depth(
                         seq_frame_idx as u16, 
                         sequence.total_frames);
+                    println!("depth: {}", depth);
                     let make_mosaic_return = 
                         transpose_one_mosaic_frame(
                             frame_number_with_zeroes,
@@ -72,13 +74,13 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
 
 fn transpose_one_lil_videos_frame(
         frame_number: String,
-        handoff_info: mosaic::MakeMosaicReturn) {
+        handoff_info: mosaic::TransposeMakeMosaicReturn) {
     render_lil_videos_from_quadrant_b_frame(frame_number.clone(), handoff_info.clone());
     render_lil_videos_from_quadrant_a_frame(frame_number.clone(), handoff_info.clone());
 }
 fn render_lil_videos_from_quadrant_a_frame(
         frame_number: String,
-        handoff_info: mosaic::MakeMosaicReturn) {
+        handoff_info: mosaic::TransposeMakeMosaicReturn) {
     lil_videos::compose_one_lil_video_frame(
         frame_number,
         handoff_info.prev_target_quadrant,
@@ -86,7 +88,7 @@ fn render_lil_videos_from_quadrant_a_frame(
 }
 fn render_lil_videos_from_quadrant_b_frame(
         frame_number: String, 
-        handoff_info: mosaic::MakeMosaicReturn) {
+        handoff_info: mosaic::TransposeMakeMosaicReturn) {
     lil_videos::compose_one_lil_video_frame(
         frame_number,
         handoff_info.prev_parent_quadrant,
@@ -96,7 +98,7 @@ fn render_lil_videos_from_quadrant_b_frame(
 fn transpose_one_mosaic_frame (
         frame_number: String,
         depth: u32,
-        lil_imgs_dir: Option<String>) -> mosaic::MakeMosaicReturn {
+        lil_imgs_dir: Option<String>) -> mosaic::TransposeMakeMosaicReturn {
     println!("lil_imgs_dir: {:?}", lil_imgs_dir);
     //TODO drill lil_imgs dir to make_mosaic() from here
     let make_mosaic_return = render_mosaic_from_quadrant_b_frame(
@@ -119,16 +121,16 @@ fn transpose_one_mosaic_frame (
 
 fn render_mosaic_from_quadrant_a_frame (
         frame_number: String,
-        prev_return: Option<mosaic::MakeMosaicReturn>,
+        prev_return: Option<mosaic::TransposeMakeMosaicReturn>,
         depth: u32,
-        lil_imgs_dir: Option<String>) -> mosaic::MakeMosaicReturn {
+        lil_imgs_dir: Option<String>) -> mosaic::TransposeMakeMosaicReturn {
     render_still_mosaic_from_quadrant_frame(
         "a", frame_number, prev_return, depth, lil_imgs_dir)
 }
 fn render_mosaic_from_quadrant_b_frame (
         frame_number: String,
         depth: u32,
-        lil_imgs_dir: Option<String>) -> mosaic::MakeMosaicReturn {
+        lil_imgs_dir: Option<String>) -> mosaic::TransposeMakeMosaicReturn {
     render_still_mosaic_from_quadrant_frame(
         "b", frame_number, Option::None, depth, lil_imgs_dir)
 }
@@ -136,9 +138,9 @@ fn render_mosaic_from_quadrant_b_frame (
 fn render_still_mosaic_from_quadrant_frame(
         target_quadrant_dir: &str,
         frame_number: String,
-        make_mosaic_return: Option<mosaic::MakeMosaicReturn>,
+        make_mosaic_return: Option<mosaic::TransposeMakeMosaicReturn>,
         depth: u32,
-        lil_imgs_dir: Option<String>) -> mosaic::MakeMosaicReturn {
+        lil_imgs_dir: Option<String>) -> mosaic::TransposeMakeMosaicReturn {
     let mut parent_quadrant_dir = String::new();
     if target_quadrant_dir == "a" {
         parent_quadrant_dir = String::from("b");
@@ -232,9 +234,9 @@ fn compose_mosaic_from_paths(
         parent_quadrant_dir: String,
         target_quadrant_dir: String,
         frame_number: String,
-        previous_return: Option<mosaic::MakeMosaicReturn>,
+        previous_return: Option<mosaic::TransposeMakeMosaicReturn>,
         depth: u32,
-        lil_imgs_dir: Option<String>) -> mosaic::MakeMosaicReturn {
+        lil_imgs_dir: Option<String>) -> mosaic::TransposeMakeMosaicReturn {
 
     let (xt, yt) = (1920, 1080);
     let crop_details = mosaic::CropDetails {
