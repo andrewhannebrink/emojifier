@@ -5,6 +5,8 @@ test5.jpeg
 op.png
 /io/input
 /io/output
+/io/lil_imgs/a
+/io/lil_imgs/b
 /io/lil_imgs/emoji
 /io/lil_imgs/emoji_raw
 /io/lil_imgs/emoji_trim
