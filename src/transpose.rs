@@ -26,7 +26,7 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way: bool)
         for seq_frame_idx in 1..sequence.total_frames + 1 {
             let frame_number_with_zeroes = mosaic::prepend_zeroes(total_frame_idx);
             match &sequence.mode {
-                instuct:SequenceMode::NoModification => {
+                instruct::SequenceMode::NoModification => {
                     // TODO this does not currently transpose, but only copies B frames
                     copy_original_img(frame_number_with_zeroes, "b");
                 },
@@ -69,18 +69,18 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way: bool)
     println!("transpose_every_frame() took {} seconds.", elapsed_time.subsec_millis());
 }
 
-fn copy_original_img(frame_number: String, target_quadrant_dir: String) {
+fn copy_original_img(frame_number: String, target_quadrant_dir: &str) {
     Command::new("cp")
             .arg([
                  "io/input".to_string(),
-                 target_quadrant_dir.clone(),
-                 [frame_number.clone, ".jpeg".to_string()].concat()
-            ]).join("/")
+                 target_quadrant_dir.to_string(),
+                 [frame_number.clone(), ".jpeg".to_string()].concat()
+            ].join("/"))
             .arg([
                  "io/output".to_string(),
-                 target_quadrant_dir.clone(),
-                 [frame_number.clone, ".jpeg".to_string()].concat()
-            ]).join("/")
+                 target_quadrant_dir.to_string(),
+                 [frame_number.clone(), ".jpeg".to_string()].concat()
+            ].join("/"))
             .spawn()
             .expect("ls command failed to start");
 }
