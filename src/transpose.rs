@@ -16,16 +16,7 @@ fn wipe_output_dirs() {
 pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
     let now = Instant::now();
     wipe_output_dirs();
-    let mut total_frames = 0;
-    let total_a_frames = fs::read_dir("io/input/a").unwrap().count();
-    let total_b_frames = fs::read_dir("io/input/b").unwrap().count();
-
-    if total_a_frames < total_b_frames {
-        total_frames = total_a_frames;
-    } else {
-        total_frames = total_b_frames;
-    }
-
+    
     let mut last_handoff_info: &mut Option<mosaic::TransposeMakeMosaicReturn> = 
         &mut Option::None;
     
