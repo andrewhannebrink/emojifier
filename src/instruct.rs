@@ -26,7 +26,8 @@ impl MosaicInstructions {
 
 pub enum SequenceMode {
     Mosaic(MosaicInstructions), // String option is for optional lil_imgs_dir 
-    LittleVideos 
+    LittleVideos,
+    NoModification
 }
 
 pub struct FrameSequence {
@@ -42,6 +43,7 @@ impl FrameSequence {
 
 pub fn get_instructions () -> Vec<FrameSequence> {
     let mut instructions: Vec<FrameSequence> = Vec::new();
+    instuctions.push(FrameSequence::new(3, SequenceMode::NoModification))
     instructions.push(FrameSequence::new(3, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 30,
         ending_depth: 30,
