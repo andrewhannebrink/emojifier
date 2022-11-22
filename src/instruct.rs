@@ -1,6 +1,7 @@
 use crate::lil_videos;
 use crate::mosaic;
 
+#[derive(Clone)]
 pub struct MosaicInstructions {
     pub starting_depth: u32,
     pub ending_depth: u32,
@@ -24,12 +25,14 @@ impl MosaicInstructions {
     }
 }
 
+#[derive(Clone)]
 pub enum SequenceMode {
     Mosaic(MosaicInstructions), // String option is for optional lil_imgs_dir 
     LittleVideos,
     NoModification
 }
 
+#[derive(Clone)]
 pub struct FrameSequence {
     pub total_frames: u32,
     pub mode: SequenceMode,
@@ -43,38 +46,42 @@ impl FrameSequence {
 
 pub fn get_instructions () -> Vec<FrameSequence> {
     let mut instructions: Vec<FrameSequence> = Vec::new();
-    instructions.push(FrameSequence::new(75, SequenceMode::NoModification));
-    instructions.push(FrameSequence::new(15, SequenceMode::Mosaic(MosaicInstructions {
-        starting_depth: 10,
+    let mut two_sec_trans: Vec<FrameSequence> = Vec::new();
+
+    two_sec_trans.push(FrameSequence::new(2, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 120,
         ending_depth: 120,
-        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_jpeg_small".to_string())
+        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
     })));
-    instructions.push(FrameSequence::new(15, SequenceMode::Mosaic(MosaicInstructions {
+    two_sec_trans.push(FrameSequence::new(13, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 120,
         ending_depth: 10,
-        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_jpeg_small".to_string())
+        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
     })));
-    instructions.push(FrameSequence::new(60, SequenceMode::NoModification));
-    instructions.push(FrameSequence::new(15, SequenceMode::Mosaic(MosaicInstructions {
+    two_sec_trans.push(FrameSequence::new(30, SequenceMode::NoModification));
+    two_sec_trans.push(FrameSequence::new(13, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 10,
         ending_depth: 120,
-        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_jpeg_small".to_string())
+        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
     })));
-    instructions.push(FrameSequence::new(15, SequenceMode::Mosaic(MosaicInstructions {
+    two_sec_trans.push(FrameSequence::new(2, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 120,
-        ending_depth: 10,
-        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_jpeg_small".to_string())
+        ending_depth: 120,
+        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
     })));
-    instructions.push(FrameSequence::new(75, SequenceMode::NoModification));
-    instructions
-//  instructions.push(FrameSequence{
-//      total_frames: 3,
+
+    for i in 0..15 {
+        instructions.append(&mut two_sec_trans.clone());
+    }
+    //  instructions.push(FrameSequence{
+//      total_frames: 350,
 //      mode: SequenceMode::Mosaic(MosaicInstructions {
-//          starting_depth: 30,
-//          ending_depth: 30,
+//          starting_depth: 60,
+//          ending_depth: 60,
 //          lil_imgs_dir: Option::None
 //      })
 //  });
+    instructions
 //  instructions.push(FrameSequence {
 //      total_frames: 10,
 //      mode: SequenceMode::Mosaic(MosaicInstructions {
