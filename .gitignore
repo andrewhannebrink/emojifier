@@ -5,7 +5,12 @@ test5.jpeg
 op.png
 /io/input
 /io/output
+/io/lil_imgs/a
+/io/lil_imgs/b
 /io/lil_imgs/emoji
 /io/lil_imgs/emoji_raw
 /io/lil_imgs/emoji_trim
 
+io/lil_imgs/sdg_more_colors_jpeg_small
+io/lil_imgs/sdg_more_colors_jpeg
+io/lil_imgs/sdg_more_colors

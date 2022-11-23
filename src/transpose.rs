@@ -5,6 +5,7 @@ use crate::instruct;
 use image::DynamicImage;
 use std::fs;
 use std::time::Instant;
+use std::process::Command;
 
 fn wipe_output_dirs() {
     fs::remove_dir_all("io/output/a");
@@ -13,19 +14,10 @@ fn wipe_output_dirs() {
     fs::create_dir("io/output/b");
 }
 
-pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
+pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way: bool) {
     let now = Instant::now();
     wipe_output_dirs();
-    let mut total_frames = 0;
-    let total_a_frames = fs::read_dir("io/input/a").unwrap().count();
-    let total_b_frames = fs::read_dir("io/input/b").unwrap().count();
-
-    if total_a_frames < total_b_frames {
-        total_frames = total_a_frames;
-    } else {
-        total_frames = total_b_frames;
-    }
-
+    
     let mut last_handoff_info: &mut Option<mosaic::TransposeMakeMosaicReturn> = 
         &mut Option::None;
     
@@ -34,6 +26,10 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
         for seq_frame_idx in 1..sequence.total_frames + 1 {
             let frame_number_with_zeroes = mosaic::prepend_zeroes(total_frame_idx);
             match &sequence.mode {
+                instruct::SequenceMode::NoModification => {
+                    // TODO this does not currently transpose, but only copies B frames
+                    copy_original_img(frame_number_with_zeroes, "b");
+                },
                 instruct::SequenceMode::Mosaic(mosaic_instructions) => {
                     let depth = mosaic_instructions.get_current_depth(
                         seq_frame_idx as u16, 
@@ -43,7 +39,8 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
                         transpose_one_mosaic_frame(
                             frame_number_with_zeroes,
                             depth,
-                            mosaic_instructions.lil_imgs_dir.clone());
+                            mosaic_instructions.lil_imgs_dir.clone(),
+                            one_way);
                     last_handoff_info.replace(make_mosaic_return.clone());
                     
                 },
@@ -72,6 +69,22 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>) {
     println!("transpose_every_frame() took {} seconds.", elapsed_time.subsec_millis());
 }
 
+fn copy_original_img(frame_number: String, target_quadrant_dir: &str) {
+    Command::new("cp")
+            .arg([
+                 "io/input".to_string(),
+                 target_quadrant_dir.to_string(),
+                 [frame_number.clone(), ".jpeg".to_string()].concat()
+            ].join("/"))
+            .arg([
+                 "io/output".to_string(),
+                 target_quadrant_dir.to_string(),
+                 [frame_number.clone(), ".jpeg".to_string()].concat()
+            ].join("/"))
+            .spawn()
+            .expect("ls command failed to start");
+}
+
 fn transpose_one_lil_videos_frame(
         frame_number: String,
         handoff_info: mosaic::TransposeMakeMosaicReturn) {
@@ -98,24 +111,31 @@ fn render_lil_videos_from_quadrant_b_frame(
 fn transpose_one_mosaic_frame (
         frame_number: String,
         depth: u32,
-        lil_imgs_dir: Option<String>) -> mosaic::TransposeMakeMosaicReturn {
+        lil_imgs_dir: Option<String>,
+        one_way: bool) -> mosaic::TransposeMakeMosaicReturn {
     println!("lil_imgs_dir: {:?}", lil_imgs_dir);
     //TODO drill lil_imgs dir to make_mosaic() from here
     let make_mosaic_return = render_mosaic_from_quadrant_b_frame(
         frame_number.clone(),
         depth,
         lil_imgs_dir.clone());
-    match lil_imgs_dir.clone() {
-        None => {
-            render_mosaic_from_quadrant_a_frame(
-                frame_number.clone(), Some(make_mosaic_return), depth, Option::None)
-        },
-        // TODO passing option::none here makes me have to reload emoji dir every render
-        // This is v slow...
-        Some(lil_imgs_dir_str) => {
-            render_mosaic_from_quadrant_a_frame(
-                frame_number.clone(), Option::None, depth, lil_imgs_dir.clone())
+    if !one_way {
+        match lil_imgs_dir.clone() {
+            None => {
+                render_mosaic_from_quadrant_a_frame(
+                    frame_number.clone(), Some(make_mosaic_return), depth, Option::None)
+            },
+            // TODO passing option::none here makes me have to reload emoji dir every render
+            // This is v slow...
+            Some(lil_imgs_dir_str) => {
+                render_mosaic_from_quadrant_a_frame(
+                    frame_number.clone(), Option::None, depth, lil_imgs_dir.clone())
+            }
         }
+    }
+    // This never actually gets used, but is needed so that the fn signature is satisfied
+    else {
+        make_mosaic_return
     }
 }
 
