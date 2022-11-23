@@ -109,10 +109,10 @@ pub fn make_mosaic(
     };
 
     //TODO figure out how to reuse crop_details from above using lifetime params
-    let mut new_tiles = new_tiles_gen(NewTileGenArgs {
+    let (mut new_tiles, mut lil_imgs) = new_tiles_gen(NewTileGenArgs {
         c: crop_details.clone(),
         orig_tiles: orig_tiles_iter.clone(),
-        lil_imgs: lil_imgs.clone(),
+        lil_imgs,
     });
     //TODO figure out how to reuse crop_details from above using lifetime params
     let op_file_name = [frame_number.clone(), ".jpeg".to_string()].concat();
@@ -190,10 +190,11 @@ fn write_final_img(mut args: WriteFinalImageArgs) -> TransposeMakeMosaicReturn {
             // for when lil_imgs_dir is passed to make_mosaic, and the img size is not 
             // necessarily the depth, as would be the case when lil_imgs_dir is ot passed
             let mut resized_img: Option<DynamicImage> = Option::None;
-            if args.lil_imgs[index_in_lil_imgs as usize].img.dimensions().0 != args.c.depth {
-                resized_img = Some(args.lil_imgs[index_in_lil_imgs as usize].img.resize(
-                    args.c.depth, args.c.depth, FilterType::Gaussian));
-            }
+//          if args.lil_imgs[index_in_lil_imgs as usize].img.dimensions().0 != args.c.depth {
+//              println!("resizing img");
+//              resized_img = Some(args.lil_imgs[index_in_lil_imgs as usize].img.resize(
+//                  args.c.depth, args.c.depth, FilterType::Gaussian));
+//          }
 
             match resized_img {
                 None => {
@@ -232,11 +233,11 @@ struct NewTileGenArgs {
     lil_imgs: Vec<ImageInfo>
 }
 
-fn new_tiles_gen(args: NewTileGenArgs) -> std::vec::IntoIter<u32> {
+fn new_tiles_gen(mut args: NewTileGenArgs) -> (std::vec::IntoIter<u32>, Vec<ImageInfo>) {
     let now = Instant::now();
     let mut new_tiles: Vec<u32> = Vec::new();
     for orig_tile in args.orig_tiles {
-        let new_tile = get_closest_img(&orig_tile, &(args.lil_imgs));
+        let new_tile = get_closest_img(&orig_tile, &mut (args.lil_imgs), &args.c);
         new_tiles.push(new_tile as u32);
     }
     let mut new_tiles_iter = new_tiles.into_iter();
@@ -244,10 +245,10 @@ fn new_tiles_gen(args: NewTileGenArgs) -> std::vec::IntoIter<u32> {
     let elapsed_time = now.elapsed();
     println!("new_tiles_gen() took {} seconds.", elapsed_time.subsec_millis());
 
-    new_tiles_iter
+    (new_tiles_iter, args.lil_imgs)
 }
 
-fn get_closest_img(orig_tile: &ImageInfo, lil_imgs: &Vec<ImageInfo>) -> usize {
+fn get_closest_img(orig_tile: &ImageInfo, lil_imgs: &mut Vec<ImageInfo>, c: &CropDetails) -> usize {
     let mut closest_img_index = 0;
 
     let mut min_square_dis = 256 * 256 * 256; // TODO in V1 this was 3*266*266 which seems wrong
@@ -274,7 +275,14 @@ fn get_closest_img(orig_tile: &ImageInfo, lil_imgs: &Vec<ImageInfo>) -> usize {
 //          break
 //      }
     }
+
     let closest_img = &lil_imgs[closest_img_index];
+    let lil_img_size = closest_img.img.dimensions().0;
+    if c.depth != lil_img_size {
+        println!("lil_img is wrong size!");
+        lil_imgs[closest_img_index].img = lil_imgs[closest_img_index].img.resize(
+            c.depth, c.depth, FilterType::Gaussian);
+    }
 
     closest_img_index
 }
