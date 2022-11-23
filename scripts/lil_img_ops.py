@@ -73,8 +73,8 @@ def main():
     #convertSvgToJpeg()
     #resize("sdg_jpeg", "sdg_jpeg_small", 120)
     #centerImagesOnWhiteTile("emoji_trim", "emoji_buffered")
-    moreColors()
-    convertSvgToJpeg("sdg_more_colors", "sdg_more_colors_jpeg")
+    #moreColors()
+    #convertSvgToJpeg("sdg_more_colors", "sdg_more_colors_jpeg")
     resize("sdg_more_colors_jpeg", "sdg_more_colors_jpeg_small", 60)
 
 main()
