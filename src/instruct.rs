@@ -70,7 +70,7 @@ pub fn get_instructions () -> Vec<FrameSequence> {
         lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
     })));
 
-    for i in 0..1 {
+    for i in 0..14 {
         instructions.append(&mut two_sec_trans.clone());
     }
     //  instructions.push(FrameSequence{
