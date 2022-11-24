@@ -2,6 +2,7 @@ use crate::mosaic;
 use crate::quadrants;
 use crate::lil_videos;
 use crate::instruct;
+use crate::path;
 use image::DynamicImage;
 use std::fs;
 use std::time::Instant;
@@ -24,11 +25,11 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way: bool)
     let mut total_frame_idx = 1;
     for sequence in ins {
         for seq_frame_idx in 1..sequence.total_frames + 1 {
-            let frame_number_with_zeroes = mosaic::prepend_zeroes(total_frame_idx);
+            let frame_number_with_zeroes = path::prepend_zeroes(total_frame_idx);
             match &sequence.mode {
                 instruct::SequenceMode::NoModification => {
                     // TODO this does not currently transpose, but only copies B frames
-                    copy_original_img(frame_number_with_zeroes, "b");
+                    copy_original_img(&frame_number_with_zeroes, &path::QUADRANT_B);
                 },
                 instruct::SequenceMode::Mosaic(mosaic_instructions) => {
                     let depth = mosaic_instructions.get_current_depth(
@@ -69,18 +70,10 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way: bool)
     println!("transpose_every_frame() took {} seconds.", elapsed_time.subsec_millis());
 }
 
-fn copy_original_img(frame_number: String, target_quadrant_dir: &str) {
+fn copy_original_img(frame_number_str: &String, target_quadrant: &path::Quadrant) {
     Command::new("cp")
-            .arg([
-                 "io/input".to_string(),
-                 target_quadrant_dir.to_string(),
-                 [frame_number.clone(), ".jpeg".to_string()].concat()
-            ].join("/"))
-            .arg([
-                 "io/output".to_string(),
-                 target_quadrant_dir.to_string(),
-                 [frame_number.clone(), ".jpeg".to_string()].concat()
-            ].join("/"))
+            .arg(path::input_path(target_quadrant, frame_number_str))
+            .arg(path::output_path(target_quadrant, frame_number_str))
             .spawn()
             .expect("ls command failed to start");
 }

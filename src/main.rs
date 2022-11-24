@@ -3,12 +3,15 @@ mod mosaic;
 mod lil_videos;
 mod quadrants;
 mod instruct;
+mod path;
 use std::time::Instant;
 
 fn main() {
     let now = Instant::now();
-    let instructions = instruct::get_instructions();
-    transpose::transpose_every_frame(&instructions, true);
+    let n = path::prepend_zeroes(1452);
+    println!("{}", n);
+    //let instructions = instruct::get_instructions();
+    //transpose::transpose_every_frame(&instructions, true);
     //transpose::transpose_every_frame(&instructions, false);
     //quadrants::frames_into_quadrants();
     let elapsed_time = now.elapsed();
