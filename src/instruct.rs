@@ -122,14 +122,14 @@ fn bench_instructions() -> Vec<FrameSequence> {
 
 pub fn get_instructions () -> Vec<FrameSequence> {
     let mut instructions: Vec<FrameSequence> = Vec::new();
-//  let mut two_sec_trans = two_second_transition();
-//  for i in 0..1 {
-//      instructions.append(&mut two_sec_trans.clone());
-//  }
-    let mut bench = bench_instructions();
-    for i in 0..1 {
-        instructions.append(&mut bench);
+    let mut two_sec_trans = two_second_transition();
+    for i in 0..17 {
+        instructions.append(&mut two_sec_trans.clone());
     }
+//  let mut bench = bench_instructions();
+//  for i in 0..1 {
+//      instructions.append(&mut bench);
+//  }
     instructions
 //  instructions.push(FrameSequence {
 //      total_frames: 10,
