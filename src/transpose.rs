@@ -53,6 +53,8 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way: bool)
                             frame_number_with_zeroes,
                             depth,
                             mosaic_instructions.lil_imgs_dir.clone(),
+                            lil_imgs_map.get(
+                                &mosaic_instructions.lil_imgs_dir.as_ref().unwrap()),
                             one_way);
                     last_handoff_info.replace(make_mosaic_return.clone());
                     
@@ -117,6 +119,7 @@ fn transpose_one_mosaic_frame (
         frame_number: String,
         depth: u32,
         lil_imgs_dir: Option<String>,
+        lil_imgs: Option<&Vec<mosaic::ImageInfo>>,
         one_way: bool) -> mosaic::TransposeMakeMosaicReturn {
     println!("lil_imgs_dir: {:?}", lil_imgs_dir);
     //TODO drill lil_imgs dir to make_mosaic() from here
