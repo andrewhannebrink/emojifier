@@ -34,7 +34,7 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way: bool)
             match &sequence.mode {
                 instruct::SequenceMode::NoModification => {
                     // TODO this does not currently transpose, but only copies B frames
-                    copy_original_img(&frame_number_with_zeroes, &path::QUADRANT_B);
+                    transpose_copies(&frame_number_with_zeroes, one_way);
                 },
                 instruct::SequenceMode::Mosaic(mosaic_instructions) => {
                     //TODO this could be done cleaner with the .entry api for hashmaps (.or_insert())
@@ -84,6 +84,15 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way: bool)
 
     let elapsed_time = now.elapsed();
     println!("transpose_every_frame() took {} seconds.", elapsed_time.subsec_millis());
+}
+
+fn transpose_copies(
+        frame_number_str: &String, 
+        one_way: bool) {
+    copy_original_img(frame_number_str, &path::QUADRANT_B);
+    if !one_way {
+        copy_original_img(frame_number_str, &path::QUADRANT_A);
+    }
 }
 
 fn copy_original_img(frame_number_str: &String, target_quadrant: &path::Quadrant) {

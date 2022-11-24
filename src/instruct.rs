@@ -50,27 +50,27 @@ fn two_second_transition() -> Vec<FrameSequence> {
     two_sec_trans.push(FrameSequence::new(2, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 120,
         ending_depth: 120,
-        //lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
-        lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
+        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
+        //lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
     two_sec_trans.push(FrameSequence::new(13, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 120,
         ending_depth: 10,
-        //lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
-        lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
+        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
+        //lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
     two_sec_trans.push(FrameSequence::new(30, SequenceMode::NoModification));
     two_sec_trans.push(FrameSequence::new(13, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 10,
         ending_depth: 120,
-        //lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
-        lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
+        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
+        //lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
     two_sec_trans.push(FrameSequence::new(2, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 120,
         ending_depth: 120,
-        //lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
-        lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
+        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
+        //lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
     two_sec_trans
 }
@@ -80,13 +80,11 @@ fn bench_instructions() -> Vec<FrameSequence> {
     bench.push(FrameSequence::new(2, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 120,
         ending_depth: 120,
-        //lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
         lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
     bench.push(FrameSequence::new(13, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 120,
         ending_depth: 10,
-        //lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
         lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
     bench.push(FrameSequence::new(5, SequenceMode::NoModification));
@@ -112,14 +110,12 @@ fn bench_instructions() -> Vec<FrameSequence> {
     bench.push(FrameSequence::new(13, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 10,
         ending_depth: 120,
-        //lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
-        lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
+        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
     })));
     bench.push(FrameSequence::new(2, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 120,
         ending_depth: 120,
-        //lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
-        lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
+        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
     })));
     bench
 }
