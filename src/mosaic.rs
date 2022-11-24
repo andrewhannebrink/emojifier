@@ -280,7 +280,8 @@ fn get_closest_img(orig_tile: &ImageInfo, lil_imgs: &mut Vec<ImageInfo>, c: &Cro
     let closest_img = &lil_imgs[closest_img_index];
     let lil_img_size = closest_img.img.dimensions().0;
     if c.depth != lil_img_size {
-        println!("lil_img is wrong size!");
+        //TODO count how many imgs were resized and print
+        //println!("lil_img is wrong size!");
         lil_imgs[closest_img_index].img = lil_imgs[closest_img_index].img.resize(
             c.depth, c.depth, FilterType::Gaussian);
     }
