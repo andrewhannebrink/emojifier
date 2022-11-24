@@ -67,7 +67,7 @@ pub struct TransposeMakeMosaicReturn {
 pub fn make_mosaic(
     img: DynamicImage,
     lil_imgs_dir: Option<String>, // TODO ulitmately take this out and replace with lil_imgs below
-    //lil_imgs: Option<Vec<lil_imgs>>
+    lil_imgs: Option<&Vec<ImageInfo>>,
     crop_details: CropDetails,
     parent_quadrant_dir: String,
     target_quadrant_dir: String,

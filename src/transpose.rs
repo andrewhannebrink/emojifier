@@ -124,6 +124,7 @@ fn transpose_one_mosaic_frame (
     println!("lil_imgs_dir: {:?}", lil_imgs_dir);
     //TODO drill lil_imgs dir to make_mosaic() from here
     let make_mosaic_return = render_mosaic_from_quadrant_b_frame(
+        lil_imgs,
         frame_number.clone(),
         depth,
         lil_imgs_dir.clone());
@@ -131,13 +132,13 @@ fn transpose_one_mosaic_frame (
         match lil_imgs_dir.clone() {
             None => {
                 render_mosaic_from_quadrant_a_frame(
-                    frame_number.clone(), Some(make_mosaic_return), depth, Option::None)
+                    lil_imgs, frame_number.clone(), Some(make_mosaic_return), depth, Option::None)
             },
             // TODO passing option::none here makes me have to reload emoji dir every render
             // This is v slow...
             Some(lil_imgs_dir_str) => {
                 render_mosaic_from_quadrant_a_frame(
-                    frame_number.clone(), Option::None, depth, lil_imgs_dir.clone())
+                    lil_imgs, frame_number.clone(), Option::None, depth, lil_imgs_dir.clone())
             }
         }
     }
@@ -148,22 +149,25 @@ fn transpose_one_mosaic_frame (
 }
 
 fn render_mosaic_from_quadrant_a_frame (
+        lil_imgs: Option<&Vec<mosaic::ImageInfo>>,
         frame_number: String,
         prev_return: Option<mosaic::TransposeMakeMosaicReturn>,
         depth: u32,
         lil_imgs_dir: Option<String>) -> mosaic::TransposeMakeMosaicReturn {
     render_still_mosaic_from_quadrant_frame(
-        "a", frame_number, prev_return, depth, lil_imgs_dir)
+        lil_imgs, "a", frame_number, prev_return, depth, lil_imgs_dir)
 }
 fn render_mosaic_from_quadrant_b_frame (
+        lil_imgs: Option<&Vec<mosaic::ImageInfo>>,
         frame_number: String,
         depth: u32,
         lil_imgs_dir: Option<String>) -> mosaic::TransposeMakeMosaicReturn {
     render_still_mosaic_from_quadrant_frame(
-        "b", frame_number, Option::None, depth, lil_imgs_dir)
+        lil_imgs, "b", frame_number, Option::None, depth, lil_imgs_dir)
 }
 
 fn render_still_mosaic_from_quadrant_frame(
+        lil_imgs: Option<&Vec<mosaic::ImageInfo>>,
         target_quadrant_dir: &str,
         frame_number: String,
         make_mosaic_return: Option<mosaic::TransposeMakeMosaicReturn>,
@@ -201,6 +205,7 @@ fn render_still_mosaic_from_quadrant_frame(
 //      target_quadrant_dir.to_string(),
 //      frame_number);
     compose_mosaic_from_paths(
+        lil_imgs,
         img_from_path(target_img_name), 
         false, 
         parent_quadrant_dir.to_string(),
@@ -257,6 +262,7 @@ fn img_from_path(path: String) -> DynamicImage {
 }
 
 fn compose_mosaic_from_paths(
+        lil_imgs: Option<&Vec<mosaic::ImageInfo>>,
         img: DynamicImage,
         only_make_lil_imgs: bool,
         parent_quadrant_dir: String,
@@ -298,6 +304,7 @@ fn compose_mosaic_from_paths(
     mosaic::make_mosaic(
         img,
         lil_imgs_dir, 
+        lil_imgs,
         crop_details,
         parent_quadrant_dir,
         target_quadrant_dir,
