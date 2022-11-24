@@ -8,6 +8,8 @@ use image::DynamicImage;
 use std::fs;
 use std::time::Instant;
 use std::process::Command;
+use std::collections::HashMap;
+
 
 fn wipe_output_dirs() {
     fs::remove_dir_all(path::input_dir(&QUADRANT_A));
@@ -23,6 +25,8 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way: bool)
     let mut last_handoff_info: &mut Option<mosaic::TransposeMakeMosaicReturn> = 
         &mut Option::None;
     
+    let mut lil_imgs_map: HashMap<&String, Vec<mosaic::ImageInfo>> = HashMap::new();
+
     let mut total_frame_idx = 1;
     for sequence in ins {
         for seq_frame_idx in 1..sequence.total_frames + 1 {
@@ -33,6 +37,16 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way: bool)
                     copy_original_img(&frame_number_with_zeroes, &path::QUADRANT_B);
                 },
                 instruct::SequenceMode::Mosaic(mosaic_instructions) => {
+                    match &mosaic_instructions.lil_imgs_dir {
+                        Some(lil_imgs_dir_str) => {
+                            if !lil_imgs_map.contains_key(&lil_imgs_dir_str) {
+                                let lil_imgs = mosaic::get_lil_imgs_from_dir(
+                                        lil_imgs_dir_str, 5);
+                                lil_imgs_map.insert(&lil_imgs_dir_str, lil_imgs);
+                            }
+                        },
+                        None => { return } // TODO this match could be done with if let
+                    }
                     let depth = mosaic_instructions.get_current_depth(
                         seq_frame_idx as u16, 
                         sequence.total_frames);
