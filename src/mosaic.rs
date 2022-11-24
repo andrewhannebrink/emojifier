@@ -67,7 +67,7 @@ pub struct TransposeMakeMosaicReturn {
 pub fn make_mosaic(
     img: DynamicImage,
     lil_imgs_dir: Option<String>, // TODO ulitmately take this out and replace with lil_imgs below
-    lil_imgs: Option<&Vec<ImageInfo>>,
+    existing_lil_imgs: Option<&Vec<ImageInfo>>,
     crop_details: CropDetails,
     parent_quadrant_dir: String,
     target_quadrant_dir: String,
@@ -79,16 +79,18 @@ pub fn make_mosaic(
     let (lil_imgs, orig_tiles_iter) = match previous_return.clone() {
         None => {
             (
-                match lil_imgs_dir {
+                match existing_lil_imgs {
                     None => {
                         get_lil_imgs_from_img(
                             parent_img_path(parent_quadrant_dir.clone(), frame_number.clone()),
                             crop_details.clone())
                     },
-                    Some(lil_imgs_dir_str) => {
-                        println!("==------------getting lil_imgs from dir !");
-                        get_lil_imgs_from_dir(
-                            &lil_imgs_dir_str, 5)
+                    Some(previous_lil_imgs) => {
+                        //println!("==------------getting lil_imgs from dir !");
+                        println!("==------------using existing lil_imgs!");
+                        previous_lil_imgs
+                        //get_lil_imgs_from_dir(
+                        //    &lil_imgs_dir_str, 5)
                     }
                 },
                 orig_tile_gen(OrigTileGenArgs {
