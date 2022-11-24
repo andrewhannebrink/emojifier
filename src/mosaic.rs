@@ -66,7 +66,8 @@ pub struct TransposeMakeMosaicReturn {
 
 pub fn make_mosaic(
     img: DynamicImage,
-    lil_imgs_dir: Option<String>,
+    lil_imgs_dir: Option<String>, // TODO ulitmately take this out and replace with lil_imgs below
+    //lil_imgs: Option<Vec<lil_imgs>>
     crop_details: CropDetails,
     parent_quadrant_dir: String,
     target_quadrant_dir: String,
@@ -87,9 +88,7 @@ pub fn make_mosaic(
                     Some(lil_imgs_dir_str) => {
                         println!("==------------getting lil_imgs from dir !");
                         get_lil_imgs_from_dir(
-                            lil_imgs_dir_str,
-                            crop_details.clone(), 
-                            5)
+                            &lil_imgs_dir_str, 5)
                     }
                 },
                 orig_tile_gen(OrigTileGenArgs {
@@ -358,23 +357,17 @@ fn get_lil_imgs_from_img(parent_img_path: String, c: CropDetails) -> Vec<ImageIn
     lil_imgs.collect()
 }
 
-fn get_lil_imgs_from_dir(
-        lil_imgs_dir: String,
-        crop_details: CropDetails,
+pub fn get_lil_imgs_from_dir(
+        lil_imgs_dir: &String,
         skip: u8) -> Vec<ImageInfo> {
     let now = Instant::now();
 
     let mut lil_imgs: Vec<ImageInfo> = Vec::new();
     let lil_img_names = fs::read_dir(lil_imgs_dir).unwrap();
-    println!("crop_details.depth : {}", crop_details.depth);
     for name in lil_img_names {
-        //println!("lil_img_name: {:?}", name);
         let img_path = name.unwrap().path().display().to_string();
         let mut img = image::open(img_path).unwrap();
 
-        // TODO only resize if the image is actually used and the dimensions are different
-        //let resized_img = img.resize(
-        //    crop_details.depth, crop_details.depth, FilterType::Gaussian);
         lil_imgs.push(ImageInfo {
             avg_color: get_avg_rgb(&img, skip as u8),
             img,
