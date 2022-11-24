@@ -3,16 +3,17 @@ use crate::quadrants;
 use crate::lil_videos;
 use crate::instruct;
 use crate::path;
+use crate::path::{QUADRANT_A, QUADRANT_B};
 use image::DynamicImage;
 use std::fs;
 use std::time::Instant;
 use std::process::Command;
 
 fn wipe_output_dirs() {
-    fs::remove_dir_all("io/output/a");
-    fs::remove_dir_all("io/output/b");
-    fs::create_dir("io/output/a");
-    fs::create_dir("io/output/b");
+    fs::remove_dir_all(path::input_dir(&QUADRANT_A));
+    fs::remove_dir_all(path::output_dir(&QUADRANT_B));
+    fs::create_dir(path::input_dir(&QUADRANT_A));
+    fs::create_dir(path::output_dir(&QUADRANT_B));
 }
 
 pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way: bool) {
