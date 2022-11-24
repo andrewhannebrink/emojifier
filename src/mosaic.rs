@@ -88,7 +88,7 @@ pub fn make_mosaic(
                     Some(previous_lil_imgs) => {
                         //println!("==------------getting lil_imgs from dir !");
                         println!("==------------using existing lil_imgs!");
-                        previous_lil_imgs
+                        previous_lil_imgs.to_vec()
                         //get_lil_imgs_from_dir(
                         //    &lil_imgs_dir_str, 5)
                     }
