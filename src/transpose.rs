@@ -12,9 +12,9 @@ use std::collections::HashMap;
 
 
 fn wipe_output_dirs() {
-    fs::remove_dir_all(path::input_dir(&QUADRANT_A));
+    fs::remove_dir_all(path::output_dir(&QUADRANT_A));
     fs::remove_dir_all(path::output_dir(&QUADRANT_B));
-    fs::create_dir(path::input_dir(&QUADRANT_A));
+    fs::create_dir(path::output_dir(&QUADRANT_A));
     fs::create_dir(path::output_dir(&QUADRANT_B));
 }
 
@@ -37,12 +37,15 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way: bool)
                     copy_original_img(&frame_number_with_zeroes, &path::QUADRANT_B);
                 },
                 instruct::SequenceMode::Mosaic(mosaic_instructions) => {
+                    //TODO this could be done cleaner with the .entry api for hashmaps (.or_insert())
+                    let mut lil_imgs: Option<&Vec<mosaic::ImageInfo>> = None;
                     if let Some(lil_imgs_dir_str) =  &mosaic_instructions.lil_imgs_dir {
                         if !lil_imgs_map.contains_key(&lil_imgs_dir_str) {
                             let lil_imgs = mosaic::get_lil_imgs_from_dir(
                                     lil_imgs_dir_str, 5);
                             lil_imgs_map.insert(&lil_imgs_dir_str, lil_imgs);
                         }
+                        lil_imgs = lil_imgs_map.get(&lil_imgs_dir_str);
                     }
                     let depth = mosaic_instructions.get_current_depth(
                         seq_frame_idx as u16, 
@@ -53,8 +56,7 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way: bool)
                             frame_number_with_zeroes,
                             depth,
                             mosaic_instructions.lil_imgs_dir.clone(),
-                            lil_imgs_map.get(
-                                &mosaic_instructions.lil_imgs_dir.as_ref().unwrap()),
+                            lil_imgs,
                             one_way);
                     last_handoff_info.replace(make_mosaic_return.clone());
                     

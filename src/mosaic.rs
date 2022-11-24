@@ -407,6 +407,7 @@ fn get_avg_rgb(img: &DynamicImage, skip: u8) -> Color {
 pub fn open_image(img_name: String) -> DynamicImage {
     // Use the open function to load an image from a Path.
     // `open` returns a `DynamicImage` on success.
+    println!("{}", img_name);
     let img = image::open(img_name).unwrap();
     img
 }
