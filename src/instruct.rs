@@ -147,14 +147,14 @@ pub fn get_instructions () -> Vec<FrameSequence> {
 //  for i in 0..18 {
 //      instructions.append(&mut two_sec_trans.clone());
 //  }
-  let mut ten_two_trans = ten_two_transition();
-  for i in 0..18 {
-     instructions.append(&mut ten_two_trans.clone());
-  }
+//let mut ten_two_trans = ten_two_transition();
+//for i in 0..18 {
+//   instructions.append(&mut ten_two_trans.clone());
+//}
 
- // let mut bench = bench_instructions();
- // for i in 0..1 {
- //     instructions.append(&mut bench.clone());
- // }
+    let mut bench = bench_instructions();
+    for i in 0..1 {
+       instructions.append(&mut bench.clone());
+    }
     instructions
 }
