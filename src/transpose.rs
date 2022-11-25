@@ -18,7 +18,7 @@ fn wipe_output_dirs() {
     fs::create_dir(path::output_dir(&QUADRANT_B));
 }
 
-pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way: bool) {
+pub async fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way: bool) {
     let now = Instant::now();
     wipe_output_dirs();
     
@@ -34,7 +34,7 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way: bool)
             match &sequence.mode {
                 instruct::SequenceMode::NoModification => {
                     // TODO this does not currently transpose, but only copies B frames
-                    transpose_copies(&frame_number_with_zeroes, one_way);
+                    transpose_copies(&frame_number_with_zeroes, one_way).await;
                 },
                 instruct::SequenceMode::Mosaic(mosaic_instructions) => {
                     //TODO this could be done cleaner with the .entry api for hashmaps (.or_insert())
@@ -86,21 +86,21 @@ pub fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way: bool)
     println!("transpose_every_frame() took {} seconds.", elapsed_time.subsec_millis());
 }
 
-fn transpose_copies(
+async fn transpose_copies(
         frame_number_str: &String, 
         one_way: bool) {
-    copy_original_img(frame_number_str, &path::QUADRANT_B);
+    copy_original_img(frame_number_str, &path::QUADRANT_B).await;
     if !one_way {
-        copy_original_img(frame_number_str, &path::QUADRANT_A);
+        copy_original_img(frame_number_str, &path::QUADRANT_A).await;
     }
 }
 
 async fn copy_original_img(frame_number_str: &String, target_quadrant: &path::Quadrant<'_>) {
+    println!("copying frame number: {}", frame_number_str);
     async_process::Command::new("cp")
             .arg(path::input_path(target_quadrant, frame_number_str))
             .arg(path::output_path(target_quadrant, frame_number_str))
-            .output().await;
-            //.spawn()
+            .spawn();
             //.expect("cp command failed to start");
 }
 
