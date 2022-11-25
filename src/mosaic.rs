@@ -66,7 +66,8 @@ pub struct TransposeMakeMosaicReturn {
 
 pub fn make_mosaic(
     img: DynamicImage,
-    lil_imgs_dir: Option<String>,
+    lil_imgs_dir: Option<String>, // TODO ulitmately take this out and replace with lil_imgs below
+    existing_lil_imgs: Option<&Vec<ImageInfo>>,
     crop_details: CropDetails,
     parent_quadrant_dir: String,
     target_quadrant_dir: String,
@@ -78,18 +79,18 @@ pub fn make_mosaic(
     let (lil_imgs, orig_tiles_iter) = match previous_return.clone() {
         None => {
             (
-                match lil_imgs_dir {
+                match existing_lil_imgs {
                     None => {
                         get_lil_imgs_from_img(
                             parent_img_path(parent_quadrant_dir.clone(), frame_number.clone()),
                             crop_details.clone())
                     },
-                    Some(lil_imgs_dir_str) => {
-                        println!("==------------getting lil_imgs from dir !");
-                        get_lil_imgs_from_dir(
-                            lil_imgs_dir_str,
-                            crop_details.clone(), 
-                            5)
+                    Some(previous_lil_imgs) => {
+                        //println!("==------------getting lil_imgs from dir !");
+                        println!("==------------using existing lil_imgs!");
+                        previous_lil_imgs.to_vec()
+                        //get_lil_imgs_from_dir(
+                        //    &lil_imgs_dir_str, 5)
                     }
                 },
                 orig_tile_gen(OrigTileGenArgs {
@@ -279,7 +280,8 @@ fn get_closest_img(orig_tile: &ImageInfo, lil_imgs: &mut Vec<ImageInfo>, c: &Cro
     let closest_img = &lil_imgs[closest_img_index];
     let lil_img_size = closest_img.img.dimensions().0;
     if c.depth != lil_img_size {
-        println!("lil_img is wrong size!");
+        //TODO count how many imgs were resized and print
+        //println!("lil_img is wrong size!");
         lil_imgs[closest_img_index].img = lil_imgs[closest_img_index].img.resize(
             c.depth, c.depth, FilterType::Gaussian);
     }
@@ -358,23 +360,17 @@ fn get_lil_imgs_from_img(parent_img_path: String, c: CropDetails) -> Vec<ImageIn
     lil_imgs.collect()
 }
 
-fn get_lil_imgs_from_dir(
-        lil_imgs_dir: String,
-        crop_details: CropDetails,
+pub fn get_lil_imgs_from_dir(
+        lil_imgs_dir: &String,
         skip: u8) -> Vec<ImageInfo> {
     let now = Instant::now();
 
     let mut lil_imgs: Vec<ImageInfo> = Vec::new();
     let lil_img_names = fs::read_dir(lil_imgs_dir).unwrap();
-    println!("crop_details.depth : {}", crop_details.depth);
     for name in lil_img_names {
-        //println!("lil_img_name: {:?}", name);
         let img_path = name.unwrap().path().display().to_string();
         let mut img = image::open(img_path).unwrap();
 
-        // TODO only resize if the image is actually used and the dimensions are different
-        //let resized_img = img.resize(
-        //    crop_details.depth, crop_details.depth, FilterType::Gaussian);
         lil_imgs.push(ImageInfo {
             avg_color: get_avg_rgb(&img, skip as u8),
             img,
@@ -412,6 +408,7 @@ fn get_avg_rgb(img: &DynamicImage, skip: u8) -> Color {
 pub fn open_image(img_name: String) -> DynamicImage {
     // Use the open function to load an image from a Path.
     // `open` returns a `DynamicImage` on success.
+    println!("{}", img_name);
     let img = image::open(img_name).unwrap();
     img
 }
