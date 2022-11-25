@@ -120,16 +120,30 @@ fn bench_instructions() -> Vec<FrameSequence> {
     bench
 }
 
+pub fn quad_test() -> Vec<FrameSequence> {
+    let mut quad: Vec<FrameSequence> = Vec::new();
+    quad.push(FrameSequence::new(15, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 20,
+        ending_depth: 20,
+        lil_imgs_dir: Some("io/lil_imgs/emoji_buffered".to_string())
+    })));
+    quad
+}
+
 pub fn get_instructions () -> Vec<FrameSequence> {
     let mut instructions: Vec<FrameSequence> = Vec::new();
-    let mut two_sec_trans = two_second_transition();
-    for i in 0..17 {
-        instructions.append(&mut two_sec_trans.clone());
-    }
+//  let mut two_sec_trans = two_second_transition();
+//  for i in 0..17 {
+//      instructions.append(&mut two_sec_trans.clone());
+//  }
 //  let mut bench = bench_instructions();
 //  for i in 0..1 {
 //      instructions.append(&mut bench);
 //  }
+    let mut quad_bench = quad_test();
+    for i in 0..1 {
+        instructions.append(&mut quad_bench);
+    }
     instructions
 //  instructions.push(FrameSequence {
 //      total_frames: 10,
