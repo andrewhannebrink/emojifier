@@ -4,6 +4,7 @@ use image::imageops::resize;
 use image::imageops::replace;
 use std::fs;
 use crate::mosaic;
+use crate::path;
 use std::time::Instant;
 
 pub fn frames_into_quadrants() {
@@ -18,7 +19,7 @@ pub fn frames_into_quadrants() {
 fn compose_one_quadrants_frame(frame_int: i32) {
     let now = Instant::now();
 
-    let frame_str = mosaic::prepend_zeroes(frame_int as usize);
+    let frame_str = path::prepend_zeroes(frame_int);
     println!("{}", frame_str);
     let mut view_port_img = 
         image::open(file_path(frame_str.clone(), "io/input/a")).unwrap();
@@ -59,18 +60,4 @@ fn file_name(frame_str: String) -> String {
 fn file_path(frame_str: String, quadrant_src_dir: &str) -> String {
     let name = file_name(frame_str);
     [quadrant_src_dir.to_string(), name].join("/")
-}
-
-// TODO this is copy pasted from mosaic.rs. FIX THAT
-fn prepend_zeroes(i: usize) -> String {
-    let frame_number_without_zeroes: &str = &i.to_string();
-    let mut zeroes_to_prepend = "000";
-    if i >= 10 && i < 100 {
-        zeroes_to_prepend = "00";
-    } else if i >= 100 && i < 1000 {
-        zeroes_to_prepend = "0";
-    } else if i >= 1000 {
-        zeroes_to_prepend = "";
-    }
-    [zeroes_to_prepend, frame_number_without_zeroes].concat()
 }

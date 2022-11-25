@@ -1,5 +1,6 @@
 static INPUT_DIR: &str = "io/input/";
 static OUTPUT_DIR: &str = "io/output/";
+pub static ZOOM_OUTPUT_DIR: &str = "io/output/zoom/";
 static INT_ARRAY: [&str; 10] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 pub static QUADRANT_A: Quadrant = Quadrant::new(QuadrantEnum::A);
 pub static QUADRANT_B: Quadrant = Quadrant::new(QuadrantEnum::B);
@@ -50,6 +51,13 @@ pub fn output_path(quadrant: &Quadrant, frame_number_str: &String) -> String {
     [
         OUTPUT_DIR,
         quadrant.dir,
+        frame_number_str,
+        ".jpeg"
+    ].concat()
+}
+pub fn zoom_output_path(frame_number_str: &String) -> String {
+    [
+        ZOOM_OUTPUT_DIR,
         frame_number_str,
         ".jpeg"
     ].concat()
