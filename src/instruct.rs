@@ -44,43 +44,92 @@ impl FrameSequence {
     }
 }
 
-pub fn get_instructions () -> Vec<FrameSequence> {
-    let mut instructions: Vec<FrameSequence> = Vec::new();
-    let mut two_sec_trans: Vec<FrameSequence> = Vec::new();
 
+fn two_second_transition() -> Vec<FrameSequence> {
+    let mut two_sec_trans: Vec<FrameSequence> = Vec::new();
     two_sec_trans.push(FrameSequence::new(2, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 120,
         ending_depth: 120,
         lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
+        //lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
     two_sec_trans.push(FrameSequence::new(13, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 120,
         ending_depth: 10,
         lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
+        //lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
     two_sec_trans.push(FrameSequence::new(30, SequenceMode::NoModification));
     two_sec_trans.push(FrameSequence::new(13, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 10,
         ending_depth: 120,
         lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
+        //lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
     two_sec_trans.push(FrameSequence::new(2, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 120,
         ending_depth: 120,
         lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
+        //lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
+    two_sec_trans
+}
 
+fn bench_instructions() -> Vec<FrameSequence> {
+    let mut bench: Vec<FrameSequence> = Vec::new();
+    bench.push(FrameSequence::new(2, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 120,
+        ending_depth: 120,
+        lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
+    })));
+    bench.push(FrameSequence::new(13, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 120,
+        ending_depth: 10,
+        lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
+    })));
+    bench.push(FrameSequence::new(5, SequenceMode::NoModification));
+    bench.push(FrameSequence::new(5, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 18,
+        ending_depth: 18,
+        lil_imgs_dir: None
+    })));
+    bench.push(FrameSequence::new(5, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 18,
+        ending_depth: 40,
+        lil_imgs_dir: None
+    })));
+    bench.push(FrameSequence{
+        total_frames: 10,
+        mode: SequenceMode::LittleVideos
+    });
+    bench.push(FrameSequence::new(5, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 18,
+        ending_depth: 10,
+        lil_imgs_dir: None
+    })));
+    bench.push(FrameSequence::new(13, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 10,
+        ending_depth: 120,
+        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
+    })));
+    bench.push(FrameSequence::new(2, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 120,
+        ending_depth: 120,
+        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
+    })));
+    bench
+}
+
+pub fn get_instructions () -> Vec<FrameSequence> {
+    let mut instructions: Vec<FrameSequence> = Vec::new();
+    let mut two_sec_trans = two_second_transition();
     for i in 0..17 {
         instructions.append(&mut two_sec_trans.clone());
     }
-    //  instructions.push(FrameSequence{
-//      total_frames: 350,
-//      mode: SequenceMode::Mosaic(MosaicInstructions {
-//          starting_depth: 60,
-//          ending_depth: 60,
-//          lil_imgs_dir: Option::None
-//      })
-//  });
+//  let mut bench = bench_instructions();
+//  for i in 0..1 {
+//      instructions.append(&mut bench);
+//  }
     instructions
 //  instructions.push(FrameSequence {
 //      total_frames: 10,
