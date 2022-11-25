@@ -45,7 +45,7 @@ impl FrameSequence {
 }
 
 
-fn two_second_transition() -> Vec<FrameSequence> {
+fn x_second_transition(x: u32) -> Vec<FrameSequence> {
     let mut two_sec_trans: Vec<FrameSequence> = Vec::new();
     two_sec_trans.push(FrameSequence::new(2, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 120,
@@ -59,7 +59,7 @@ fn two_second_transition() -> Vec<FrameSequence> {
         lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
         //lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
-    two_sec_trans.push(FrameSequence::new(30, SequenceMode::NoModification));
+    two_sec_trans.push(FrameSequence::new((x-1) * 30, SequenceMode::NoModification));
     two_sec_trans.push(FrameSequence::new(13, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 10,
         ending_depth: 120,
@@ -75,164 +75,86 @@ fn two_second_transition() -> Vec<FrameSequence> {
     two_sec_trans
 }
 
+fn ten_two_transition() -> Vec<FrameSequence> {
+    let mut ten_two: Vec<FrameSequence> = Vec::new();
+    let two_sec_trans = x_second_transition(2);
+    let ten_sec_trans = x_second_transition(10);
+    ten_two.append(&mut ten_sec_trans.clone());
+    for i in 0..5 {
+        ten_two.append(&mut two_sec_trans.clone());
+    }
+    ten_two
+}
+
 fn bench_instructions() -> Vec<FrameSequence> {
     let mut bench: Vec<FrameSequence> = Vec::new();
-    bench.push(FrameSequence::new(2, SequenceMode::Mosaic(MosaicInstructions {
+    bench.push(FrameSequence::new(20, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 120,
-        ending_depth: 120,
+        ending_depth: 20,
         lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
-    bench.push(FrameSequence::new(13, SequenceMode::Mosaic(MosaicInstructions {
-        starting_depth: 120,
-        ending_depth: 10,
+    bench.push(FrameSequence::new(130, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 20,
+        ending_depth: 2,
         lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
     bench.push(FrameSequence::new(5, SequenceMode::NoModification));
-    bench.push(FrameSequence::new(5, SequenceMode::Mosaic(MosaicInstructions {
-        starting_depth: 18,
-        ending_depth: 18,
+    bench.push(FrameSequence::new(145, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 20,
+        ending_depth: 20,
         lil_imgs_dir: None
     })));
-    bench.push(FrameSequence::new(5, SequenceMode::Mosaic(MosaicInstructions {
-        starting_depth: 18,
-        ending_depth: 40,
+    bench.push(FrameSequence::new(50, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 20,
+        ending_depth: 200,
         lil_imgs_dir: None
     })));
     bench.push(FrameSequence{
-        total_frames: 10,
+        total_frames: 200,
         mode: SequenceMode::LittleVideos
     });
-    bench.push(FrameSequence::new(5, SequenceMode::Mosaic(MosaicInstructions {
-        starting_depth: 18,
+    bench.push(FrameSequence::new(40, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 200,
         ending_depth: 10,
         lil_imgs_dir: None
     })));
-    bench.push(FrameSequence::new(13, SequenceMode::Mosaic(MosaicInstructions {
-        starting_depth: 10,
-        ending_depth: 120,
-        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
+    bench.push(FrameSequence::new(40, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 200,
+        ending_depth: 40,
+        lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
-    bench.push(FrameSequence::new(2, SequenceMode::Mosaic(MosaicInstructions {
-        starting_depth: 120,
-        ending_depth: 120,
-        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
+    bench.push(FrameSequence::new(20, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 40,
+        ending_depth: 2,
+        lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
     bench
 }
 
+pub fn quad_test() -> Vec<FrameSequence> {
+    let mut quad: Vec<FrameSequence> = Vec::new();
+    quad.push(FrameSequence::new(15, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 20,
+        ending_depth: 20,
+        lil_imgs_dir: Some("io/lil_imgs/emoji_buffered".to_string())
+    })));
+    quad
+}
+
 pub fn get_instructions () -> Vec<FrameSequence> {
     let mut instructions: Vec<FrameSequence> = Vec::new();
-    let mut two_sec_trans = two_second_transition();
-    for i in 0..17 {
-        instructions.append(&mut two_sec_trans.clone());
-    }
-//  let mut bench = bench_instructions();
-//  for i in 0..1 {
-//      instructions.append(&mut bench);
+//  let mut two_sec_trans = two_second_transition();
+//  for i in 0..18 {
+//      instructions.append(&mut two_sec_trans.clone());
 //  }
+  let mut ten_two_trans = ten_two_transition();
+  for i in 0..18 {
+     instructions.append(&mut ten_two_trans.clone());
+  }
+
+ // let mut bench = bench_instructions();
+ // for i in 0..1 {
+ //     instructions.append(&mut bench.clone());
+ // }
     instructions
-//  instructions.push(FrameSequence {
-//      total_frames: 10,
-//      mode: SequenceMode::Mosaic(MosaicInstructions {
-//          starting_depth: 30,
-//          ending_depth: 60,
-//          lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
-//      })
-//  });
-//  instructions.push(FrameSequence{
-//      total_frames: 10,
-//      mode: SequenceMode::Mosaic(MosaicInstructions {
-//          starting_depth: 60,
-//          ending_depth: 20,
-//          lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
-//      })
-//  });
-//  instructions.push(FrameSequence{
-//      total_frames: 10,
-//      mode: SequenceMode::Mosaic(MosaicInstructions {
-//          starting_depth: 20,
-//          ending_depth: 20,
-//          lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
-//      })
-//  });
-//  instructions.push(FrameSequence{
-//      total_frames: 30,
-//      mode: SequenceMode::Mosaic(MosaicInstructions {
-//          starting_depth: 20,
-//          ending_depth: 20,
-//          lil_imgs_dir: Option::None
-//      })
-//  });
-//  instructions.push(FrameSequence{
-//      total_frames: 30,
-//      mode: SequenceMode::Mosaic(MosaicInstructions {
-//          starting_depth: 20,
-//          ending_depth: 40,
-//          lil_imgs_dir: Option::None
-//      })
-//  });
-//  instructions.push(FrameSequence{
-//      total_frames: 60,
-//      mode: SequenceMode::LittleVideos
-//  });
-//  instructions.push(FrameSequence{
-//      total_frames: 30,
-//      mode: SequenceMode::Mosaic(MosaicInstructions {
-//          starting_depth: 40,
-//          ending_depth: 90,
-//          lil_imgs_dir: Option::None
-//      })
-//  });
-//  instructions.push(FrameSequence{
-//      total_frames: 60,
-//      mode: SequenceMode::LittleVideos
-//  });
-//  instructions.push(FrameSequence{
-//      total_frames: 60,
-//      mode: SequenceMode::Mosaic(MosaicInstructions {
-//          starting_depth: 90,
-//          ending_depth: 20,
-//          lil_imgs_dir: Option::None
-//      })
-//  });
-//  instructions.push(FrameSequence{
-//      total_frames: 30,
-//      mode: SequenceMode::LittleVideos
-//  });
-//  instructions.push(FrameSequence{
-//      total_frames: 30,
-//      mode: SequenceMode::Mosaic(MosaicInstructions {
-//          starting_depth: 20,
-//          ending_depth: 20,
-//          lil_imgs_dir: Option::None
-//      })
-//  });
-//  instructions.push(FrameSequence{
-//      total_frames: 30,
-//      mode: SequenceMode::Mosaic(MosaicInstructions {
-//          starting_depth: 20,
-//          ending_depth: 180,
-//          lil_imgs_dir: Option::None
-//      })
-//  });
-//  instructions.push(FrameSequence{
-//      total_frames: 30,
-//      mode: SequenceMode::Mosaic(MosaicInstructions {
-//          starting_depth: 180,
-//          ending_depth: 180,
-//          lil_imgs_dir: Option::None
-//      })
-//  });
-//  instructions.push(FrameSequence{
-//      total_frames: 30,
-//      mode: SequenceMode::Mosaic(MosaicInstructions {
-//          starting_depth: 180,
-//          ending_depth: 20,
-//          lil_imgs_dir: Option::None
-//      })
-//  });
-//  instructions.push(FrameSequence{
-//      total_frames: 30,
-//      mode: SequenceMode::LittleVideos
-//  });
 }

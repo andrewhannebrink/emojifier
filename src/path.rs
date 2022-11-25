@@ -24,7 +24,7 @@ impl Quadrant<'_> {
 
 pub fn prepend_zeroes(n: i32) -> String {
     let mut number_str = String::new();
-    for b in 0..4 {
+    for b in 0..5 {
         let digit = (n as i32 / 10_i32.pow(b)) % 10;
         number_str = [INT_ARRAY[digit as usize].to_string(), number_str].concat();
     }
