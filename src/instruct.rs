@@ -77,45 +77,45 @@ fn two_second_transition() -> Vec<FrameSequence> {
 
 fn bench_instructions() -> Vec<FrameSequence> {
     let mut bench: Vec<FrameSequence> = Vec::new();
-    bench.push(FrameSequence::new(2, SequenceMode::Mosaic(MosaicInstructions {
+    bench.push(FrameSequence::new(20, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 120,
-        ending_depth: 120,
+        ending_depth: 20,
         lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
-    bench.push(FrameSequence::new(13, SequenceMode::Mosaic(MosaicInstructions {
-        starting_depth: 120,
-        ending_depth: 10,
+    bench.push(FrameSequence::new(130, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 20,
+        ending_depth: 2,
         lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
     bench.push(FrameSequence::new(5, SequenceMode::NoModification));
-    bench.push(FrameSequence::new(5, SequenceMode::Mosaic(MosaicInstructions {
-        starting_depth: 18,
-        ending_depth: 18,
+    bench.push(FrameSequence::new(145, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 20,
+        ending_depth: 20,
         lil_imgs_dir: None
     })));
-    bench.push(FrameSequence::new(5, SequenceMode::Mosaic(MosaicInstructions {
-        starting_depth: 18,
-        ending_depth: 40,
+    bench.push(FrameSequence::new(50, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 20,
+        ending_depth: 200,
         lil_imgs_dir: None
     })));
     bench.push(FrameSequence{
-        total_frames: 10,
+        total_frames: 200,
         mode: SequenceMode::LittleVideos
     });
-    bench.push(FrameSequence::new(5, SequenceMode::Mosaic(MosaicInstructions {
-        starting_depth: 18,
+    bench.push(FrameSequence::new(40, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 200,
         ending_depth: 10,
         lil_imgs_dir: None
     })));
-    bench.push(FrameSequence::new(13, SequenceMode::Mosaic(MosaicInstructions {
-        starting_depth: 10,
-        ending_depth: 120,
-        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
+    bench.push(FrameSequence::new(40, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 200,
+        ending_depth: 40,
+        lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
-    bench.push(FrameSequence::new(2, SequenceMode::Mosaic(MosaicInstructions {
-        starting_depth: 120,
-        ending_depth: 120,
-        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
+    bench.push(FrameSequence::new(20, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 40,
+        ending_depth: 2,
+        lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
     bench
 }
@@ -136,14 +136,14 @@ pub fn get_instructions () -> Vec<FrameSequence> {
 //  for i in 0..17 {
 //      instructions.append(&mut two_sec_trans.clone());
 //  }
-//  let mut bench = bench_instructions();
-//  for i in 0..1 {
-//      instructions.append(&mut bench);
-//  }
-    let mut quad_bench = quad_test();
+    let mut bench = bench_instructions();
     for i in 0..1 {
-        instructions.append(&mut quad_bench);
+        instructions.append(&mut bench.clone());
     }
+//  let mut quad_bench = quad_test();
+//  for i in 0..1 {
+//      instructions.append(&mut quad_bench);
+//  }
     instructions
 //  instructions.push(FrameSequence {
 //      total_frames: 10,
