@@ -7,7 +7,7 @@ use crate::path::{QUADRANT_A, QUADRANT_B};
 use image::DynamicImage;
 use std::fs;
 use std::time::Instant;
-use std::process::Command;
+use async_process;
 use std::collections::HashMap;
 
 
@@ -95,12 +95,13 @@ fn transpose_copies(
     }
 }
 
-fn copy_original_img(frame_number_str: &String, target_quadrant: &path::Quadrant) {
-    Command::new("cp")
+async fn copy_original_img(frame_number_str: &String, target_quadrant: &path::Quadrant<'_>) {
+    async_process::Command::new("cp")
             .arg(path::input_path(target_quadrant, frame_number_str))
             .arg(path::output_path(target_quadrant, frame_number_str))
-            .spawn()
-            .expect("ls command failed to start");
+            .output().await;
+            //.spawn()
+            //.expect("cp command failed to start");
 }
 
 fn transpose_one_lil_videos_frame(
