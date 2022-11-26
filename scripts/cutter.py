@@ -12,7 +12,7 @@ def getImgNamesAndWipeOutput(inputDir, outputDir):
 def cutVideos(inputDir, outputDir, seconds): 
     allImageNames = getImgNamesAndWipeOutput(inputDir, outputDir)
     for i, name in enumerate(allImageNames):
-        os.system(f'ffmpeg -i io/input/vid/{inputDir}/{name} -ss 00:00:00 -t 00:00:{seconds} -async 1 io/input/vid/{outputDir}/{name}')
+        os.system(f'ffmpeg -i io/input/vid/{inputDir}/{name} -ss 00:00:00 -t 00:00:{seconds} -c copy io/input/vid/{outputDir}/{name}')
 
 def writeConcatFile(tenDir, twoDir, concatFile):
     f = open(f'{concatFile}', "w")
@@ -38,16 +38,36 @@ def writeFramesToDir(inputVideoNumber, inputDir):
     os.system(f'mkdir io/input/vid/cut_frames/{inputDir}')
     os.system(f'ffmpeg -ss 0 -i "io/input/vid/{inputDir}/{inputVideoNumber}.mp4" -r 30.0 "io/input/vid/cut_frames/{inputDir}/{inputVideoNumber}/%5d.jpeg"')
     
-def writeCutFramesToB():
+def writeCutFramesToB(startingFrame, cutFramesDir, videoNumber):
+    oldFrameNames = os.listdir(f'io/input/vid/cut_frames/{cutFramesDir}/{videoNumber}')
+    os.system(f'cp -r io/input/vid/cut_frames/{cutFramesDir}/{videoNumber}/ io/input/b')
+    for name in oldFrameNames:
+        oldFrameNumber = int(name[:-5])
+        #print(oldFrameNumber)
+        newFrameNumber = str(int(oldFrameNumber) + startingFrame).zfill(5)
+        os.system(f'mv io/input/b/{name} io/input/b/{newFrameNumber}.jpeg')
+
+    return startingFrame + len(oldFrameNames)
+
+
+def arrangeTenTwoFrames():
     os.system('rm -rf io/input/b && mkdir io/input/b')
-    os.system('cp -r io/input/vid/cut_frames/winners_cut_exact_twos/0/ io/input/b')
+    tenFrameDirContents = os.listdir('io/input/vid/cut_frames/winners_cut_exact_tens')
+    twoFrameDirContents = os.listdir('io/input/vid/cut_frames/winners_cut_exact_twos')
+    #tenFrameDirContents.remove('.DS_Store')
+    #twoFrameDirContents.remove('.DS_Store')
+    frame = 1
+    for i, tenDirItem in enumerate(tenFrameDirContents):
+        frame = writeCutFramesToB(frame, "winners_cut_exact_tens", i)
+        for j, twoDirItem in enumerate(random.sample(range(len(twoFrameDirContents)), 5)):
+            frame = writeCutFramesToB(frame, "winners_cut_exact_twos", j)
 
 def makeCutFrames():
     os.system('rm -rf io/input/vid/cut_frames')
     os.system('mkdir io/input/vid/cut_frames')
     for inputDir in ["winners_cut_exact_tens", "winners_cut_exact_twos"]:
         os.system(f'mkdir io/input/vid/cut_frames/{inputDir}')
-        for i in range(2):
+        for i in range(11):
             os.system(f'mkdir io/input/vid/cut_frames/{inputDir}/{i}')
             writeFramesToDir(i, inputDir)
 
@@ -56,11 +76,11 @@ def makeCutFrames():
     
 
 def main():
-    #cutVideos("winners_cut",  "winners_cut_exact_tens", "10")
-    #cutVideos("winners_cut",  "winners_cut_exact_twos", "02")
+    cutVideos("winners_cut",  "winners_cut_exact_tens", "10")
+    cutVideos("winners_cut",  "winners_cut_exact_twos", "02")
 
-    #makeCutFrames()
-    writeCutFramesToB()
+    makeCutFrames()
+    arrangeTenTwoFrames()
 
     #writeConcatFile("winners_cut_exact", "winners_cut_exact_twos", "concat.txt")
     #concatVideos("concat.txt", "winners-long.mp4")
