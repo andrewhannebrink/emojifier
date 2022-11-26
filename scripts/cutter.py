@@ -38,6 +38,9 @@ def writeFramesToDir(inputVideoNumber, inputDir):
     os.system(f'mkdir io/input/vid/cut_frames/{inputDir}')
     os.system(f'ffmpeg -ss 0 -i "io/input/vid/{inputDir}/{inputVideoNumber}.mp4" -r 30.0 "io/input/vid/cut_frames/{inputDir}/{inputVideoNumber}/%5d.jpeg"')
     
+def writeCutFramesToB():
+    os.system('rm -rf io/input/b && mkdir io/input/b')
+    os.system('cp -r io/input/vid/cut_frames/winners_cut_exact_twos/0/ io/input/b')
 
 def makeCutFrames():
     os.system('rm -rf io/input/vid/cut_frames')
@@ -55,7 +58,10 @@ def makeCutFrames():
 def main():
     #cutVideos("winners_cut",  "winners_cut_exact_tens", "10")
     #cutVideos("winners_cut",  "winners_cut_exact_twos", "02")
-    makeCutFrames()
+
+    #makeCutFrames()
+    writeCutFramesToB()
+
     #writeConcatFile("winners_cut_exact", "winners_cut_exact_twos", "concat.txt")
     #concatVideos("concat.txt", "winners-long.mp4")
 
