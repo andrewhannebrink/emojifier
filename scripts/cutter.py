@@ -34,10 +34,29 @@ def renameVideos(inputDir, outputDir):
         os.system(f'cp io/input/vid/{inputDir}/{adjustedName} io/input/vid/{outputDir}/')
         os.system(f'mv io/input/vid/{outputDir}/{adjustedName} io/input/vid/{outputDir}/{i}.mp4')
 
+def writeFramesToDir(inputVideoNumber, inputDir):
+    os.system(f'mkdir io/input/vid/cut_frames/{inputDir}')
+    os.system(f'ffmpeg -ss 0 -i "io/input/vid/{inputDir}/{inputVideoNumber}.mp4" -r 30.0 "io/input/vid/cut_frames/{inputDir}/{inputVideoNumber}/%5d.jpeg"')
+    
+
+def makeCutFrames():
+    os.system('rm -rf io/input/vid/cut_frames')
+    os.system('mkdir io/input/vid/cut_frames')
+    for inputDir in ["winners_cut_exact_tens", "winners_cut_exact_twos"]:
+        os.system(f'mkdir io/input/vid/cut_frames/{inputDir}')
+        for i in range(2):
+            os.system(f'mkdir io/input/vid/cut_frames/{inputDir}/{i}')
+            writeFramesToDir(i, inputDir)
+
+
+    
+    
+
 def main():
-    cutVideos("winners_cut",  "winners_cut_exact", "10")
-    cutVideos("winners_cut",  "winners_cut_exact_twos", "02")
-    writeConcatFile("winners_cut_exact", "winners_cut_exact_twos", "concat.txt")
-    concatVideos("concat.txt", "winners-long.mp4")
+    #cutVideos("winners_cut",  "winners_cut_exact_tens", "10")
+    #cutVideos("winners_cut",  "winners_cut_exact_twos", "02")
+    makeCutFrames()
+    #writeConcatFile("winners_cut_exact", "winners_cut_exact_twos", "concat.txt")
+    #concatVideos("concat.txt", "winners-long.mp4")
 
 main()
