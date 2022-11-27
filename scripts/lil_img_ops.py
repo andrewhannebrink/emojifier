@@ -17,7 +17,7 @@ def bigImages():
         os.system(f'convert io/lil_imgs/emoji_raw/{imageName} -resize 200x200^ -background white -alpha remove -alpha off io/lil_imgs/emoji_big/{imageName}')
 
 def trimWhiteSpace():
-    allImageNames = os.listdir("io/lil_imgs/emoji")
+    allImageNames = os.listdir("io/lil_imgs/emoji_big")
     os.system('rm -rf io/lil_imgs/emoji_trim && mkdir io/lil_imgs/emoji_trim')
     for name in allImageNames:
         os.system(f'convert io/lil_imgs/emoji/{name} -trim io/lil_imgs/emoji_trim/{name}')
