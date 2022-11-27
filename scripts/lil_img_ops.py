@@ -20,7 +20,7 @@ def trimWhiteSpace():
     allImageNames = os.listdir("io/lil_imgs/emoji_big")
     os.system('rm -rf io/lil_imgs/emoji_trim && mkdir io/lil_imgs/emoji_trim')
     for name in allImageNames:
-        os.system(f'convert io/lil_imgs/emoji/{name} -trim io/lil_imgs/emoji_trim/{name}')
+        os.system(f'convert io/lil_imgs/emoji_big/{name} -trim io/lil_imgs/emoji_trim/{name}')
 
 
 def centerImagesOnWhiteTile(inputDir, outputDir): 
@@ -67,7 +67,7 @@ def moreColors():
 
 
 def main():
-    whiteBackgrounds()
+    #whiteBackgrounds()
     bigImages()
     trimWhiteSpace()
     centerImagesOnWhiteTile("emoji_trim", "emoji_big_buffered")
