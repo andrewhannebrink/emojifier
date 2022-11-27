@@ -25,7 +25,6 @@ pub struct ImageInfo {
     avg_color: Color,
     pub parent_coords: (u32, u32),
     pub target_coords: Vec<(i64, i64)>,
-
 }
 
 pub fn save_lil_img_dir(args: OrigTileGenArgs) {

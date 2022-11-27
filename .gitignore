@@ -10,6 +10,10 @@ op.png
 /io/lil_imgs/emoji
 /io/lil_imgs/emoji_raw
 /io/lil_imgs/emoji_trim
+/io/lil_imgs/emoji_big
+/io/lil_imgs/emoji_big_buffered
+.DS_Store
+*/.DS_Store
 
 io/lil_imgs/sdg_more_colors_jpeg_small
 io/lil_imgs/sdg_more_colors_jpeg
