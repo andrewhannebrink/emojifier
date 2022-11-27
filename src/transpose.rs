@@ -284,8 +284,8 @@ fn compose_mosaic_from_paths(
         depth: u32,
         lil_imgs_dir: Option<String>) -> mosaic::TransposeMakeMosaicReturn {
 
-    //let (xt, yt) = (1920, 1080);
-    let (xt, yt) = (1080, 1920);
+    let (xt, yt) = (1920, 1080);
+    //let (xt, yt) = (1080, 1920);
 
     let crop_details = mosaic::CropDetails {
         depth,
