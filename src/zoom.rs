@@ -105,6 +105,7 @@ pub fn zoom(lil_imgs_dir: &str) {
             }
         }
     }
+    //TODO test for commit
     canvas_img.save("io/output/zoom/00002.jpeg").unwrap();
 }
 
