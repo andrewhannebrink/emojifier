@@ -27,7 +27,7 @@ def centerImagesOnWhiteTile(inputDir, outputDir):
     allImageNames = os.listdir(f'io/lil_imgs/{inputDir}')
     os.system(f'rm -rf io/lil_imgs/{outputDir} && mkdir io/lil_imgs/{outputDir}')
     for name in allImageNames:
-        os.system(f'convert -size 200x200 xc:white io/lil_imgs/{inputDir}/{name} -gravity center -composite io/lil_imgs/{outputDir}/{name}')
+        os.system(f'convert -size 170x170 xc:white io/lil_imgs/{inputDir}/{name} -gravity center -composite io/lil_imgs/{outputDir}/{name}')
 
 def resize(inputDir, outputDir, newSize): 
     allImageNames = os.listdir(f'io/lil_imgs/{inputDir}')
