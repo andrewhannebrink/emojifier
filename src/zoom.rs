@@ -30,7 +30,7 @@ fn plain_white_img() -> RgbaImage {
     canvas_img
 }
 
-fn all_lil_imgs_img(lil_imgs_dir: &str) -> Vec<ZoomImageInfo>{
+fn all_lil_imgs_img(lil_imgs_dir: &str) -> (Vec<ZoomImageInfo>, Vec<mosaic::ImageInfo>) {
     wipe_zoom_dir();
     let mut canvas_img: RgbaImage = plain_white_img();
     let mut lil_imgs = mosaic::get_lil_imgs_from_dir(&lil_imgs_dir.to_string(), 5);
@@ -79,15 +79,34 @@ fn all_lil_imgs_img(lil_imgs_dir: &str) -> Vec<ZoomImageInfo>{
     println!("{}, {}, {}, {}", sx, sy, px, py);
     // write it out to a file
     canvas_img.save(&path::zoom_output_path(&"00001".to_string())).unwrap();
-    zoom_imgs
+    (zoom_imgs, lil_imgs)
 }
 
 pub fn zoom(lil_imgs_dir: &str) {
     let mut canvas_img: RgbaImage = plain_white_img();
-    let mut zoom_imgs = all_lil_imgs_img(lil_imgs_dir);
-    for i in 2..32 {
-        zoom_one_frame(i, &mut zoom_imgs, &mut canvas_img.clone());
+    let (mut zoom_imgs, lil_imgs) = all_lil_imgs_img(lil_imgs_dir);
+    for i in 2..10 {
+        if i < 9 {
+            zoom_one_frame(i, &mut zoom_imgs, &mut canvas_img.clone());
+        } else {
+            mosaic::make_mosaic(
+                DynamicImage::ImageRgba8(canvas_img.clone()),
+                Some("io/lil_imgs/emoji_big_buffered".to_string()),
+                Some(&lil_imgs),
+                mosaic::CropDetails {
+                    depth: 2,
+                    x_buf: (DIMENSIONS.0 % (DIMENSIONS.0 / 2)) /2,
+                    y_buf: (DIMENSIONS.1 % (DIMENSIONS.1 / 2)) /2,
+                    total_x_imgs: DIMENSIONS.0 / 2,
+                    total_y_imgs: DIMENSIONS.1 / 2
+                },
+                "zoom".to_string(),
+                "zoom".to_string(),
+                path::prepend_zeroes(i),
+                None);
+        }
     }
+    
 }
 
 fn zoom_one_frame(
