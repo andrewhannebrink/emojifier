@@ -92,7 +92,7 @@ pub fn zoom(lil_imgs_dir: &str) {
 
 fn zoom_one_frame(
         frame_int: i32, zoom_imgs: &mut Vec<ZoomImageInfo>, canvas_img: &mut RgbaImage) {
-    let z = 1.07;
+    let z = 1.06;
     let (b, d) = (960_f32, 540_f32);
     println!("zoom_imgs length: {}", zoom_imgs.len());
     let mut t = 0;
