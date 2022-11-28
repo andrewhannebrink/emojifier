@@ -89,20 +89,22 @@ pub fn zoom(lil_imgs_dir: &str) {
         if i < 9 {
             zoom_one_frame(i, &mut zoom_imgs, &mut canvas_img.clone());
         } else {
+            let mosaic_depth = 10;
             mosaic::make_mosaic(
                 DynamicImage::ImageRgba8(canvas_img.clone()),
                 Some("io/lil_imgs/emoji_big_buffered".to_string()),
                 Some(&lil_imgs),
                 mosaic::CropDetails {
-                    depth: 2,
-                    x_buf: (DIMENSIONS.0 % (DIMENSIONS.0 / 2)) /2,
-                    y_buf: (DIMENSIONS.1 % (DIMENSIONS.1 / 2)) /2,
-                    total_x_imgs: DIMENSIONS.0 / 2,
-                    total_y_imgs: DIMENSIONS.1 / 2
+                    depth: mosaic_depth,
+                    x_buf: (DIMENSIONS.0 % (DIMENSIONS.0 / mosaic_depth)) /2,
+                    y_buf: (DIMENSIONS.1 % (DIMENSIONS.1 / mosaic_depth)) /2,
+                    total_x_imgs: DIMENSIONS.0 / mosaic_depth,
+                    total_y_imgs: DIMENSIONS.1 / mosaic_depth
                 },
                 "zoom".to_string(),
                 "zoom".to_string(),
                 path::prepend_zeroes(i),
+                true,
                 None);
         }
     }
@@ -110,7 +112,8 @@ pub fn zoom(lil_imgs_dir: &str) {
 }
 
 fn zoom_one_frame(
-        frame_int: i32, zoom_imgs: &mut Vec<ZoomImageInfo>, canvas_img: &mut RgbaImage) {
+        frame_int: i32, zoom_imgs: &mut Vec<ZoomImageInfo>, canvas_img: &mut RgbaImage) 
+        -> DynamicImage {
     let z = 1.06;
     let (b, d) = (960_f32, 540_f32);
     println!("zoom_imgs length: {}", zoom_imgs.len());
@@ -150,5 +153,6 @@ fn zoom_one_frame(
     let frame_number_str = path::prepend_zeroes(frame_int);
     println!("{}", frame_number_str);
     canvas_img.save(path::zoom_output_path(&frame_number_str)).unwrap();
+    DynamicImage::ImageRgba8(canvas_img.clone()) //TODO i do not like the clone here
 }
 

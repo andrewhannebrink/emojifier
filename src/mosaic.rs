@@ -71,6 +71,7 @@ pub fn make_mosaic(
     parent_quadrant_dir: String,
     target_quadrant_dir: String,
     frame_number: String,
+    return_zoom_info: bool, // TODO this would read better if it was an enum
     previous_return: Option<TransposeMakeMosaicReturn>) -> TransposeMakeMosaicReturn {
 
     let now = Instant::now();
@@ -93,7 +94,7 @@ pub fn make_mosaic(
                     }
                 },
                 orig_tile_gen(OrigTileGenArgs {
-                    img,
+                    img: img.clone(), // TODO make this a mutable reference
                     c: crop_details.clone(),
                     save_images: false,
                     quadrant_dir: target_quadrant_dir.clone()
@@ -128,7 +129,9 @@ pub fn make_mosaic(
         ].join("/"),
         target_quadrant_dir: target_quadrant_dir.clone(),
         parent_quadrant_dir: parent_quadrant_dir.clone(),
-        frame_number
+        frame_number,
+        return_zoom_info: true,
+        canvas_img: img
     });
 
     let elapsed_time = now.elapsed();
@@ -158,21 +161,28 @@ struct WriteFinalImageArgs {
     dest_path: String,
     target_quadrant_dir: String,
     parent_quadrant_dir: String,
-    frame_number: String
-
+    frame_number: String,
+    return_zoom_info: bool,
+    canvas_img: DynamicImage,
 }
 fn write_final_img(mut args: WriteFinalImageArgs) -> TransposeMakeMosaicReturn {
     let now = Instant::now();
 
-    let final_img_file_name = [args.frame_number, ".jpeg".to_string()].concat();
-    let final_img_dir = [
-        "io/input".to_string(),
-        args.target_quadrant_dir.clone()
-    ].join("/");
-    let mut final_img = open_image([
-        final_img_dir,
-        final_img_file_name
-    ].join("/"));
+    let mut final_img: DynamicImage;
+    if !args.return_zoom_info {
+        // TODO this should be handled in path module
+        let final_img_file_name = [args.frame_number, ".jpeg".to_string()].concat();
+        let final_img_dir = [
+            "io/input".to_string(),
+            args.target_quadrant_dir.clone()
+        ].join("/");
+        final_img = open_image([
+            final_img_dir,
+            final_img_file_name
+        ].join("/"));
+    } else {
+        final_img = args.canvas_img;
+    }
     let (target_w, target_h) = final_img.dimensions();
 
     //dbg!("{:?}", args.c.clone());
