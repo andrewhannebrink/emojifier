@@ -11,7 +11,8 @@ static DIMENSIONS: (u32, u32) = (1920, 1080);
 struct ZoomImageInfo {
   img: DynamicImage,
   zoom_coords: (f32, f32),
-  depth: f32
+  depth: f32,
+  out_of_view: bool
 }
 
 fn wipe_zoom_dir() {
@@ -65,7 +66,8 @@ fn all_lil_imgs_img(lil_imgs_dir: &str) -> Vec<ZoomImageInfo>{
             zoom_imgs.push(ZoomImageInfo {
                 img: lil_imgs[i].img.clone(), //TODO satisfying the borrow checker here is hard
                 zoom_coords: (x as f32 * sx, y as f32 * sy),
-                depth: sx
+                depth: sx,
+                out_of_view: false
             });
             let temp_img = zoom_imgs[i].img.resize(
                 sx as u32, sy as u32, FilterType::Gaussian);
@@ -83,38 +85,50 @@ fn all_lil_imgs_img(lil_imgs_dir: &str) -> Vec<ZoomImageInfo>{
 pub fn zoom(lil_imgs_dir: &str) {
     let mut canvas_img: RgbaImage = plain_white_img();
     let mut zoom_imgs = all_lil_imgs_img(lil_imgs_dir);
-    for i in 2..32 {
+    for i in 2..152 {
         zoom_one_frame(i, &mut zoom_imgs, &mut canvas_img.clone());
     }
 }
 
 fn zoom_one_frame(
         frame_int: i32, zoom_imgs: &mut Vec<ZoomImageInfo>, canvas_img: &mut RgbaImage) {
-    let z = 1.2;
+    let z = 1.1;
     let (b, d) = (960_f32, 540_f32);
+    println!("zoom_imgs length: {}", zoom_imgs.len());
+    let mut t = 0;
     for i in 0..zoom_imgs.len() {
+        if zoom_imgs[i].out_of_view {
+            continue
+        }
         //dbg!(zoom_imgs[i].zoom_coords);
         let x = zoom_imgs[i].zoom_coords.0 as f32;
         let y = zoom_imgs[i].zoom_coords.1 as f32;
         let new_x = z * x + (b - b*z);
         let new_y = z * y + (d - d*z);
+        let new_x_int = new_x.round() as u32;
+        let new_y_int = new_y.round() as u32;
         //dbg!(new_x, new_y);
         let prev_size = zoom_imgs[i].depth;
         let new_size = z * prev_size;
-        let rounded_new_size = new_size.round() as u32;
+        let new_size_int = new_size.round() as u32;
         zoom_imgs[i].zoom_coords = (new_x, new_y);
         zoom_imgs[i].depth = new_size;
 
         // if x or y is out of bounds do nothing
-        if new_y >= 0_f32 && y.floor() as u32 + rounded_new_size <= canvas_img.dimensions().1 {
-            if new_x >= 0_f32 && x.floor() as u32 + rounded_new_size <= canvas_img.dimensions().0 {
-                let new_size_int = new_size.round() as u32;
+        if new_y_int + new_size_int >= 0 && new_y_int <= DIMENSIONS.1 {
+            if new_x_int + new_size_int >= 0 && new_x_int <= DIMENSIONS.0 {
                 let temp_img = zoom_imgs[i].img.resize(
                     new_size_int, new_size_int, FilterType::Gaussian);
                 replace(canvas_img, &temp_img, new_x as i64, new_y as i64);
+                t = t + 1;
+            } else {
+                zoom_imgs[i].out_of_view = true;
             }
+        } else {
+            zoom_imgs[i].out_of_view = true;
         }
     }
+    println!("cropped {} imgs", t);
     //TODO test for commit
     let frame_number_str = path::prepend_zeroes(frame_int);
     println!("{}", frame_number_str);
