@@ -85,13 +85,15 @@ fn all_lil_imgs_img(lil_imgs_dir: &str) -> (Vec<ZoomImageInfo>, Vec<mosaic::Imag
 pub fn zoom(lil_imgs_dir: &str) {
     let mut canvas_img: RgbaImage = plain_white_img();
     let (mut zoom_imgs, lil_imgs) = all_lil_imgs_img(lil_imgs_dir);
-    for i in 2..10 {
+    // TODO this should probably go insid the for loop
+    let mut last_output_img = zoom_one_frame(2, &mut zoom_imgs, &mut canvas_img.clone());
+    for i in 3..10 {
         if i < 9 {
-            zoom_one_frame(i, &mut zoom_imgs, &mut canvas_img.clone());
+            last_output_img = zoom_one_frame(i, &mut zoom_imgs, &mut canvas_img.clone());
         } else {
-            let mosaic_depth = 10;
+            let mosaic_depth = 2;
             mosaic::make_mosaic(
-                DynamicImage::ImageRgba8(canvas_img.clone()),
+                last_output_img.clone(),
                 Some("io/lil_imgs/emoji_big_buffered".to_string()),
                 Some(&lil_imgs),
                 mosaic::CropDetails {
@@ -114,7 +116,7 @@ pub fn zoom(lil_imgs_dir: &str) {
 fn zoom_one_frame(
         frame_int: i32, zoom_imgs: &mut Vec<ZoomImageInfo>, canvas_img: &mut RgbaImage) 
         -> DynamicImage {
-    let z = 1.06;
+    let z = 1.20;
     let (b, d) = (960_f32, 540_f32);
     println!("zoom_imgs length: {}", zoom_imgs.len());
     let mut t = 0;
