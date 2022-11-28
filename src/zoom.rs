@@ -87,12 +87,12 @@ pub fn zoom(lil_imgs_dir: &str) {
     let (mut zoom_imgs, lil_imgs) = all_lil_imgs_img(lil_imgs_dir);
     // TODO this should probably go insid the for loop
     let mut last_output_img = zoom_one_frame(2, &mut zoom_imgs, &mut canvas_img.clone());
-    for i in 3..10 {
-        if i < 9 {
+    for i in 3..33 {
+        if i < 32 {
             last_output_img = zoom_one_frame(i, &mut zoom_imgs, &mut canvas_img.clone());
         } else {
             let mosaic_depth = 2;
-            mosaic::make_mosaic(
+            let mosaic_return = mosaic::make_mosaic(
                 last_output_img.clone(),
                 Some("io/lil_imgs/emoji_big_buffered".to_string()),
                 Some(&lil_imgs),
@@ -116,13 +116,16 @@ pub fn zoom(lil_imgs_dir: &str) {
 fn zoom_one_frame(
         frame_int: i32, zoom_imgs: &mut Vec<ZoomImageInfo>, canvas_img: &mut RgbaImage) 
         -> DynamicImage {
-    let z = 1.20;
+    let z = 1.1;
     let (b, d) = (960_f32, 540_f32);
     println!("zoom_imgs length: {}", zoom_imgs.len());
     let mut t = 0;
+    let mut total_out_of_view = 0;
+    let mut zoom_depth: u32 = 0;
     for i in 0..zoom_imgs.len() {
         if zoom_imgs[i].out_of_view {
             //println!("img out of view");
+            total_out_of_view = total_out_of_view + 1;
             continue
         }
         //dbg!(zoom_imgs[i].zoom_coords);
@@ -147,10 +150,12 @@ fn zoom_one_frame(
                     new_size_int, new_size_int, FilterType::Gaussian);
                 replace(canvas_img, &temp_img, new_x as i64, new_y as i64);
                 t = t + 1;
+                zoom_depth = new_size_int;
             } else { zoom_imgs[i].out_of_view = true; }
         } else { zoom_imgs[i].out_of_view = true; }
     }
-    println!("cropped {} imgs", t);
+    println!("cropped {} imgs with depth = {}px", t, zoom_depth);
+    println!("total_out_of_view imgs skipped: {}", total_out_of_view);
     //TODO test for commit
     let frame_number_str = path::prepend_zeroes(frame_int);
     println!("{}", frame_number_str);
