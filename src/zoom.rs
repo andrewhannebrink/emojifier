@@ -85,19 +85,20 @@ fn all_lil_imgs_img(lil_imgs_dir: &str) -> Vec<ZoomImageInfo>{
 pub fn zoom(lil_imgs_dir: &str) {
     let mut canvas_img: RgbaImage = plain_white_img();
     let mut zoom_imgs = all_lil_imgs_img(lil_imgs_dir);
-    for i in 2..152 {
+    for i in 2..32 {
         zoom_one_frame(i, &mut zoom_imgs, &mut canvas_img.clone());
     }
 }
 
 fn zoom_one_frame(
         frame_int: i32, zoom_imgs: &mut Vec<ZoomImageInfo>, canvas_img: &mut RgbaImage) {
-    let z = 1.1;
+    let z = 1.01;
     let (b, d) = (960_f32, 540_f32);
     println!("zoom_imgs length: {}", zoom_imgs.len());
     let mut t = 0;
     for i in 0..zoom_imgs.len() {
         if zoom_imgs[i].out_of_view {
+            //println!("img out of view");
             continue
         }
         //dbg!(zoom_imgs[i].zoom_coords);
@@ -105,8 +106,8 @@ fn zoom_one_frame(
         let y = zoom_imgs[i].zoom_coords.1 as f32;
         let new_x = z * x + (b - b*z);
         let new_y = z * y + (d - d*z);
-        let new_x_int = new_x.round() as u32;
-        let new_y_int = new_y.round() as u32;
+        let new_x_int = new_x.round() as i32;
+        let new_y_int = new_y.round() as i32;
         //dbg!(new_x, new_y);
         let prev_size = zoom_imgs[i].depth;
         let new_size = z * prev_size;
@@ -115,18 +116,15 @@ fn zoom_one_frame(
         zoom_imgs[i].depth = new_size;
 
         // if x or y is out of bounds do nothing
-        if new_y_int + new_size_int >= 0 && new_y_int <= DIMENSIONS.1 {
-            if new_x_int + new_size_int >= 0 && new_x_int <= DIMENSIONS.0 {
+        if new_y_int + new_size_int as i32 >= 0 && new_y_int <= DIMENSIONS.1 as i32 {
+            if new_x_int + new_size_int as i32 >= 0 && new_x_int <= DIMENSIONS.0 as i32 {
+                //println!("new coords: {}, {}", new_x_int, new_y_int);
                 let temp_img = zoom_imgs[i].img.resize(
                     new_size_int, new_size_int, FilterType::Gaussian);
                 replace(canvas_img, &temp_img, new_x as i64, new_y as i64);
                 t = t + 1;
-            } else {
-                zoom_imgs[i].out_of_view = true;
-            }
-        } else {
-            zoom_imgs[i].out_of_view = true;
-        }
+            } else { zoom_imgs[i].out_of_view = true; }
+        } else { zoom_imgs[i].out_of_view = true; }
     }
     println!("cropped {} imgs", t);
     //TODO test for commit
