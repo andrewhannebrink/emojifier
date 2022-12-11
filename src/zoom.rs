@@ -86,14 +86,16 @@ pub fn zoom(lil_imgs_dir: &str) {
     let mut canvas_img: RgbaImage = plain_white_img();
     let (mut zoom_imgs, lil_imgs) = all_lil_imgs_img(lil_imgs_dir);
     // TODO this should probably go insid the for loop
-    let mut last_output_img = zoom_one_frame(2, &mut zoom_imgs, &mut canvas_img.clone());
-    for i in 3..30 {
-        if i < 29 {
-            last_output_img = zoom_one_frame(i, &mut zoom_imgs, &mut canvas_img.clone());
+    let mut zoom_return = 
+            zoom_one_frame(2, &mut zoom_imgs, &mut canvas_img.clone());
+    for i in 3..300 {
+        if zoom_return.depth < 200 {
+            zoom_return = zoom_one_frame(i, &mut zoom_imgs, &mut canvas_img.clone());
         } else {
-            let mosaic_depth = 2;
-            let mosaic_return = mosaic::make_mosaic(
-                last_output_img.clone(),
+            let mosaic_depth = 6;
+            zoom_return.depth = mosaic_depth;
+            zoom_imgs = mosaic::make_mosaic(
+                zoom_return.output_img.clone(),
                 Some("io/lil_imgs/emoji_big_buffered".to_string()),
                 Some(&lil_imgs),
                 mosaic::CropDetails {
@@ -107,15 +109,18 @@ pub fn zoom(lil_imgs_dir: &str) {
                 "zoom".to_string(),
                 path::prepend_zeroes(i),
                 true,
-                None);
-            dbg!(mosaic_return.lil_img_zoom_info);
+                None).lil_img_zoom_info;
         }
     }
 }
 
+struct ZoomOneFrameReturn {
+    output_img: DynamicImage,
+    depth: u32
+}
 fn zoom_one_frame(
         frame_int: i32, zoom_imgs: &mut Vec<ZoomImageInfo>, canvas_img: &mut RgbaImage) 
-        -> DynamicImage {
+        -> ZoomOneFrameReturn {
     let z = 1.05;
     let (b, d) = (960_f32, 540_f32);
     println!("zoom_imgs length: {}", zoom_imgs.len());
@@ -160,6 +165,10 @@ fn zoom_one_frame(
     let frame_number_str = path::prepend_zeroes(frame_int);
     println!("{}", frame_number_str);
     canvas_img.save(path::zoom_output_path(&frame_number_str)).unwrap();
-    DynamicImage::ImageRgba8(canvas_img.clone()) //TODO i do not like the clone here
+
+    ZoomOneFrameReturn {
+        output_img: DynamicImage::ImageRgba8(canvas_img.clone()), //TODO i do not like the clone here
+        depth: zoom_depth
+    }
 }
 
