@@ -62,7 +62,7 @@ pub struct TransposeMakeMosaicReturn {
     pub prev_target_quadrant: String,
     pub prev_parent_tiles: Vec<ImageInfo>,
     pub prev_target_tiles: Vec<ImageInfo>,
-    pub lil_img_zoom_info: Option<Vec<zoom::ZoomImageInfo>>
+    pub lil_img_zoom_info: Vec<zoom::ZoomImageInfo>
 }
 
 pub fn make_mosaic(
@@ -111,13 +111,13 @@ pub fn make_mosaic(
         } 
     };
 
-    //TODO figure out how to reuse crop_details from above using lifetime params
+    //todo figure out how to reuse crop_details from above using lifetime params
     let (mut new_tiles, mut lil_imgs) = new_tiles_gen(NewTileGenArgs {
         c: crop_details.clone(),
         orig_tiles: orig_tiles_iter.clone(),
         lil_imgs,
     });
-    //TODO figure out how to reuse crop_details from above using lifetime params
+    //todo figure out how to reuse crop_details from above using lifetime params
     let op_file_name = [frame_number.clone(), ".jpeg".to_string()].concat();
     let updated_mosaic_return = write_final_img(WriteFinalImageArgs {
         c: crop_details.clone(),
@@ -169,6 +169,7 @@ struct WriteFinalImageArgs {
 }
 fn write_final_img(mut args: WriteFinalImageArgs) -> TransposeMakeMosaicReturn {
     let now = Instant::now();
+    let mut lil_img_zoom_info: Vec<zoom::ZoomImageInfo> = vec![];
 
     let mut final_img: DynamicImage;
     if !args.return_zoom_info {
@@ -221,6 +222,16 @@ fn write_final_img(mut args: WriteFinalImageArgs) -> TransposeMakeMosaicReturn {
             // TODO update lil_imgs target_coords here
             args.lil_imgs[index_in_lil_imgs as usize].target_coords.push(target_coords);
             //dbg!("{:?}", args.lil_imgs[index_in_lil_imgs as usize].target_coords);
+            if args.return_zoom_info {
+                lil_img_zoom_info.push(zoom::ZoomImageInfo {
+                    //TODO not sure of a better option than cloning here
+                    img: args.lil_imgs[index_in_lil_imgs as usize].img.clone(),
+                    zoom_coords: (target_coords.0 as f32, target_coords.1 as f32),
+                    depth: args.c.depth as f32,
+                    out_of_view: false
+
+                })
+            }
             i += 1;
         }
     }
@@ -236,7 +247,7 @@ fn write_final_img(mut args: WriteFinalImageArgs) -> TransposeMakeMosaicReturn {
         prev_target_quadrant: args.target_quadrant_dir,
         prev_parent_tiles: args.lil_imgs.clone(),
         prev_target_tiles: args.orig_tiles,
-        lil_img_zoom_info: None
+        lil_img_zoom_info
     }
 }
 

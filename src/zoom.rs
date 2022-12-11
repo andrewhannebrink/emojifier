@@ -9,10 +9,10 @@ static DIMENSIONS: (u32, u32) = (1920, 1080);
 
 #[derive(Debug, Clone)]
 pub struct ZoomImageInfo {
-  img: DynamicImage,
-  zoom_coords: (f32, f32),
-  depth: f32,
-  out_of_view: bool
+  pub img: DynamicImage,
+  pub zoom_coords: (f32, f32),
+  pub depth: f32,
+  pub out_of_view: bool
 }
 
 fn wipe_zoom_dir() {
@@ -108,6 +108,7 @@ pub fn zoom(lil_imgs_dir: &str) {
                 path::prepend_zeroes(i),
                 true,
                 None);
+            dbg!(mosaic_return.lil_img_zoom_info);
         }
     }
 }
