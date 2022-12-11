@@ -17,17 +17,17 @@ def bigImages():
         os.system(f'convert io/lil_imgs/emoji_raw/{imageName} -resize 200x200^ -background white -alpha remove -alpha off io/lil_imgs/emoji_big/{imageName}')
 
 def trimWhiteSpace():
-    allImageNames = os.listdir("io/lil_imgs/emoji")
+    allImageNames = os.listdir("io/lil_imgs/emoji_big")
     os.system('rm -rf io/lil_imgs/emoji_trim && mkdir io/lil_imgs/emoji_trim')
     for name in allImageNames:
-        os.system(f'convert io/lil_imgs/emoji/{name} -trim io/lil_imgs/emoji_trim/{name}')
+        os.system(f'convert io/lil_imgs/emoji_big/{name} -trim io/lil_imgs/emoji_trim/{name}')
 
 
 def centerImagesOnWhiteTile(inputDir, outputDir): 
     allImageNames = os.listdir(f'io/lil_imgs/{inputDir}')
     os.system(f'rm -rf io/lil_imgs/{outputDir} && mkdir io/lil_imgs/{outputDir}')
     for name in allImageNames:
-        os.system(f'convert -size 50x50 xc:white io/lil_imgs/{inputDir}/{name} -gravity center -composite io/lil_imgs/{outputDir}/{name}')
+        os.system(f'convert -size 170x170 xc:white io/lil_imgs/{inputDir}/{name} -gravity center -composite io/lil_imgs/{outputDir}/{name}')
 
 def resize(inputDir, outputDir, newSize): 
     allImageNames = os.listdir(f'io/lil_imgs/{inputDir}')
@@ -68,13 +68,14 @@ def moreColors():
 
 def main():
     #whiteBackgrounds()
-    #bigImages()
-    #trimWhiteSpace()
+    bigImages()
+    trimWhiteSpace()
+    centerImagesOnWhiteTile("emoji_trim", "emoji_big_buffered")
     #convertSvgToJpeg()
     #resize("sdg_jpeg", "sdg_jpeg_small", 120)
     #centerImagesOnWhiteTile("emoji_trim", "emoji_buffered")
     #moreColors()
     #convertSvgToJpeg("sdg_more_colors", "sdg_more_colors_jpeg")
-    resize("sdg_more_colors_jpeg", "sdg_more_colors_jpeg_small", 120)
+    #resize("sdg_more_colors_jpeg", "sdg_more_colors_jpeg_small", 120)
 
 main()

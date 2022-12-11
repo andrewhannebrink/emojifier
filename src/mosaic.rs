@@ -1,5 +1,6 @@
 use image::{GenericImage, GenericImageView, Rgb, Rgba, RgbImage, RgbaImage, GrayImage};
 use image::DynamicImage;
+use crate::zoom;
 use image::imageops::FilterType;
 use image::imageops::replace;
 use image::imageops::resize;
@@ -25,7 +26,6 @@ pub struct ImageInfo {
     avg_color: Color,
     pub parent_coords: (u32, u32),
     pub target_coords: Vec<(i64, i64)>,
-
 }
 
 pub fn save_lil_img_dir(args: OrigTileGenArgs) {
@@ -61,7 +61,8 @@ pub struct TransposeMakeMosaicReturn {
     pub prev_parent_quadrant: String,
     pub prev_target_quadrant: String,
     pub prev_parent_tiles: Vec<ImageInfo>,
-    pub prev_target_tiles: Vec<ImageInfo>
+    pub prev_target_tiles: Vec<ImageInfo>,
+    pub lil_img_zoom_info: Vec<zoom::ZoomImageInfo>
 }
 
 pub fn make_mosaic(
@@ -72,6 +73,7 @@ pub fn make_mosaic(
     parent_quadrant_dir: String,
     target_quadrant_dir: String,
     frame_number: String,
+    return_zoom_info: bool, // TODO this would read better if it was an enum
     previous_return: Option<TransposeMakeMosaicReturn>) -> TransposeMakeMosaicReturn {
 
     let now = Instant::now();
@@ -94,7 +96,7 @@ pub fn make_mosaic(
                     }
                 },
                 orig_tile_gen(OrigTileGenArgs {
-                    img,
+                    img: img.clone(), // TODO make this a mutable reference
                     c: crop_details.clone(),
                     save_images: false,
                     quadrant_dir: target_quadrant_dir.clone()
@@ -109,18 +111,19 @@ pub fn make_mosaic(
         } 
     };
 
-    //TODO figure out how to reuse crop_details from above using lifetime params
-    let (mut new_tiles, mut lil_imgs) = new_tiles_gen(NewTileGenArgs {
+    //todo figure out how to reuse crop_details from above using lifetime params
+    let (mut new_tiles, mut resized_lil_imgs) = new_tiles_gen(NewTileGenArgs {
         c: crop_details.clone(),
         orig_tiles: orig_tiles_iter.clone(),
-        lil_imgs,
+        lil_imgs: lil_imgs.clone(),
     });
-    //TODO figure out how to reuse crop_details from above using lifetime params
+    //todo figure out how to reuse crop_details from above using lifetime params
     let op_file_name = [frame_number.clone(), ".jpeg".to_string()].concat();
     let updated_mosaic_return = write_final_img(WriteFinalImageArgs {
         c: crop_details.clone(),
         new_tiles,
         orig_tiles: orig_tiles_iter.collect(),
+        resized_lil_imgs,
         lil_imgs: lil_imgs.clone(),
         dest_path: [
             String::from("io/output"),
@@ -129,7 +132,9 @@ pub fn make_mosaic(
         ].join("/"),
         target_quadrant_dir: target_quadrant_dir.clone(),
         parent_quadrant_dir: parent_quadrant_dir.clone(),
-        frame_number
+        frame_number,
+        return_zoom_info: true,
+        canvas_img: img
     });
 
     let elapsed_time = now.elapsed();
@@ -155,25 +160,34 @@ struct WriteFinalImageArgs {
     c: CropDetails,
     new_tiles: std::vec::IntoIter<u32>,
     lil_imgs: Vec<ImageInfo>,
+    resized_lil_imgs: Vec<ImageInfo>,
     orig_tiles: Vec<ImageInfo>, // Really just here to pass back to return statement
     dest_path: String,
     target_quadrant_dir: String,
     parent_quadrant_dir: String,
-    frame_number: String
-
+    frame_number: String,
+    return_zoom_info: bool,
+    canvas_img: DynamicImage,
 }
 fn write_final_img(mut args: WriteFinalImageArgs) -> TransposeMakeMosaicReturn {
     let now = Instant::now();
+    let mut lil_img_zoom_info: Vec<zoom::ZoomImageInfo> = vec![];
 
-    let final_img_file_name = [args.frame_number, ".jpeg".to_string()].concat();
-    let final_img_dir = [
-        "io/input".to_string(),
-        args.target_quadrant_dir.clone()
-    ].join("/");
-    let mut final_img = open_image([
-        final_img_dir,
-        final_img_file_name
-    ].join("/"));
+    let mut final_img: DynamicImage;
+    if !args.return_zoom_info {
+        // TODO this should be handled in path module
+        let final_img_file_name = [args.frame_number, ".jpeg".to_string()].concat();
+        let final_img_dir = [
+            "io/input".to_string(),
+            args.target_quadrant_dir.clone()
+        ].join("/");
+        final_img = open_image([
+            final_img_dir,
+            final_img_file_name
+        ].join("/"));
+    } else {
+        final_img = args.canvas_img;
+    }
     let (target_w, target_h) = final_img.dimensions();
 
     //dbg!("{:?}", args.c.clone());
@@ -190,26 +204,29 @@ fn write_final_img(mut args: WriteFinalImageArgs) -> TransposeMakeMosaicReturn {
             // resize the lil_img if the dimensions are not already correct. This is here
             // for when lil_imgs_dir is passed to make_mosaic, and the img size is not 
             // necessarily the depth, as would be the case when lil_imgs_dir is ot passed
-            let mut resized_img: Option<DynamicImage> = Option::None;
+            //
 //          if args.lil_imgs[index_in_lil_imgs as usize].img.dimensions().0 != args.c.depth {
 //              println!("resizing img");
 //              resized_img = Some(args.lil_imgs[index_in_lil_imgs as usize].img.resize(
 //                  args.c.depth, args.c.depth, FilterType::Gaussian));
 //          }
 
-            match resized_img {
-                None => {
-                    replace(&mut final_img, &args.lil_imgs[index_in_lil_imgs as usize].img, 
-                            target_coords.0, target_coords.1);
-                },
-                Some(resized) => {
-                    replace(&mut final_img, &resized, 
-                            target_coords.0, target_coords.1);
-                }
-            }
+            replace(&mut final_img, &args.resized_lil_imgs[index_in_lil_imgs as usize].img, 
+                    target_coords.0, target_coords.1);
+
             // TODO update lil_imgs target_coords here
-            args.lil_imgs[index_in_lil_imgs as usize].target_coords.push(target_coords);
+            args.resized_lil_imgs[index_in_lil_imgs as usize].target_coords.push(target_coords);
             //dbg!("{:?}", args.lil_imgs[index_in_lil_imgs as usize].target_coords);
+            if args.return_zoom_info {
+                lil_img_zoom_info.push(zoom::ZoomImageInfo {
+                    //TODO not sure of a better option than cloning here
+                    img: args.lil_imgs[index_in_lil_imgs as usize].img.clone(),
+                    zoom_coords: (target_coords.0 as f32, target_coords.1 as f32),
+                    depth: args.c.depth as f32,
+                    out_of_view: false
+
+                })
+            }
             i += 1;
         }
     }
@@ -224,7 +241,8 @@ fn write_final_img(mut args: WriteFinalImageArgs) -> TransposeMakeMosaicReturn {
         prev_parent_quadrant: args.parent_quadrant_dir,
         prev_target_quadrant: args.target_quadrant_dir,
         prev_parent_tiles: args.lil_imgs.clone(),
-        prev_target_tiles: args.orig_tiles
+        prev_target_tiles: args.orig_tiles,
+        lil_img_zoom_info
     }
 }
 
