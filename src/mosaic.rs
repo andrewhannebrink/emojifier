@@ -215,7 +215,7 @@ fn write_final_img(mut args: WriteFinalImageArgs) -> TransposeMakeMosaicReturn {
                     target_coords.0, target_coords.1);
 
             // TODO update lil_imgs target_coords here
-            args.resized_lil_imgs[index_in_lil_imgs as usize].target_coords.push(target_coords);
+            args.lil_imgs[index_in_lil_imgs as usize].target_coords.push(target_coords);
             //dbg!("{:?}", args.lil_imgs[index_in_lil_imgs as usize].target_coords);
             if args.return_zoom_info {
                 lil_img_zoom_info.push(zoom::ZoomImageInfo {

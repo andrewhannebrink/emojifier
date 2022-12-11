@@ -7,7 +7,6 @@ pub struct MosaicInstructions {
     pub ending_depth: u32,
     pub lil_imgs_dir: Option<String>
 }
-
 impl MosaicInstructions {
     pub fn get_current_depth (&self, seq_frame_idx: u16, total_seq_frames: u32) -> u32 {
         // This is a fraction percentage of the progress that's been made in the frame seq
@@ -50,26 +49,26 @@ fn x_second_transition(x: u32) -> Vec<FrameSequence> {
     two_sec_trans.push(FrameSequence::new(2, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 120,
         ending_depth: 120,
-        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
+        lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
         //lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
     two_sec_trans.push(FrameSequence::new(13, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 120,
         ending_depth: 10,
-        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
+        lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
         //lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
     two_sec_trans.push(FrameSequence::new((x-1) * 30, SequenceMode::NoModification));
     two_sec_trans.push(FrameSequence::new(13, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 10,
         ending_depth: 120,
-        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
+        lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
         //lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
     two_sec_trans.push(FrameSequence::new(2, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 120,
         ending_depth: 120,
-        lil_imgs_dir: Option::Some("io/lil_imgs/sdg_more_colors_jpeg_small".to_string())
+        lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
         //lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
     two_sec_trans
@@ -88,29 +87,29 @@ fn ten_two_transition() -> Vec<FrameSequence> {
 
 fn bench_instructions() -> Vec<FrameSequence> {
     let mut bench: Vec<FrameSequence> = Vec::new();
-    bench.push(FrameSequence::new(20, SequenceMode::Mosaic(MosaicInstructions {
+    bench.push(FrameSequence::new(50, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 120,
         ending_depth: 20,
         lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
-    bench.push(FrameSequence::new(130, SequenceMode::Mosaic(MosaicInstructions {
+    bench.push(FrameSequence::new(30, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 20,
         ending_depth: 2,
         lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
     bench.push(FrameSequence::new(5, SequenceMode::NoModification));
-    bench.push(FrameSequence::new(145, SequenceMode::Mosaic(MosaicInstructions {
-        starting_depth: 20,
-        ending_depth: 20,
+    bench.push(FrameSequence::new(25, SequenceMode::Mosaic(MosaicInstructions {
+        starting_depth: 2,
+        ending_depth: 30,
         lil_imgs_dir: None
     })));
     bench.push(FrameSequence::new(50, SequenceMode::Mosaic(MosaicInstructions {
-        starting_depth: 20,
+        starting_depth: 30,
         ending_depth: 200,
         lil_imgs_dir: None
     })));
     bench.push(FrameSequence{
-        total_frames: 200,
+        total_frames: 50,
         mode: SequenceMode::LittleVideos
     });
     bench.push(FrameSequence::new(40, SequenceMode::Mosaic(MosaicInstructions {
@@ -118,14 +117,14 @@ fn bench_instructions() -> Vec<FrameSequence> {
         ending_depth: 10,
         lil_imgs_dir: None
     })));
-    bench.push(FrameSequence::new(40, SequenceMode::Mosaic(MosaicInstructions {
+    bench.push(FrameSequence::new(20, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 200,
         ending_depth: 40,
         lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
-    bench.push(FrameSequence::new(20, SequenceMode::Mosaic(MosaicInstructions {
+    bench.push(FrameSequence::new(29, SequenceMode::Mosaic(MosaicInstructions {
         starting_depth: 40,
-        ending_depth: 2,
+        ending_depth: 40,
         lil_imgs_dir: Option::Some("io/lil_imgs/emoji_buffered".to_string())
     })));
     bench
@@ -147,14 +146,20 @@ pub fn get_instructions () -> Vec<FrameSequence> {
 //  for i in 0..18 {
 //      instructions.append(&mut two_sec_trans.clone());
 //  }
-    let mut ten_two_trans = ten_two_transition();
-    for i in 0..18 {
-       instructions.append(&mut ten_two_trans.clone());
-    }
-
-//  let mut bench = bench_instructions();
-//  for i in 0..1 {
-//     instructions.append(&mut bench.clone());
+//  let mut ten_two_trans = ten_two_transition();
+//  for i in 0..18 {
+//     instructions.append(&mut ten_two_trans.clone());
 //  }
+
+    let mut bench = bench_instructions();
+    for _i in 0..1 {
+        instructions.append(&mut bench.clone());
+    }
+    let mut total_frames = 0;
+    for _instruction_set in instructions.iter() {
+        total_frames = total_frames + _instruction_set.total_frames;
+    }
+    println!("total instructions = {}", total_frames);
+
     instructions
 }

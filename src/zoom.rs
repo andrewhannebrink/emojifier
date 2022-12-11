@@ -123,7 +123,7 @@ fn zoom_one_frame(
         -> ZoomOneFrameReturn {
     let z = 1.05;
     //let (b, d) = (960_f32, 540_f32);
-    let (b, d) = (900_f32, 500_f32);
+    let (b, d) = (640_f32, 360_f32);
     println!("zoom_imgs length: {}", zoom_imgs.len());
     let mut t = 0;
     let mut total_out_of_view = 0;
