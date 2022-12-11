@@ -1,9 +1,7 @@
-use image::DynamicImage;
 use image::imageops::FilterType;
 use image::imageops::resize;
 use image::imageops::replace;
 use std::fs;
-use crate::mosaic;
 use crate::path;
 use std::time::Instant;
 

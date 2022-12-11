@@ -1,6 +1,3 @@
-use crate::lil_videos;
-use crate::mosaic;
-
 #[derive(Clone)]
 pub struct MosaicInstructions {
     pub starting_depth: u32,
@@ -79,7 +76,7 @@ fn ten_two_transition() -> Vec<FrameSequence> {
     let two_sec_trans = x_second_transition(2);
     let ten_sec_trans = x_second_transition(10);
     ten_two.append(&mut ten_sec_trans.clone());
-    for i in 0..5 {
+    for _i in 0..5 {
         ten_two.append(&mut two_sec_trans.clone());
     }
     ten_two
@@ -151,7 +148,7 @@ pub fn get_instructions () -> Vec<FrameSequence> {
 //     instructions.append(&mut ten_two_trans.clone());
 //  }
 
-    let mut bench = bench_instructions();
+    let bench = bench_instructions();
     for _i in 0..1 {
         instructions.append(&mut bench.clone());
     }

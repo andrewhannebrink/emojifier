@@ -1,6 +1,5 @@
 use crate::mosaic;
 use image::{ImageBuffer, RgbaImage, DynamicImage};
-use image::GenericImageView;
 use image::imageops::FilterType;
 use image::imageops::replace;
 use crate::path;
@@ -33,7 +32,7 @@ fn plain_white_img() -> RgbaImage {
 fn all_lil_imgs_img(lil_imgs_dir: &str) -> (Vec<ZoomImageInfo>, Vec<mosaic::ImageInfo>) {
     wipe_zoom_dir();
     let mut canvas_img: RgbaImage = plain_white_img();
-    let mut lil_imgs = mosaic::get_lil_imgs_from_dir(&lil_imgs_dir.to_string(), 5);
+    let lil_imgs = mosaic::get_lil_imgs_from_dir(&lil_imgs_dir.to_string(), 5);
     let mut zoom_imgs: Vec<ZoomImageInfo> = Vec::new();
     // set a central pixel to white
     
@@ -44,8 +43,8 @@ fn all_lil_imgs_img(lil_imgs_dir: &str) -> (Vec<ZoomImageInfo>, Vec<mosaic::Imag
     let px = (n * x / y).sqrt().ceil();
     let py = (n * y / x).sqrt().ceil();
 
-    let mut sx: f32;
-    let mut sy: f32;
+    let sx: f32;
+    let sy: f32;
     if (px*y/x)*px < n {
         sx = y / (px*y/x).ceil();
     } else {
@@ -83,7 +82,7 @@ fn all_lil_imgs_img(lil_imgs_dir: &str) -> (Vec<ZoomImageInfo>, Vec<mosaic::Imag
 }
 
 pub fn zoom(lil_imgs_dir: &str) {
-    let mut canvas_img: RgbaImage = plain_white_img();
+    let canvas_img: RgbaImage = plain_white_img();
     let (mut zoom_imgs, lil_imgs) = all_lil_imgs_img(lil_imgs_dir);
     // TODO this should probably go insid the for loop
     let mut zoom_return = 
@@ -96,7 +95,6 @@ pub fn zoom(lil_imgs_dir: &str) {
             zoom_return.depth = mosaic_depth;
             zoom_imgs = mosaic::make_mosaic(
                 zoom_return.output_img.clone(),
-                Some("io/lil_imgs/emoji_big_buffered".to_string()),
                 Some(&lil_imgs),
                 mosaic::CropDetails {
                     depth: mosaic_depth,

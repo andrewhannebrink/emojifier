@@ -1,9 +1,8 @@
-use image::{GenericImage, GenericImageView, Rgb, Rgba, RgbImage, RgbaImage, GrayImage};
+use image::GenericImageView;
 use image::DynamicImage;
 use crate::zoom;
 use image::imageops::FilterType;
 use image::imageops::replace;
-use image::imageops::resize;
 use std::fs;
 use std::time::Instant;
 
@@ -28,23 +27,6 @@ pub struct ImageInfo {
     pub target_coords: Vec<(i64, i64)>,
 }
 
-pub fn save_lil_img_dir(args: OrigTileGenArgs) {
-    let now = Instant::now();
-
-    fs::remove_dir_all("io/lil_imgs/a");
-    fs::remove_dir_all("io/lil_imgs/b");
-    fs::create_dir("io/lil_imgs/a");
-    fs::create_dir("io/lil_imgs/b");
-    orig_tile_gen(OrigTileGenArgs {
-        img: args.img,
-        c: args.c,
-        save_images: args.save_images,
-        quadrant_dir: args.quadrant_dir,
-    });
-    let elapsed_time = now.elapsed();
-    println!("save_lil_img_dir() took {} seconds.", elapsed_time.subsec_millis());
-}
-
 fn parent_img_path (parent_quadrant_dir: String, frame_number: String) -> String {
     [
         ["io/input".to_string(), parent_quadrant_dir, frame_number].join("/"),
@@ -67,7 +49,6 @@ pub struct TransposeMakeMosaicReturn {
 
 pub fn make_mosaic(
     img: DynamicImage,
-    lil_imgs_dir: Option<String>, // TODO ulitmately take this out and replace with lil_imgs below
     existing_lil_imgs: Option<&Vec<ImageInfo>>,
     crop_details: CropDetails,
     parent_quadrant_dir: String,
@@ -112,7 +93,7 @@ pub fn make_mosaic(
     };
 
     //todo figure out how to reuse crop_details from above using lifetime params
-    let (mut new_tiles, mut resized_lil_imgs) = new_tiles_gen(NewTileGenArgs {
+    let (new_tiles, resized_lil_imgs) = new_tiles_gen(NewTileGenArgs {
         c: crop_details.clone(),
         orig_tiles: orig_tiles_iter.clone(),
         lil_imgs: lil_imgs.clone(),
@@ -133,7 +114,7 @@ pub fn make_mosaic(
         target_quadrant_dir: target_quadrant_dir.clone(),
         parent_quadrant_dir: parent_quadrant_dir.clone(),
         frame_number,
-        return_zoom_info: true,
+        return_zoom_info,
         canvas_img: img
     });
 
@@ -188,11 +169,9 @@ fn write_final_img(mut args: WriteFinalImageArgs) -> TransposeMakeMosaicReturn {
     } else {
         final_img = args.canvas_img;
     }
-    let (target_w, target_h) = final_img.dimensions();
 
     //dbg!("{:?}", args.c.clone());
 
-    let mut i = 0;
     for y in 0..args.c.total_y_imgs {
         for x in 0..args.c.total_x_imgs {
             let index_in_lil_imgs = args.new_tiles.next().unwrap();
@@ -227,7 +206,6 @@ fn write_final_img(mut args: WriteFinalImageArgs) -> TransposeMakeMosaicReturn {
 
                 })
             }
-            i += 1;
         }
     }
     //println!("dest_path: {}", args.dest_path.clone());
@@ -259,7 +237,7 @@ fn new_tiles_gen(mut args: NewTileGenArgs) -> (std::vec::IntoIter<u32>, Vec<Imag
         let new_tile = get_closest_img(&orig_tile, &mut (args.lil_imgs), &args.c);
         new_tiles.push(new_tile as u32);
     }
-    let mut new_tiles_iter = new_tiles.into_iter();
+    let new_tiles_iter = new_tiles.into_iter();
 
     let elapsed_time = now.elapsed();
     println!("new_tiles_gen() took {} seconds.", elapsed_time.subsec_millis());
@@ -387,7 +365,7 @@ pub fn get_lil_imgs_from_dir(
     let lil_img_names = fs::read_dir(lil_imgs_dir).unwrap();
     for name in lil_img_names {
         let img_path = name.unwrap().path().display().to_string();
-        let mut img = image::open(img_path).unwrap();
+        let img = image::open(img_path).unwrap();
 
         lil_imgs.push(ImageInfo {
             avg_color: get_avg_rgb(&img, skip as u8),
@@ -403,10 +381,8 @@ pub fn get_lil_imgs_from_dir(
 }
 
 fn get_avg_rgb(img: &DynamicImage, skip: u8) -> Color {
-    let (w, h) = img.dimensions();
     let pixels = img.pixels();
     let mut i = 0;
-    let (mut x, mut y) = (0, 0);
     let mut red_sum: u32 = 0;
     let mut green_sum: u32 = 0;
     let mut blue_sum: u32 = 0;
@@ -429,17 +405,4 @@ pub fn open_image(img_name: String) -> DynamicImage {
     println!("{}", img_name);
     let img = image::open(img_name).unwrap();
     img
-}
-
-pub fn prepend_zeroes(i: usize) -> String {
-    let frame_number_without_zeroes: &str = &i.to_string();
-    let mut zeroes_to_prepend = "000";
-    if i >= 10 && i < 100 {
-        zeroes_to_prepend = "00";
-    } else if i >= 100 && i < 1000 {
-        zeroes_to_prepend = "0";
-    } else if i >= 1000 {
-        zeroes_to_prepend = "";
-    }
-    [zeroes_to_prepend, frame_number_without_zeroes].concat()
 }
