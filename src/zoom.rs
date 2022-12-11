@@ -7,8 +7,8 @@ use crate::path;
 use std::fs;
 static DIMENSIONS: (u32, u32) = (1920, 1080);
 
-#[derive(Debug)]
-struct ZoomImageInfo {
+#[derive(Debug, Clone)]
+pub struct ZoomImageInfo {
   img: DynamicImage,
   zoom_coords: (f32, f32),
   depth: f32,
@@ -87,8 +87,8 @@ pub fn zoom(lil_imgs_dir: &str) {
     let (mut zoom_imgs, lil_imgs) = all_lil_imgs_img(lil_imgs_dir);
     // TODO this should probably go insid the for loop
     let mut last_output_img = zoom_one_frame(2, &mut zoom_imgs, &mut canvas_img.clone());
-    for i in 3..33 {
-        if i < 32 {
+    for i in 3..30 {
+        if i < 29 {
             last_output_img = zoom_one_frame(i, &mut zoom_imgs, &mut canvas_img.clone());
         } else {
             let mosaic_depth = 2;
@@ -110,13 +110,12 @@ pub fn zoom(lil_imgs_dir: &str) {
                 None);
         }
     }
-    
 }
 
 fn zoom_one_frame(
         frame_int: i32, zoom_imgs: &mut Vec<ZoomImageInfo>, canvas_img: &mut RgbaImage) 
         -> DynamicImage {
-    let z = 1.1;
+    let z = 1.05;
     let (b, d) = (960_f32, 540_f32);
     println!("zoom_imgs length: {}", zoom_imgs.len());
     let mut t = 0;

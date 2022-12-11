@@ -1,5 +1,6 @@
 use image::{GenericImage, GenericImageView, Rgb, Rgba, RgbImage, RgbaImage, GrayImage};
 use image::DynamicImage;
+use crate::zoom;
 use image::imageops::FilterType;
 use image::imageops::replace;
 use image::imageops::resize;
@@ -60,7 +61,8 @@ pub struct TransposeMakeMosaicReturn {
     pub prev_parent_quadrant: String,
     pub prev_target_quadrant: String,
     pub prev_parent_tiles: Vec<ImageInfo>,
-    pub prev_target_tiles: Vec<ImageInfo>
+    pub prev_target_tiles: Vec<ImageInfo>,
+    pub lil_img_zoom_info: Option<Vec<zoom::ZoomImageInfo>>
 }
 
 pub fn make_mosaic(
@@ -233,7 +235,8 @@ fn write_final_img(mut args: WriteFinalImageArgs) -> TransposeMakeMosaicReturn {
         prev_parent_quadrant: args.parent_quadrant_dir,
         prev_target_quadrant: args.target_quadrant_dir,
         prev_parent_tiles: args.lil_imgs.clone(),
-        prev_target_tiles: args.orig_tiles
+        prev_target_tiles: args.orig_tiles,
+        lil_img_zoom_info: None
     }
 }
 
