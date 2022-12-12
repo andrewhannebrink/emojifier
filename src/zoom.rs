@@ -130,7 +130,7 @@ fn zoom_one_frame(
     let mut total_out_of_view = 0;
     let mut zoom_depth: u32 = 0;
     for mut zoom_img in zoom_imgs {
-        for mut zoom_coords in &zoom_img.zoom_coords {   
+        for mut zoom_coords in zoom_img.zoom_coords.iter_mut() {   
             if zoom_img.out_of_view {
                 //println!("img out of view");
                 total_out_of_view = total_out_of_view + 1;
@@ -147,7 +147,7 @@ fn zoom_one_frame(
             let prev_size = zoom_img.depth;
             let new_size = z * prev_size;
             let new_size_int = new_size.round() as u32;
-            zoom_coords = &(new_x, new_y);
+            *zoom_coords = (new_x, new_y);
             zoom_img.depth = new_size;
 
             // if x or y is out of bounds do nothing
