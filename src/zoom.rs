@@ -87,11 +87,11 @@ pub fn zoom(lil_imgs_dir: &str) {
     // TODO this should probably go insid the for loop
     let mut zoom_return = 
             zoom_one_frame(2, &mut zoom_imgs, &mut canvas_img.clone());
-    for i in 3..300 {
+    for i in 3..150 {
         if zoom_return.depth < 200 {
             zoom_return = zoom_one_frame(i, &mut zoom_imgs, &mut canvas_img.clone());
         } else {
-            let mosaic_depth = 6;
+            let mosaic_depth = 8;
             zoom_return.depth = mosaic_depth;
             zoom_imgs = mosaic::make_mosaic(
                 zoom_return.output_img.clone(),
