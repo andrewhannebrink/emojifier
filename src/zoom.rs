@@ -83,6 +83,14 @@ fn all_lil_imgs_img(lil_imgs_dir: &str) -> (Vec<ZoomImageInfo>, Vec<mosaic::Imag
     (zoom_imgs, lil_imgs)
 }
 
+fn pickZoomTarget(zoom_imgs: &Vec<ZoomImageInfo>) -> (u32, u32) {
+    let rarest_zoom_img = zoom_imgs.iter().min_by(
+        |zoom1, zoom2| zoom1.zoom_coords.len().cmp(&zoom2.zoom_coords.len())).unwrap();
+
+    println!("rarest occurences = {}", rarest_zoom_img.zoom_coords.len());
+    return (0, 0);
+}
+
 pub fn zoom(lil_imgs_dir: &str) {
     let canvas_img: RgbaImage = plain_white_img();
     let (mut zoom_imgs, lil_imgs) = all_lil_imgs_img(lil_imgs_dir);
