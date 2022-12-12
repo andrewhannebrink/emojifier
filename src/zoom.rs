@@ -1,5 +1,5 @@
 use crate::mosaic;
-use image::{ImageBuffer, RgbaImage, DynamicImage};
+use image::{ImageBuffer, RgbaImage, DynamicImage, GenericImageView};
 use image::imageops::FilterType;
 use image::imageops::replace;
 use crate::path;
@@ -169,9 +169,11 @@ fn zoom_one_frame(
             if new_y_int + new_size_int as i32 >= 0 && new_y_int <= DIMENSIONS.1 as i32 {
                 if new_x_int + new_size_int as i32 >= 0 && new_x_int <= DIMENSIONS.0 as i32 {
                     //println!("new coords: {}, {}", new_x_int, new_y_int);
-                    let temp_img = zoom_img.img.resize(
-                        new_size_int, new_size_int, FilterType::Gaussian);
-                    replace(canvas_img, &temp_img, new_x as i64, new_y as i64);
+                    if zoom_img.resized_img.dimensions().0 != new_size_int {
+                        zoom_img.resized_img = zoom_img.img.resize(
+                            new_size_int, new_size_int, FilterType::Gaussian);
+                    }
+                    replace(canvas_img, &zoom_img.resized_img, new_x as i64, new_y as i64);
                     t = t + 1;
                     zoom_depth = new_size_int;
                 } else { 
