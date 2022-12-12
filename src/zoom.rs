@@ -4,15 +4,15 @@ use image::imageops::FilterType;
 use image::imageops::replace;
 use crate::path;
 use std::fs;
-use std::collections::HashMap;
 static DIMENSIONS: (u32, u32) = (1920, 1080);
 
 #[derive(Debug, Clone)]
 pub struct ZoomImageInfo {
     pub img: DynamicImage,
+    pub resized_img: DynamicImage,
     pub zoom_coords: Vec<(f32, f32)>,
     pub depth: f32,
-    pub out_of_view: bool
+    pub out_of_view: bool,
 }
 
 fn wipe_zoom_dir() {
@@ -67,6 +67,7 @@ fn all_lil_imgs_img(lil_imgs_dir: &str) -> (Vec<ZoomImageInfo>, Vec<mosaic::Imag
             }
             zoom_imgs.push(ZoomImageInfo {
                 img: lil_imgs[i].img.clone(), //TODO satisfying the borrow checker here is hard
+                resized_img: lil_imgs[i].img.clone(), //TODO satisfying the borrow checker here is hard
                 zoom_coords: vec![(x as f32 * sx, y as f32 * sy)],
                 depth: sx,
                 out_of_view: false
@@ -92,11 +93,13 @@ pub fn zoom(lil_imgs_dir: &str) {
             zoom_one_frame(2, &mut zoom_imgs, &mut canvas_img.clone());
     for i in 3..150 {
         if zoom_return.depth < 200 {
+            
+            println!("zoom_return = {}", zoom_return.depth);
             zoom_return = zoom_one_frame(i, &mut zoom_imgs, &mut canvas_img.clone());
         } else {
             let mosaic_depth = 8;
             zoom_return.depth = mosaic_depth;
-            zoom_imgs = mosaic::make_mosaic(
+            let mosaic_return = mosaic::make_mosaic(
                 zoom_return.output_img.clone(),
                 Some(&lil_imgs),
                 mosaic::CropDetails {
@@ -109,8 +112,18 @@ pub fn zoom(lil_imgs_dir: &str) {
                 "zoom".to_string(),
                 "zoom".to_string(),
                 path::prepend_zeroes(i),
-                true,
-                None).lil_img_zoom_info;
+                None);
+            zoom_imgs = mosaic_return.prev_parent_tiles.iter().map(|parent_tile| 
+                ZoomImageInfo {
+                    img: parent_tile.img.clone(),
+                    resized_img: parent_tile.img.clone(),
+                    zoom_coords: parent_tile.target_coords.iter().map(
+                            |c| (c.0 as f32, c.1 as f32)).collect(),
+                    depth: zoom_return.depth as f32,
+                    out_of_view: false
+                }
+            ).collect();
+            println!("mosaic return: {}", mosaic_return.depth);
         }
     }
 }
@@ -130,7 +143,9 @@ fn zoom_one_frame(
     let mut total_out_of_view = 0;
     let mut zoom_depth: u32 = 0;
     for mut zoom_img in zoom_imgs {
-        for mut zoom_coords in zoom_img.zoom_coords.iter_mut() {   
+        let prev_size = zoom_img.depth;
+        let mut zoom_coords_indices_to_remove: Vec<usize> = vec![];
+        for (i, mut zoom_coords) in zoom_img.zoom_coords.iter_mut().enumerate() {
             if zoom_img.out_of_view {
                 //println!("img out of view");
                 total_out_of_view = total_out_of_view + 1;
@@ -144,7 +159,7 @@ fn zoom_one_frame(
             let new_x_int = new_x.round() as i32;
             let new_y_int = new_y.round() as i32;
             //dbg!(new_x, new_y);
-            let prev_size = zoom_img.depth;
+            //println!("prev_size {}", prev_size);
             let new_size = z * prev_size;
             let new_size_int = new_size.round() as u32;
             *zoom_coords = (new_x, new_y);
@@ -159,8 +174,15 @@ fn zoom_one_frame(
                     replace(canvas_img, &temp_img, new_x as i64, new_y as i64);
                     t = t + 1;
                     zoom_depth = new_size_int;
-                } else { zoom_img.out_of_view = true; }
-            } else { zoom_img.out_of_view = true; }
+                } else { 
+                    zoom_coords_indices_to_remove.push(i);
+                }
+            } else { 
+                zoom_coords_indices_to_remove.push(i);
+            }
+        }
+        for i in zoom_coords_indices_to_remove.iter().rev() {
+            zoom_img.zoom_coords.remove(*i);
         }
     }
     println!("cropped {} imgs with depth = {}px", t, zoom_depth);
