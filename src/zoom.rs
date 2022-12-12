@@ -4,6 +4,7 @@ use image::imageops::FilterType;
 use image::imageops::replace;
 use crate::path;
 use std::fs;
+use rand::seq::SliceRandom;
 static DIMENSIONS: (u32, u32) = (1920, 1080);
 
 #[derive(Debug, Clone)]
@@ -83,17 +84,33 @@ fn all_lil_imgs_img(lil_imgs_dir: &str) -> (Vec<ZoomImageInfo>, Vec<mosaic::Imag
     (zoom_imgs, lil_imgs)
 }
 
+fn pickZoomTarget(zoom_imgs: &Vec<ZoomImageInfo>, pick_randomly: bool) -> (u32, u32) {
+    if pick_randomly {
+        let coords = zoom_imgs.choose(&mut rand::thread_rng()).unwrap().zoom_coords[0];
+        return (coords.0 as u32, coords.1 as u32);
+    
+    }
+    let rarest_zoom_img = zoom_imgs.iter()
+        .filter(|zoom_img| zoom_img.zoom_coords.len() > 0)
+        .min_by(|zoom1, zoom2| zoom1.zoom_coords.len().cmp(&zoom2.zoom_coords.len())).unwrap();
+
+    let zoom_target = rarest_zoom_img.zoom_coords[0]; //TODO randomize selection from zoom_coords
+    println!("rarest occurences = {}", rarest_zoom_img.zoom_coords.len());
+    (zoom_target.0 as u32, zoom_target.1 as u32)
+}
+
 pub fn zoom(lil_imgs_dir: &str) {
     let canvas_img: RgbaImage = plain_white_img();
     let (mut zoom_imgs, lil_imgs) = all_lil_imgs_img(lil_imgs_dir);
     // TODO this should probably go insid the for loop
+    let mut zoom_target = pickZoomTarget(&zoom_imgs, true);
     let mut zoom_return = 
-            zoom_one_frame(2, &mut zoom_imgs, &mut canvas_img.clone());
-    for i in 3..150 {
+            zoom_one_frame(2, &mut zoom_imgs, &mut canvas_img.clone(), zoom_target);
+    for i in 3..3000 {
         if zoom_return.depth < 200 {
             
             println!("zoom_return = {}", zoom_return.depth);
-            zoom_return = zoom_one_frame(i, &mut zoom_imgs, &mut canvas_img.clone());
+            zoom_return = zoom_one_frame(i, &mut zoom_imgs, &mut canvas_img.clone(), zoom_target);
         } else {
             let mosaic_depth = 4;
             zoom_return.depth = mosaic_depth;
@@ -120,6 +137,7 @@ pub fn zoom(lil_imgs_dir: &str) {
                     depth: zoom_return.depth as f32,
                 }
             ).collect();
+            zoom_target = pickZoomTarget(&zoom_imgs, false);
             println!("mosaic return: {}", mosaic_return.depth);
         }
     }
@@ -130,11 +148,14 @@ struct ZoomOneFrameReturn {
     depth: u32
 }
 fn zoom_one_frame(
-        frame_int: i32, zoom_imgs: &mut Vec<ZoomImageInfo>, canvas_img: &mut RgbaImage) 
-        -> ZoomOneFrameReturn {
+        frame_int: i32,
+        zoom_imgs: &mut Vec<ZoomImageInfo>,
+        canvas_img: &mut RgbaImage,
+        zoom_target: (u32, u32)) -> ZoomOneFrameReturn {
     let z = 1.05;
     //let (b, d) = (960_f32, 540_f32);
-    let (b, d) = (640_f32, 360_f32);
+    //let (b, d) = (640_f32, 360_f32);
+    let (b, d) = (zoom_target.0 as f32, zoom_target.1 as f32);
     println!("zoom_imgs length: {}", zoom_imgs.len());
     let mut t = 0;
     let mut zoom_depth: u32 = 0;

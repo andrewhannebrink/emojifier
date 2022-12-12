@@ -96,7 +96,7 @@ fn bench_instructions() -> Vec<FrameSequence> {
     })));
     bench.push(FrameSequence::new(5, SequenceMode::NoModification));
     bench.push(FrameSequence::new(25, SequenceMode::Mosaic(MosaicInstructions {
-        starting_depth: 2,
+        starting_depth: 4,
         ending_depth: 30,
         lil_imgs_dir: None
     })));
