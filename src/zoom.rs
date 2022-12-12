@@ -12,7 +12,6 @@ pub struct ZoomImageInfo {
     pub resized_img: DynamicImage,
     pub zoom_coords: Vec<(f32, f32)>,
     pub depth: f32,
-    pub out_of_view: bool,
 }
 
 fn wipe_zoom_dir() {
@@ -70,7 +69,6 @@ fn all_lil_imgs_img(lil_imgs_dir: &str) -> (Vec<ZoomImageInfo>, Vec<mosaic::Imag
                 resized_img: lil_imgs[i].img.clone(), //TODO satisfying the borrow checker here is hard
                 zoom_coords: vec![(x as f32 * sx, y as f32 * sy)],
                 depth: sx,
-                out_of_view: false
             });
             let temp_img = zoom_imgs[i].img.resize(
                 sx as u32, sy as u32, FilterType::Gaussian);
@@ -97,7 +95,7 @@ pub fn zoom(lil_imgs_dir: &str) {
             println!("zoom_return = {}", zoom_return.depth);
             zoom_return = zoom_one_frame(i, &mut zoom_imgs, &mut canvas_img.clone());
         } else {
-            let mosaic_depth = 8;
+            let mosaic_depth = 4;
             zoom_return.depth = mosaic_depth;
             let mosaic_return = mosaic::make_mosaic(
                 zoom_return.output_img.clone(),
@@ -120,7 +118,6 @@ pub fn zoom(lil_imgs_dir: &str) {
                     zoom_coords: parent_tile.target_coords.iter().map(
                             |c| (c.0 as f32, c.1 as f32)).collect(),
                     depth: zoom_return.depth as f32,
-                    out_of_view: false
                 }
             ).collect();
             println!("mosaic return: {}", mosaic_return.depth);
@@ -140,26 +137,17 @@ fn zoom_one_frame(
     let (b, d) = (640_f32, 360_f32);
     println!("zoom_imgs length: {}", zoom_imgs.len());
     let mut t = 0;
-    let mut total_out_of_view = 0;
     let mut zoom_depth: u32 = 0;
     for mut zoom_img in zoom_imgs {
         let prev_size = zoom_img.depth;
         let mut zoom_coords_indices_to_remove: Vec<usize> = vec![];
         for (i, mut zoom_coords) in zoom_img.zoom_coords.iter_mut().enumerate() {
-            if zoom_img.out_of_view {
-                //println!("img out of view");
-                total_out_of_view = total_out_of_view + 1;
-                continue
-            }
-            //dbg!(zoom_imgs[i].zoom_coords);
             let x = zoom_coords.0 as f32;
             let y = zoom_coords.1 as f32;
             let new_x = z * x + (b - b*z);
             let new_y = z * y + (d - d*z);
             let new_x_int = new_x.round() as i32;
             let new_y_int = new_y.round() as i32;
-            //dbg!(new_x, new_y);
-            //println!("prev_size {}", prev_size);
             let new_size = z * prev_size;
             let new_size_int = new_size.round() as u32;
             *zoom_coords = (new_x, new_y);
@@ -188,8 +176,6 @@ fn zoom_one_frame(
         }
     }
     println!("cropped {} imgs with depth = {}px", t, zoom_depth);
-    println!("total_out_of_view imgs skipped: {}", total_out_of_view);
-    //TODO test for commit
     let frame_number_str = path::prepend_zeroes(frame_int);
     println!("{}", frame_number_str);
     canvas_img.save(path::zoom_output_path(&frame_number_str)).unwrap();
@@ -199,4 +185,3 @@ fn zoom_one_frame(
         depth: zoom_depth
     }
 }
-
