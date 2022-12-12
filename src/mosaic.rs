@@ -200,7 +200,7 @@ fn write_final_img(mut args: WriteFinalImageArgs) -> TransposeMakeMosaicReturn {
                 lil_img_zoom_info.push(zoom::ZoomImageInfo {
                     //TODO not sure of a better option than cloning here
                     img: args.lil_imgs[index_in_lil_imgs as usize].img.clone(),
-                    zoom_coords: (target_coords.0 as f32, target_coords.1 as f32),
+                    zoom_coords: vec![(target_coords.0 as f32, target_coords.1 as f32)],
                     depth: args.c.depth as f32,
                     out_of_view: false
 
