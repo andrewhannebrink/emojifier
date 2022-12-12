@@ -12,7 +12,7 @@ async fn main() {
     let now = Instant::now();
 
     zoom::zoom("io/lil_imgs/emoji_big_buffered/");
-    //transpose_then_make_quadrants(true).await;
+    //transpose_then_make_quadrants(false).await;
 
     let elapsed_time = now.elapsed();
     println!("main() took {} seconds.", elapsed_time.as_secs());

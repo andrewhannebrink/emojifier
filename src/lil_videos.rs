@@ -18,7 +18,7 @@ pub fn compose_one_lil_video_frame (
     }
     let final_img_file_name = [frame_number, ".jpeg".to_string()].concat();
     //println!("frame_number: {}", frame_number)
-    let mut img_to_repace_tiles_onto_path = [
+    let img_to_repace_tiles_onto_path = [
             "io/input".to_string(),
             target_quadrant_dir.clone(),
             final_img_file_name.clone()
@@ -38,7 +38,7 @@ pub fn compose_one_lil_video_frame (
         
         // Only load the next parent_img if it has target_coords
         let mut new_parent_tile: Option<DynamicImage> = Option::None;
-        if (prev_parent_tile.target_coords.len() > 0) {
+        if prev_parent_tile.target_coords.len() > 0 {
             let depth = prev_parent_tile.img.dimensions().0;
             let new_lil_img = new_parent_img.crop_imm(
                 prev_parent_tile.parent_coords.0,
