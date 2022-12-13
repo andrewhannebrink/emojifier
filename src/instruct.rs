@@ -154,7 +154,6 @@ fn emoji_wobble() -> Vec<FrameSequence> {
 
     bench.append(&mut flat_emoji(40, 2));
     bench.append(&mut spike_emoji(40, 120));
-    bench.append(&mut flat_emoji(40, 2));
 
     bench.append(&mut bump_emoji(40, 4));
     bench.append(&mut no_mod(1));
@@ -164,11 +163,11 @@ fn emoji_wobble() -> Vec<FrameSequence> {
 }
 fn splice_wobble() -> Vec<FrameSequence> {
     let mut wobble: Vec<FrameSequence> = Vec::new();
-    wobble.append(&mut flat_splice(60, 2));
-    wobble.append(&mut bump_splice(60, 120));
+    wobble.append(&mut flat_splice(30, 2));
+    wobble.append(&mut bump_splice(30, 120));
     wobble.append(&mut flat_splice(120, 2));
-    wobble.append(&mut bump_splice(120, 60));
-    wobble.append(&mut flat_splice(60, 2));
+    wobble.append(&mut bump_splice(120, 30));
+    wobble.append(&mut flat_splice(30, 2));
 
     wobble.append(&mut bump_splice(60, 16));
     wobble.append(&mut flat_splice(16, 2));
@@ -185,7 +184,7 @@ fn lil_vid_wobble() -> Vec<FrameSequence> {
     wobble.append(&mut lil_vid(2));
     wobble.append(&mut bump_splice(40, 30));
     wobble.append(&mut lil_vid(2));
-    wobble.append(&mut bump_splice(30, 24));
+    wobble.append(&mut flat_splice(30, 1));
     wobble
 }
 fn splice_wave() -> Vec<FrameSequence> {
@@ -208,8 +207,8 @@ fn splice_wave() -> Vec<FrameSequence> {
 
 fn concise_bench() -> Vec<FrameSequence> {
     let mut concise_bench: Vec<FrameSequence> = Vec::new();
-    concise_bench.append(&mut emoji_wobble());
     concise_bench.append(&mut flat_emoji(30, 12));
+    concise_bench.append(&mut emoji_wobble());
     concise_bench.append(&mut splice_wobble());
     concise_bench.append(&mut splice_wave());
     concise_bench.append(&mut lil_vid_wobble());
