@@ -69,3 +69,15 @@ pub fn compose_one_lil_video_frame (
     img_to_replace_tiles_onto.save(dest_path.clone());
     println!("lil vid frame saved at {}", dest_path);
 }
+
+pub fn copy_reverse_lil_video_frame(
+        input_frame_number: String, 
+        first_frame_of_sequence: i32,
+        sequence_length: u32,
+        prev_parent_quadrant: String) {
+    println!("hit copy_reverse_lil_video_frame");
+    println!("first_frame_of_sequence = {}", first_frame_of_sequence);
+    println!("sequence_length = {}", sequence_length);
+    
+}
+

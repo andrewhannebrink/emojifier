@@ -28,6 +28,9 @@ pub async fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way:
 
     let mut total_frame_idx = 1;
     for sequence in ins {
+        let first_frame_of_sequence = total_frame_idx; // Needed for lil_video reversal
+        let sequence_length = instruct::total_frames(&vec![sequence.clone()]);
+
         for seq_frame_idx in 1..sequence.total_frames + 1 {
             let frame_number_with_zeroes = path::prepend_zeroes(total_frame_idx);
             match &sequence.mode {
@@ -71,8 +74,11 @@ pub async fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way:
                             println!("received handoff_info!");
                             println!("last_handoff_info prev_parent_tiles len {}", 
                                     make_mosaic_return.prev_parent_tiles.len());
-                            transpose_one_lil_videos_frame(
-                                frame_number_with_zeroes, make_mosaic_return.clone());
+                            transpose_two_lil_videos_frame(
+                                frame_number_with_zeroes, 
+                                first_frame_of_sequence,
+                                sequence_length,
+                                make_mosaic_return.clone());
                         }
                     };
                 }
@@ -103,27 +109,53 @@ async fn copy_original_img(frame_number_str: &String, target_quadrant: &path::Qu
             //.expect("cp command failed to start");
 }
 
-fn transpose_one_lil_videos_frame(
+fn transpose_two_lil_videos_frame(
         frame_number: String,
+        first_frame_of_lil_video_sequence: i32,
+        sequence_length: u32,
         handoff_info: mosaic::TransposeMakeMosaicReturn) {
-    render_lil_videos_from_quadrant_b_frame(frame_number.clone(), handoff_info.clone());
-    render_lil_videos_from_quadrant_a_frame(frame_number.clone(), handoff_info.clone());
+    render_lil_videos_from_quadrant_b_frame(
+        frame_number.clone(),
+        first_frame_of_lil_video_sequence,
+        sequence_length,
+        handoff_info.clone());
+    render_lil_videos_from_quadrant_a_frame(
+        frame_number.clone(),
+        first_frame_of_lil_video_sequence,
+        sequence_length,
+        handoff_info.clone());
 }
 fn render_lil_videos_from_quadrant_a_frame(
         frame_number: String,
+        first_frame_of_lil_video_sequence: i32,
+        sequence_length: u32,
         handoff_info: mosaic::TransposeMakeMosaicReturn) {
     lil_videos::compose_one_lil_video_frame(
-        frame_number,
+        frame_number.clone(),
         handoff_info.prev_target_quadrant,
         handoff_info.prev_target_tiles);
+    lil_videos::copy_reverse_lil_video_frame(
+        frame_number,
+        first_frame_of_lil_video_sequence,
+        sequence_length,
+        handoff_info.prev_parent_quadrant
+    );
 }
 fn render_lil_videos_from_quadrant_b_frame(
         frame_number: String, 
+        first_frame_of_lil_video_sequence: i32,
+        sequence_length: u32,
         handoff_info: mosaic::TransposeMakeMosaicReturn) {
     lil_videos::compose_one_lil_video_frame(
-        frame_number,
-        handoff_info.prev_parent_quadrant,
+        frame_number.clone(),
+        handoff_info.prev_parent_quadrant.clone(),
         handoff_info.prev_parent_tiles);
+    lil_videos::copy_reverse_lil_video_frame(
+        frame_number,
+        first_frame_of_lil_video_sequence,
+        sequence_length,
+        handoff_info.prev_parent_quadrant
+    );
 }
 
 fn transpose_one_mosaic_frame (

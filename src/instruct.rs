@@ -34,7 +34,7 @@ pub struct FrameSequence {
     pub mode: SequenceMode,
 }
 
-fn total_frames(sequences: &Vec<FrameSequence>) -> u32 {
+pub fn total_frames(sequences: &Vec<FrameSequence>) -> u32 {
     let mut total_frames = 0;
     for _instruction_set in sequences.iter() {
         total_frames = total_frames + _instruction_set.total_frames;
@@ -226,6 +226,16 @@ fn concise_bench() -> Vec<FrameSequence> {
     concise_bench.append(&mut splice_wave());
     concise_bench.append(&mut lil_vid_wobble());
     concise_bench
+}
+
+fn lil_video_micro_test() -> Vec<FrameSequence> {
+    let mut micro: Vec<FrameSequence> = Vec::new();
+    micro.append(&mut flat_splice(90, 1));
+    micro.append(&mut lil_vid(1));
+    micro.append(&mut flat_splice(90, 3));
+    micro.append(&mut lil_vid(1));
+    micro.append(&mut flat_splice(90, 1));
+    micro
 }
 
 fn long_bench_instructions() -> Vec<FrameSequence> {
@@ -422,7 +432,8 @@ pub fn get_instructions () -> Vec<FrameSequence> {
 //  }
 
     //let bench = bench_instructions();
-    let bench = concise_bench();
+    //let bench = concise_bench();
+    let bench = lil_video_micro_test();
     for _i in 0..1 {
         instructions.append(&mut bench.clone());
     }
