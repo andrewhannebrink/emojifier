@@ -106,7 +106,7 @@ pub fn zoom(lil_imgs_dir: &str) {
     let mut zoom_target = pickZoomTarget(&zoom_imgs, true);
     let mut zoom_return = 
             zoom_one_frame(2, &mut zoom_imgs, &mut canvas_img.clone(), zoom_target);
-    for i in 3..3000 {
+    for i in 3..5401 {
         if zoom_return.depth < 200 {
             
             println!("zoom_return = {}", zoom_return.depth);
