@@ -163,6 +163,7 @@ fn emoji_wobble() -> Vec<FrameSequence> {
 
     bench.append(&mut flat_emoji(40, 2));
     bench.append(&mut spike_emoji(40, 120));
+    bench.append(&mut flat_emoji(40, 1));
 
     bench.append(&mut bump_emoji(40, 4));
     bench.append(&mut no_mod(1));
@@ -429,6 +430,7 @@ pub fn get_instructions () -> Vec<FrameSequence> {
     for _instruction_set in instructions.iter() {
         total_frames = total_frames + _instruction_set.total_frames;
     }
+    println!("total frames = {}", total_frames);
 
     instructions
 }
