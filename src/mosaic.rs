@@ -54,6 +54,7 @@ pub fn make_mosaic(
     parent_quadrant_dir: String,
     target_quadrant_dir: String,
     frame_number: String,
+    output_frame_number: String,
     previous_return: Option<TransposeMakeMosaicReturn>) -> TransposeMakeMosaicReturn {
 
     let now = Instant::now();

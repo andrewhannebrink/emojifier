@@ -127,6 +127,7 @@ pub fn zoom(lil_imgs_dir: &str) {
                 "zoom".to_string(),
                 "zoom".to_string(),
                 path::prepend_zeroes(i),
+                path::prepend_zeroes(i),
                 None);
             zoom_imgs = mosaic_return.prev_parent_tiles.iter().map(|parent_tile| 
                 ZoomImageInfo {
