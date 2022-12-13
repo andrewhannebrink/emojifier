@@ -34,6 +34,14 @@ pub struct FrameSequence {
     pub mode: SequenceMode,
 }
 
+fn total_frames(sequences: &Vec<FrameSequence>) -> u32 {
+    let mut total_frames = 0;
+    for _instruction_set in sequences.iter() {
+        total_frames = total_frames + _instruction_set.total_frames;
+    }
+    total_frames
+}
+
 impl FrameSequence {
     pub fn new(total_frames: u32, mode: SequenceMode) -> Self {
         Self { total_frames, mode }
@@ -89,6 +97,7 @@ fn flat_emoji(depth: u32, seconds: u32) -> Vec<FrameSequence> {
         ending_depth: depth,
         lil_imgs_dir: Some("io/lil_imgs/emoji_buffered".to_string())
     })));
+    println!("flat_emoji length = {}", total_frames(&flat));
     flat
 }
 fn flat_splice(depth: u32, seconds: u32) -> Vec<FrameSequence> {
@@ -159,6 +168,7 @@ fn emoji_wobble() -> Vec<FrameSequence> {
     bench.append(&mut no_mod(1));
     bench.append(&mut bump_emoji(4, 30));
 
+    println!("emoji_wobble length = {}", total_frames(&bench));
     bench
 }
 fn splice_wobble() -> Vec<FrameSequence> {
@@ -168,10 +178,10 @@ fn splice_wobble() -> Vec<FrameSequence> {
     wobble.append(&mut flat_splice(120, 2));
     wobble.append(&mut bump_splice(120, 30));
     wobble.append(&mut flat_splice(30, 2));
-
     wobble.append(&mut bump_splice(60, 16));
     wobble.append(&mut flat_splice(16, 2));
     wobble.append(&mut bump_splice(16, 120));
+    println!("splice_wobble length = {}", total_frames(&wobble));
 
     wobble
 }
@@ -185,6 +195,7 @@ fn lil_vid_wobble() -> Vec<FrameSequence> {
     wobble.append(&mut bump_splice(40, 30));
     wobble.append(&mut lil_vid(2));
     wobble.append(&mut flat_splice(30, 1));
+    println!("lil_vid_wobble length = {}", total_frames(&wobble));
     wobble
 }
 fn splice_wave() -> Vec<FrameSequence> {
@@ -201,6 +212,7 @@ fn splice_wave() -> Vec<FrameSequence> {
     wave.append(&mut bump_splice(8, 120));
     wave.append(&mut bump_splice(120, 8));
     wave.append(&mut bump_splice(8, 120));
+    println!("splice_wave length = {}", total_frames(&wave));
     wave
 }
 
@@ -417,7 +429,6 @@ pub fn get_instructions () -> Vec<FrameSequence> {
     for _instruction_set in instructions.iter() {
         total_frames = total_frames + _instruction_set.total_frames;
     }
-    println!("total instructions = {}", total_frames);
 
     instructions
 }
