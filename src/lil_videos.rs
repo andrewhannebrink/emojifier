@@ -1,7 +1,9 @@
 use crate::mosaic;
+use crate::path;
 use image::imageops::replace;
 use image::DynamicImage;
 use image::GenericImageView;
+use async_process;
 
 pub fn compose_one_lil_video_frame (
         //prev_parent_quadrant: mosaic::Quadrant,
@@ -74,10 +76,19 @@ pub fn copy_reverse_lil_video_frame(
         input_frame_number: String, 
         first_frame_of_sequence: i32,
         sequence_length: u32,
-        prev_parent_quadrant: String) {
-    println!("hit copy_reverse_lil_video_frame");
+        prev_parent_quadrant: &path::Quadrant<'_>) {
     println!("first_frame_of_sequence = {}", first_frame_of_sequence);
-    println!("sequence_length = {}", sequence_length);
-    
+    let input_frame_idx = input_frame_number.parse::<i32>().unwrap();
+    let frame_of_sequence = input_frame_idx - first_frame_of_sequence;
+    let copy_frame_number = sequence_length as i32 - frame_of_sequence + first_frame_of_sequence - 1;
+    println!("input_frame_number = {}", input_frame_number);
+    println!("copy_frame_number = {}", copy_frame_number);
+    //println!("prev_parent_quadrant = {}", prev_parent_quadrant);
+
+    async_process::Command::new("cp")
+            .arg(path::output_path(prev_parent_quadrant, &input_frame_number))
+            .arg(path::output_path(prev_parent_quadrant, &path::prepend_zeroes(copy_frame_number)))
+            .spawn();
+
 }
 

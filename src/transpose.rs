@@ -74,11 +74,14 @@ pub async fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way:
                             println!("received handoff_info!");
                             println!("last_handoff_info prev_parent_tiles len {}", 
                                     make_mosaic_return.prev_parent_tiles.len());
-                            transpose_two_lil_videos_frame(
-                                frame_number_with_zeroes, 
-                                first_frame_of_sequence,
-                                sequence_length,
-                                make_mosaic_return.clone());
+                            let half_length = sequence_length / 2;
+                            if seq_frame_idx <= half_length {
+                                transpose_two_lil_videos_frame(
+                                    frame_number_with_zeroes, 
+                                    first_frame_of_sequence,
+                                    sequence_length,
+                                    make_mosaic_return.clone());
+                            }
                         }
                     };
                 }
@@ -138,7 +141,7 @@ fn render_lil_videos_from_quadrant_a_frame(
         frame_number,
         first_frame_of_lil_video_sequence,
         sequence_length,
-        handoff_info.prev_parent_quadrant
+        &path::QUADRANT_B
     );
 }
 fn render_lil_videos_from_quadrant_b_frame(
@@ -154,7 +157,7 @@ fn render_lil_videos_from_quadrant_b_frame(
         frame_number,
         first_frame_of_lil_video_sequence,
         sequence_length,
-        handoff_info.prev_parent_quadrant
+        &path::QUADRANT_A
     );
 }
 
