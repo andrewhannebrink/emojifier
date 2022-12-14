@@ -1,4 +1,5 @@
 use crate::mosaic;
+use crate::scroll;
 use crate::zoom_instruct;
 use crate::zoom_instruct::{ZoomSequence};
 use image::{ImageBuffer, RgbaImage, DynamicImage, GenericImageView};
@@ -163,8 +164,20 @@ pub fn zoom(lil_imgs_dir: &str, quadrant: &path::Quadrant, ins: &Vec<ZoomSequenc
                         println!("mosaic return: {}", mosaic_return.depth);
                     }
                 },
-                zoom_instruct::ZoomMode::Scroll(scroll_instructions) => {
-                    //TODO
+                zoom_instruct::ZoomMode::Scroll(scroll_ins) => {
+                    let raw_magnitude =
+                        (scroll_ins.direction.0.powi(2) + scroll_ins.direction.1.powi(2)).sqrt();
+                    let unit_direction = (
+                        scroll_ins.direction.0 / raw_magnitude,
+                        scroll_ins.direction.1 / raw_magnitude
+                    );
+                    zoom_return = scroll::scroll_one_frame(
+                        seq_frame_idx as i32 + first_frame_in_seq,
+                        &mut zoom_imgs,
+                        &mut canvas_img.clone(),
+                        unit_direction,
+                        scroll_ins.velocity,
+                        quadrant);
                 }
             }
         }
@@ -172,9 +185,9 @@ pub fn zoom(lil_imgs_dir: &str, quadrant: &path::Quadrant, ins: &Vec<ZoomSequenc
     }
 }
 
-struct ZoomOneFrameReturn {
-    output_img: DynamicImage,
-    depth: u32
+pub struct ZoomOneFrameReturn {
+    pub output_img: DynamicImage,
+    pub depth: u32
 }
 fn zoom_one_frame(
         frame_int: i32,
