@@ -116,7 +116,7 @@ pub fn zoom(lil_imgs_dir: &str, quadrant: &path::Quadrant) {
     let mut zoom_return = 
             zoom_one_frame(2, &mut zoom_imgs, &mut canvas_img.clone(), zoom_target, quadrant);
     //for i in 3..1801 {
-    for i in 3..1801 {
+    for i in 3..5401 {
         if zoom_return.depth < 200 {
             
             println!("zoom_return = {}", zoom_return.depth);
