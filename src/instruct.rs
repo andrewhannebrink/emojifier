@@ -34,6 +34,14 @@ pub struct FrameSequence {
     pub mode: SequenceMode,
 }
 
+pub fn total_frames(sequences: &Vec<FrameSequence>) -> u32 {
+    let mut total_frames = 0;
+    for _instruction_set in sequences.iter() {
+        total_frames = total_frames + _instruction_set.total_frames;
+    }
+    total_frames
+}
+
 impl FrameSequence {
     pub fn new(total_frames: u32, mode: SequenceMode) -> Self {
         Self { total_frames, mode }
@@ -89,6 +97,7 @@ fn flat_emoji(depth: u32, seconds: u32) -> Vec<FrameSequence> {
         ending_depth: depth,
         lil_imgs_dir: Some("io/lil_imgs/emoji_buffered".to_string())
     })));
+    println!("flat_emoji length = {}", total_frames(&flat));
     flat
 }
 fn flat_splice(depth: u32, seconds: u32) -> Vec<FrameSequence> {
@@ -154,25 +163,26 @@ fn emoji_wobble() -> Vec<FrameSequence> {
 
     bench.append(&mut flat_emoji(40, 2));
     bench.append(&mut spike_emoji(40, 120));
-    bench.append(&mut flat_emoji(40, 2));
+    bench.append(&mut flat_emoji(40, 1));
 
     bench.append(&mut bump_emoji(40, 4));
     bench.append(&mut no_mod(1));
     bench.append(&mut bump_emoji(4, 30));
 
+    println!("emoji_wobble length = {}", total_frames(&bench));
     bench
 }
 fn splice_wobble() -> Vec<FrameSequence> {
     let mut wobble: Vec<FrameSequence> = Vec::new();
-    wobble.append(&mut flat_splice(60, 2));
-    wobble.append(&mut bump_splice(60, 120));
+    wobble.append(&mut flat_splice(30, 2));
+    wobble.append(&mut bump_splice(30, 120));
     wobble.append(&mut flat_splice(120, 2));
-    wobble.append(&mut bump_splice(120, 60));
-    wobble.append(&mut flat_splice(60, 2));
-
+    wobble.append(&mut bump_splice(120, 30));
+    wobble.append(&mut flat_splice(30, 2));
     wobble.append(&mut bump_splice(60, 16));
     wobble.append(&mut flat_splice(16, 2));
     wobble.append(&mut bump_splice(16, 120));
+    println!("splice_wobble length = {}", total_frames(&wobble));
 
     wobble
 }
@@ -185,7 +195,8 @@ fn lil_vid_wobble() -> Vec<FrameSequence> {
     wobble.append(&mut lil_vid(2));
     wobble.append(&mut bump_splice(40, 30));
     wobble.append(&mut lil_vid(2));
-    wobble.append(&mut bump_splice(30, 24));
+    wobble.append(&mut flat_splice(30, 1));
+    println!("lil_vid_wobble length = {}", total_frames(&wobble));
     wobble
 }
 fn splice_wave() -> Vec<FrameSequence> {
@@ -202,18 +213,35 @@ fn splice_wave() -> Vec<FrameSequence> {
     wave.append(&mut bump_splice(8, 120));
     wave.append(&mut bump_splice(120, 8));
     wave.append(&mut bump_splice(8, 120));
+    println!("splice_wave length = {}", total_frames(&wave));
     wave
 }
 
 
 fn concise_bench() -> Vec<FrameSequence> {
     let mut concise_bench: Vec<FrameSequence> = Vec::new();
-    concise_bench.append(&mut emoji_wobble());
     concise_bench.append(&mut flat_emoji(30, 12));
+    concise_bench.append(&mut emoji_wobble());
     concise_bench.append(&mut splice_wobble());
     concise_bench.append(&mut splice_wave());
     concise_bench.append(&mut lil_vid_wobble());
     concise_bench
+}
+
+fn lil_video_micro_test() -> Vec<FrameSequence> {
+    let mut micro: Vec<FrameSequence> = Vec::new();
+    micro.append(&mut flat_splice(40, 1));
+    micro.append(&mut lil_vid(1));
+    micro.append(&mut flat_splice(40, 1));
+    micro.append(&mut lil_vid(1));
+    micro.append(&mut flat_splice(40, 1));
+    micro.append(&mut lil_vid(1));
+    micro.append(&mut flat_splice(40, 1));
+    micro.append(&mut lil_vid(1));
+    micro.append(&mut flat_splice(40, 1));
+    micro.append(&mut no_mod(1));
+    micro.append(&mut flat_emoji(40, 1));
+    micro
 }
 
 fn long_bench_instructions() -> Vec<FrameSequence> {
@@ -411,14 +439,15 @@ pub fn get_instructions () -> Vec<FrameSequence> {
 
     //let bench = bench_instructions();
     let bench = concise_bench();
-    for _i in 0..3 {
+    //let bench = lil_video_micro_test();
+    for _i in 0..6 {
         instructions.append(&mut bench.clone());
     }
     let mut total_frames = 0;
     for _instruction_set in instructions.iter() {
         total_frames = total_frames + _instruction_set.total_frames;
     }
-    println!("total instructions = {}", total_frames);
+    println!("total frames = {}", total_frames);
 
     instructions
 }

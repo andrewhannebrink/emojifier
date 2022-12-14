@@ -1,11 +1,14 @@
 use crate::mosaic;
+use crate::path;
 use image::imageops::replace;
 use image::DynamicImage;
 use image::GenericImageView;
+use async_process::Stdio;
 
 pub fn compose_one_lil_video_frame (
         //prev_parent_quadrant: mosaic::Quadrant,
         frame_number: String,
+        output_frame_number: String,
         prev_parent_quadrant: String,
         prev_parent_tiles: Vec<mosaic::ImageInfo>) {
 
@@ -16,12 +19,13 @@ pub fn compose_one_lil_video_frame (
     } else {
         target_quadrant_dir = String::from("a");
     }
-    let final_img_file_name = [frame_number, ".jpeg".to_string()].concat();
+    let input_img_file_name = [frame_number, ".jpeg".to_string()].concat();
+    let final_img_file_name = [output_frame_number, ".jpeg".to_string()].concat();
     //println!("frame_number: {}", frame_number)
     let img_to_repace_tiles_onto_path = [
             "io/input".to_string(),
             target_quadrant_dir.clone(),
-            final_img_file_name.clone()
+            input_img_file_name.clone()
         ].join("/");
     println!("img_to_repace_tiles_onto_path: {}", img_to_repace_tiles_onto_path);
     let mut img_to_replace_tiles_onto = image::open(img_to_repace_tiles_onto_path).unwrap();
@@ -29,7 +33,7 @@ pub fn compose_one_lil_video_frame (
     let new_parent_img_path = [
         "io/input".to_string(),
         prev_parent_quadrant.clone(),
-        final_img_file_name.clone()
+        input_img_file_name.clone()
     ].join("/");
     let new_parent_img = image::open(new_parent_img_path).unwrap();
 
@@ -69,3 +73,26 @@ pub fn compose_one_lil_video_frame (
     img_to_replace_tiles_onto.save(dest_path.clone());
     println!("lil vid frame saved at {}", dest_path);
 }
+
+pub fn copy_reverse_lil_video_frame(
+        output_frame_number: String,
+        first_frame_of_sequence: i32,
+        sequence_length: u32,
+        prev_parent_quadrant: &path::Quadrant<'_>) {
+    println!("first_frame_of_sequence = {}", first_frame_of_sequence);
+    let output_frame_idx = output_frame_number.parse::<i32>().unwrap();
+    let frame_of_sequence = output_frame_idx - first_frame_of_sequence;
+    let copy_frame_number = 
+        sequence_length as i32 - frame_of_sequence + first_frame_of_sequence - 1;
+    println!("input_frame_number = {}", output_frame_number);
+    println!("copy_frame_number = {}", copy_frame_number);
+    //println!("prev_parent_quadrant = {}", prev_parent_quadrant);
+
+    println!("copying {} to {}", &output_frame_number, &path::prepend_zeroes(copy_frame_number));
+    async_process::Command::new("cp")
+            .arg(path::output_path(prev_parent_quadrant, &output_frame_number))
+            .arg(path::output_path(prev_parent_quadrant, &path::prepend_zeroes(copy_frame_number)))
+            .spawn();
+
+}
+

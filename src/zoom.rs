@@ -3,6 +3,7 @@ use image::{ImageBuffer, RgbaImage, DynamicImage, GenericImageView};
 use image::imageops::FilterType;
 use image::imageops::replace;
 use crate::path;
+use crate::path::{QUADRANT_A, QUADRANT_B};
 use std::fs;
 use rand::seq::SliceRandom;
 static DIMENSIONS: (u32, u32) = (1920, 1080);
@@ -15,9 +16,17 @@ pub struct ZoomImageInfo {
     pub depth: f32,
 }
 
-fn wipe_zoom_dir() {
-    fs::remove_dir_all(path::ZOOM_OUTPUT_DIR);
-    fs::create_dir(path::ZOOM_OUTPUT_DIR);
+pub fn wipe_input_dir() {
+    fs::remove_dir_all(path::input_dir(&QUADRANT_A));
+    fs::remove_dir_all(path::input_dir(&QUADRANT_B));
+    fs::create_dir(path::input_dir(&QUADRANT_A));
+    fs::create_dir(path::input_dir(&QUADRANT_B));
+}
+
+pub fn make_zooms(lil_imgs_dir: &str) {
+    wipe_input_dir();
+    zoom(lil_imgs_dir, &path::QUADRANT_A);
+    zoom(lil_imgs_dir, &path::QUADRANT_B);
 }
 
 fn plain_white_img() -> RgbaImage {
@@ -30,8 +39,8 @@ fn plain_white_img() -> RgbaImage {
     canvas_img
 }
 
-fn all_lil_imgs_img(lil_imgs_dir: &str) -> (Vec<ZoomImageInfo>, Vec<mosaic::ImageInfo>) {
-    wipe_zoom_dir();
+fn all_lil_imgs_img(lil_imgs_dir: &str, quadrant: &path::Quadrant) 
+        -> (Vec<ZoomImageInfo>, Vec<mosaic::ImageInfo>) {
     let mut canvas_img: RgbaImage = plain_white_img();
     let lil_imgs = mosaic::get_lil_imgs_from_dir(&lil_imgs_dir.to_string(), 5);
     let mut zoom_imgs: Vec<ZoomImageInfo> = Vec::new();
@@ -80,7 +89,7 @@ fn all_lil_imgs_img(lil_imgs_dir: &str) -> (Vec<ZoomImageInfo>, Vec<mosaic::Imag
 
     println!("{}, {}, {}, {}", sx, sy, px, py);
     // write it out to a file
-    canvas_img.save(&path::zoom_output_path(&"00001".to_string())).unwrap();
+    canvas_img.save(&path::zoom_output_path(&"00001".to_string(), quadrant)).unwrap();
     (zoom_imgs, lil_imgs)
 }
 
@@ -99,18 +108,24 @@ fn pickZoomTarget(zoom_imgs: &Vec<ZoomImageInfo>, pick_randomly: bool) -> (u32, 
     (zoom_target.0 as u32, zoom_target.1 as u32)
 }
 
-pub fn zoom(lil_imgs_dir: &str) {
+pub fn zoom(lil_imgs_dir: &str, quadrant: &path::Quadrant) {
     let canvas_img: RgbaImage = plain_white_img();
-    let (mut zoom_imgs, lil_imgs) = all_lil_imgs_img(lil_imgs_dir);
+    let (mut zoom_imgs, lil_imgs) = all_lil_imgs_img(lil_imgs_dir, quadrant);
     // TODO this should probably go insid the for loop
     let mut zoom_target = pickZoomTarget(&zoom_imgs, true);
     let mut zoom_return = 
-            zoom_one_frame(2, &mut zoom_imgs, &mut canvas_img.clone(), zoom_target);
-    for i in 3..5401 {
+            zoom_one_frame(2, &mut zoom_imgs, &mut canvas_img.clone(), zoom_target, quadrant);
+    //for i in 3..1801 {
+    for i in 3..10801 {
         if zoom_return.depth < 200 {
             
             println!("zoom_return = {}", zoom_return.depth);
-            zoom_return = zoom_one_frame(i, &mut zoom_imgs, &mut canvas_img.clone(), zoom_target);
+            zoom_return = zoom_one_frame(
+                i, 
+                &mut zoom_imgs,
+                &mut canvas_img.clone(),
+                zoom_target,
+                quadrant);
         } else {
             let mosaic_depth = 4;
             zoom_return.depth = mosaic_depth;
@@ -124,9 +139,11 @@ pub fn zoom(lil_imgs_dir: &str) {
                     total_x_imgs: DIMENSIONS.0 / mosaic_depth,
                     total_y_imgs: DIMENSIONS.1 / mosaic_depth
                 },
-                "zoom".to_string(),
-                "zoom".to_string(),
+                quadrant.dir.to_string(),
+                quadrant.dir.to_string(),
                 path::prepend_zeroes(i),
+                path::prepend_zeroes(i),
+                true,
                 None);
             zoom_imgs = mosaic_return.prev_parent_tiles.iter().map(|parent_tile| 
                 ZoomImageInfo {
@@ -151,7 +168,8 @@ fn zoom_one_frame(
         frame_int: i32,
         zoom_imgs: &mut Vec<ZoomImageInfo>,
         canvas_img: &mut RgbaImage,
-        zoom_target: (u32, u32)) -> ZoomOneFrameReturn {
+        zoom_target: (u32, u32),
+        quadrant: &path::Quadrant) -> ZoomOneFrameReturn {
     let z = 1.05;
     //let (b, d) = (960_f32, 540_f32);
     //let (b, d) = (640_f32, 360_f32);
@@ -199,7 +217,7 @@ fn zoom_one_frame(
     println!("cropped {} imgs with depth = {}px", t, zoom_depth);
     let frame_number_str = path::prepend_zeroes(frame_int);
     println!("{}", frame_number_str);
-    canvas_img.save(path::zoom_output_path(&frame_number_str)).unwrap();
+    canvas_img.save(path::zoom_output_path(&frame_number_str, quadrant)).unwrap();
 
     ZoomOneFrameReturn {
         output_img: DynamicImage::ImageRgba8(canvas_img.clone()), //TODO i do not like the clone here
