@@ -312,6 +312,7 @@ fn compose_mosaic_from_paths(
         target_quadrant_dir,
         frame_number,
         output_frame_number,
+        false,
         previous_return)
 }
 

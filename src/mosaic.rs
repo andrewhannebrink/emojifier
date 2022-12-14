@@ -55,6 +55,7 @@ pub fn make_mosaic(
     target_quadrant_dir: String,
     frame_number: String,
     output_frame_number: String,
+    write_to_input: bool,
     previous_return: Option<TransposeMakeMosaicReturn>) -> TransposeMakeMosaicReturn {
     
     println!("make_mosaic frame_number = {} , output_frame_number = {}", frame_number, output_frame_number);
@@ -102,21 +103,29 @@ pub fn make_mosaic(
     });
     //todo figure out how to reuse crop_details from above using lifetime params
     let op_file_name = [output_frame_number.clone(), ".jpeg".to_string()].concat();
+    let mut dest_path = [
+            String::from("io/output"),
+            target_quadrant_dir.clone(),
+            op_file_name.clone()
+    ].join("/");
+    if write_to_input {
+        dest_path = [
+            String::from("io/input"),
+            target_quadrant_dir.clone(),
+            op_file_name
+        ].join("/");
+    }
     let updated_mosaic_return = write_final_img(WriteFinalImageArgs {
         c: crop_details.clone(),
         new_tiles,
         orig_tiles: orig_tiles_iter.collect(),
         resized_lil_imgs,
         lil_imgs: lil_imgs.clone(),
-        dest_path: [
-            String::from("io/output"),
-            target_quadrant_dir.clone(),
-            op_file_name
-        ].join("/"),
+        dest_path,
         target_quadrant_dir: target_quadrant_dir.clone(),
         parent_quadrant_dir: parent_quadrant_dir.clone(),
         frame_number,
-        canvas_img: img
+        canvas_img: img,
     });
 
     // debug loop TODO remove
@@ -145,7 +154,7 @@ struct WriteFinalImageArgs {
     target_quadrant_dir: String,
     parent_quadrant_dir: String,
     frame_number: String,
-    canvas_img: DynamicImage,
+    canvas_img: DynamicImage
 }
 fn write_final_img(mut args: WriteFinalImageArgs) -> TransposeMakeMosaicReturn {
     let now = Instant::now();

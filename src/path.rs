@@ -11,7 +11,7 @@ pub enum QuadrantEnum {
 
 pub struct Quadrant<'a> {
     quadrant_enum: QuadrantEnum,
-    dir: &'a str
+    pub dir: &'a str
 }
 
 impl Quadrant<'_> {
@@ -55,9 +55,10 @@ pub fn output_path(quadrant: &Quadrant, frame_number_str: &String) -> String {
         ".jpeg"
     ].concat()
 }
-pub fn zoom_output_path(frame_number_str: &String) -> String {
+pub fn zoom_output_path(frame_number_str: &String, quadrant: &Quadrant) -> String {
     [
-        ZOOM_OUTPUT_DIR,
+        INPUT_DIR,
+        quadrant.dir,
         frame_number_str,
         ".jpeg"
     ].concat()

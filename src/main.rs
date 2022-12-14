@@ -11,7 +11,8 @@ use std::time::Instant;
 async fn main() {
     let now = Instant::now();
 
-    //zoom::zoom("io/lil_imgs/emoji_big_buffered/");
+    zoom::zoom("io/lil_imgs/emoji_big_buffered/", &path::QUADRANT_A);
+    zoom::zoom("io/lil_imgs/emoji_big_buffered/", &path::QUADRANT_B);
     transpose_then_make_quadrants(false).await;
 
     let elapsed_time = now.elapsed();
