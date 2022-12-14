@@ -46,10 +46,10 @@ pub fn get_zoom_a_instructions () -> Vec<ZoomSequence> {
 //  });
     instructions.append(&mut full_zoom(1));
     instructions.push(ZoomSequence {
-        total_frames: 60,
+        total_frames: 90,
         mode: ZoomMode::Scroll(ScrollInstructions {
             direction: (1.0, 0.5),
-            velocity: 4.0,
+            velocity: 10.0,
             lil_imgs_dir: "io/lil_imgs/emoji_big_buffered".to_string()
         })
     });

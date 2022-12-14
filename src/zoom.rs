@@ -29,7 +29,7 @@ pub fn wipe_input_dir() {
 pub fn make_zooms(lil_imgs_dir: &str) {
     wipe_input_dir();
     zoom(lil_imgs_dir, &path::QUADRANT_A, &zoom_instruct::get_zoom_a_instructions());
-    zoom(lil_imgs_dir, &path::QUADRANT_B, &zoom_instruct::get_zoom_b_instructions());
+    //zoom(lil_imgs_dir, &path::QUADRANT_B, &zoom_instruct::get_zoom_b_instructions());
 }
 
 fn plain_white_img() -> RgbaImage {
