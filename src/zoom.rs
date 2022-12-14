@@ -9,7 +9,7 @@ use crate::path;
 use crate::path::{QUADRANT_A, QUADRANT_B};
 use std::fs;
 use rand::seq::SliceRandom;
-static DIMENSIONS: (u32, u32) = (1920, 1080);
+pub static DIMENSIONS: (u32, u32) = (1920, 1080);
 
 #[derive(Debug, Clone)]
 pub struct ZoomImageInfo {

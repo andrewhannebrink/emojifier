@@ -49,7 +49,7 @@ pub fn get_zoom_a_instructions () -> Vec<ZoomSequence> {
         total_frames: 60,
         mode: ZoomMode::Scroll(ScrollInstructions {
             direction: (1.0, 0.5),
-            velocity: 1.0,
+            velocity: 4.0,
             lil_imgs_dir: "io/lil_imgs/emoji_big_buffered".to_string()
         })
     });
