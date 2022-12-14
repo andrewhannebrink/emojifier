@@ -220,9 +220,9 @@ fn splice_wave() -> Vec<FrameSequence> {
 
 fn concise_bench() -> Vec<FrameSequence> {
     let mut concise_bench: Vec<FrameSequence> = Vec::new();
-//  concise_bench.append(&mut flat_emoji(30, 12));
-//  concise_bench.append(&mut emoji_wobble());
-//  concise_bench.append(&mut splice_wobble());
+    concise_bench.append(&mut flat_emoji(30, 12));
+    concise_bench.append(&mut emoji_wobble());
+    concise_bench.append(&mut splice_wobble());
     concise_bench.append(&mut splice_wave());
     concise_bench.append(&mut lil_vid_wobble());
     concise_bench
@@ -438,9 +438,9 @@ pub fn get_instructions () -> Vec<FrameSequence> {
 //  }
 
     //let bench = bench_instructions();
-    //let bench = concise_bench();
-    let bench = lil_video_micro_test();
-    for _i in 0..1 {
+    let bench = concise_bench();
+    //let bench = lil_video_micro_test();
+    for _i in 0..2 {
         instructions.append(&mut bench.clone());
     }
     let mut total_frames = 0;
