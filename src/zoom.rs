@@ -1,4 +1,6 @@
 use crate::mosaic;
+use crate::zoom_instruct;
+use crate::zoom_instruct::{ZoomSequence};
 use image::{ImageBuffer, RgbaImage, DynamicImage, GenericImageView};
 use image::imageops::FilterType;
 use image::imageops::replace;
@@ -25,8 +27,8 @@ pub fn wipe_input_dir() {
 
 pub fn make_zooms(lil_imgs_dir: &str) {
     wipe_input_dir();
-    zoom(lil_imgs_dir, &path::QUADRANT_A);
-    zoom(lil_imgs_dir, &path::QUADRANT_B);
+    zoom(lil_imgs_dir, &path::QUADRANT_A, &zoom_instruct::get_zoom_a_instructions());
+    zoom(lil_imgs_dir, &path::QUADRANT_B, &zoom_instruct::get_zoom_b_instructions());
 }
 
 fn plain_white_img() -> RgbaImage {
@@ -108,7 +110,7 @@ fn pickZoomTarget(zoom_imgs: &Vec<ZoomImageInfo>, pick_randomly: bool) -> (u32, 
     (zoom_target.0 as u32, zoom_target.1 as u32)
 }
 
-pub fn zoom(lil_imgs_dir: &str, quadrant: &path::Quadrant) {
+pub fn zoom(lil_imgs_dir: &str, quadrant: &path::Quadrant, ins: &Vec<ZoomSequence>) {
     let canvas_img: RgbaImage = plain_white_img();
     let (mut zoom_imgs, lil_imgs) = all_lil_imgs_img(lil_imgs_dir, quadrant);
     // TODO this should probably go insid the for loop
@@ -116,46 +118,54 @@ pub fn zoom(lil_imgs_dir: &str, quadrant: &path::Quadrant) {
     let mut zoom_return = 
             zoom_one_frame(2, &mut zoom_imgs, &mut canvas_img.clone(), zoom_target, quadrant);
     //for i in 3..1801 {
-    for i in 3..10801 {
-        if zoom_return.depth < 200 {
-            
-            println!("zoom_return = {}", zoom_return.depth);
-            zoom_return = zoom_one_frame(
-                i, 
-                &mut zoom_imgs,
-                &mut canvas_img.clone(),
-                zoom_target,
-                quadrant);
-        } else {
-            let mosaic_depth = 4;
-            zoom_return.depth = mosaic_depth;
-            let mosaic_return = mosaic::make_mosaic(
-                zoom_return.output_img.clone(),
-                Some(&lil_imgs),
-                mosaic::CropDetails {
-                    depth: mosaic_depth,
-                    x_buf: (DIMENSIONS.0 % (DIMENSIONS.0 / mosaic_depth)) /2,
-                    y_buf: (DIMENSIONS.1 % (DIMENSIONS.1 / mosaic_depth)) /2,
-                    total_x_imgs: DIMENSIONS.0 / mosaic_depth,
-                    total_y_imgs: DIMENSIONS.1 / mosaic_depth
+    for sequence in ins {
+        for seq_frame_idx in 3..sequence.total_frames + 1 {
+            match &sequence.mode {
+                zoom_instruct::ZoomMode::Zoom(zoom_instructions) => {
+                    if zoom_return.depth < zoom_instructions.max_depth {
+                        println!("zoom_return = {}", zoom_return.depth);
+                        zoom_return = zoom_one_frame(
+                            seq_frame_idx as i32, 
+                            &mut zoom_imgs,
+                            &mut canvas_img.clone(),
+                            zoom_target,
+                            quadrant);
+                    } else {
+                        let mosaic_depth = zoom_instructions.min_depth;
+                        zoom_return.depth = mosaic_depth;
+                        let mosaic_return = mosaic::make_mosaic(
+                            zoom_return.output_img.clone(),
+                            Some(&lil_imgs),
+                            mosaic::CropDetails {
+                                depth: mosaic_depth,
+                                x_buf: (DIMENSIONS.0 % (DIMENSIONS.0 / mosaic_depth)) /2,
+                                y_buf: (DIMENSIONS.1 % (DIMENSIONS.1 / mosaic_depth)) /2,
+                                total_x_imgs: DIMENSIONS.0 / mosaic_depth,
+                                total_y_imgs: DIMENSIONS.1 / mosaic_depth
+                            },
+                            quadrant.dir.to_string(),
+                            quadrant.dir.to_string(),
+                            path::prepend_zeroes(seq_frame_idx as i32),
+                            path::prepend_zeroes(seq_frame_idx as i32),
+                            true,
+                            None);
+                        zoom_imgs = mosaic_return.prev_parent_tiles.iter().map(|parent_tile| 
+                            ZoomImageInfo {
+                                img: parent_tile.img.clone(),
+                                resized_img: parent_tile.img.clone(),
+                                zoom_coords: parent_tile.target_coords.iter().map(
+                                        |c| (c.0 as f32, c.1 as f32)).collect(),
+                                depth: zoom_return.depth as f32,
+                            }
+                        ).collect();
+                        zoom_target = pickZoomTarget(&zoom_imgs, false);
+                        println!("mosaic return: {}", mosaic_return.depth);
+                    }
                 },
-                quadrant.dir.to_string(),
-                quadrant.dir.to_string(),
-                path::prepend_zeroes(i),
-                path::prepend_zeroes(i),
-                true,
-                None);
-            zoom_imgs = mosaic_return.prev_parent_tiles.iter().map(|parent_tile| 
-                ZoomImageInfo {
-                    img: parent_tile.img.clone(),
-                    resized_img: parent_tile.img.clone(),
-                    zoom_coords: parent_tile.target_coords.iter().map(
-                            |c| (c.0 as f32, c.1 as f32)).collect(),
-                    depth: zoom_return.depth as f32,
+                zoom_instruct::ZoomMode::Scroll(scroll_instructions) => {
+                    //TODO
                 }
-            ).collect();
-            zoom_target = pickZoomTarget(&zoom_imgs, false);
-            println!("mosaic return: {}", mosaic_return.depth);
+            }
         }
     }
 }
