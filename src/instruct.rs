@@ -239,6 +239,8 @@ fn lil_video_micro_test() -> Vec<FrameSequence> {
     micro.append(&mut flat_splice(40, 1));
     micro.append(&mut lil_vid(1));
     micro.append(&mut flat_splice(40, 1));
+    micro.append(&mut no_mod(1));
+    micro.append(&mut flat_emoji(40, 1));
     micro
 }
 

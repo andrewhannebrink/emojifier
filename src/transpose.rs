@@ -38,7 +38,10 @@ pub async fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way:
             match &sequence.mode {
                 instruct::SequenceMode::NoModification => {
                     // TODO this does not currently transpose, but only copies B frames
-                    transpose_copies(&input_frame_number_with_zeroes, one_way).await;
+                    transpose_copies(
+                        &input_frame_number_with_zeroes,
+                        &output_frame_number_with_zeroes,
+                        one_way).await;
                 },
                 instruct::SequenceMode::Mosaic(mosaic_instructions) => {
                     //TODO this could be done cleaner with the .entry api for hashmaps (.or_insert())
@@ -102,19 +105,23 @@ pub async fn transpose_every_frame (ins: &Vec<instruct::FrameSequence>, one_way:
 }
 
 async fn transpose_copies(
-        frame_number_str: &String, 
+        input_frame_number_str: &String, 
+        output_frame_number_str: &String, 
         one_way: bool) {
-    copy_original_img(frame_number_str, &path::QUADRANT_B).await;
+    copy_original_img(input_frame_number_str, output_frame_number_str, &path::QUADRANT_B).await;
     if !one_way {
-        copy_original_img(frame_number_str, &path::QUADRANT_A).await;
+        copy_original_img(input_frame_number_str, output_frame_number_str, &path::QUADRANT_A).await;
     }
 }
 
-async fn copy_original_img(frame_number_str: &String, target_quadrant: &path::Quadrant<'_>) {
+async fn copy_original_img(
+    frame_number_str: &String,
+    output_frame_number_str: &String,
+    target_quadrant: &path::Quadrant<'_>) {
     println!("copying frame number: {}", frame_number_str);
     async_process::Command::new("cp")
             .arg(path::input_path(target_quadrant, frame_number_str))
-            .arg(path::output_path(target_quadrant, frame_number_str))
+            .arg(path::output_path(target_quadrant, output_frame_number_str))
             .spawn();
             //.expect("cp command failed to start");
 }
