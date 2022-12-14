@@ -56,6 +56,8 @@ pub fn make_mosaic(
     frame_number: String,
     output_frame_number: String,
     previous_return: Option<TransposeMakeMosaicReturn>) -> TransposeMakeMosaicReturn {
+    
+    println!("make_mosaic frame_number = {} , output_frame_number = {}", frame_number, output_frame_number);
 
     let now = Instant::now();
 
@@ -99,7 +101,7 @@ pub fn make_mosaic(
         lil_imgs: lil_imgs.clone(),
     });
     //todo figure out how to reuse crop_details from above using lifetime params
-    let op_file_name = [frame_number.clone(), ".jpeg".to_string()].concat();
+    let op_file_name = [output_frame_number.clone(), ".jpeg".to_string()].concat();
     let updated_mosaic_return = write_final_img(WriteFinalImageArgs {
         c: crop_details.clone(),
         new_tiles,
@@ -116,9 +118,6 @@ pub fn make_mosaic(
         frame_number,
         canvas_img: img
     });
-
-    let elapsed_time = now.elapsed();
-    println!("make_mosaic() took {} seconds.", elapsed_time.subsec_millis());
 
     // debug loop TODO remove
 //  for prev_parent_tile in updated_mosaic_return.clone().prev_parent_tiles {
@@ -200,8 +199,6 @@ fn write_final_img(mut args: WriteFinalImageArgs) -> TransposeMakeMosaicReturn {
     final_img.save(args.dest_path.clone()).unwrap();
 
     println!("final image written to {}", args.dest_path);
-    let elapsed_time = now.elapsed();
-    println!("write_final_img() took {} seconds.", elapsed_time.subsec_millis());
 
     TransposeMakeMosaicReturn {
         prev_parent_quadrant: args.parent_quadrant_dir,
@@ -226,9 +223,6 @@ fn new_tiles_gen(mut args: NewTileGenArgs) -> (std::vec::IntoIter<u32>, Vec<Imag
         new_tiles.push(new_tile as u32);
     }
     let new_tiles_iter = new_tiles.into_iter();
-
-    let elapsed_time = now.elapsed();
-    println!("new_tiles_gen() took {} seconds.", elapsed_time.subsec_millis());
 
     (new_tiles_iter, args.lil_imgs)
 }
@@ -320,9 +314,6 @@ fn orig_tile_gen(args: OrigTileGenArgs) -> std::vec::IntoIter<ImageInfo> {
             i = i + 1;
         }
     }
-    let elapsed_time = now.elapsed();
-    println!("orig_tile_gen() took {} seconds.", elapsed_time.subsec_millis());
-
     orig_tiles.into_iter()
 }
 
@@ -338,9 +329,6 @@ fn get_lil_imgs_from_img(parent_img_path: String, c: CropDetails) -> Vec<ImageIn
         save_images: false,
         quadrant_dir: "".to_string()});
     //TODO the above save_images + quadrant_dir should be an enum
-    let elapsed_time = now.elapsed();
-    println!("get_lil_imgs_from_img() took {} seconds.", elapsed_time.subsec_millis());
-
     lil_imgs.collect()
 }
 
@@ -362,9 +350,6 @@ pub fn get_lil_imgs_from_dir(
             target_coords: Vec::new() // TODO parent_coords are not relevant for getting from dir
         });
     }
-    let elapsed_time = now.elapsed();
-    println!("get_lil_imgs() took {} seconds.", elapsed_time.subsec_millis());
-
     lil_imgs
 }
 

@@ -230,11 +230,15 @@ fn concise_bench() -> Vec<FrameSequence> {
 
 fn lil_video_micro_test() -> Vec<FrameSequence> {
     let mut micro: Vec<FrameSequence> = Vec::new();
-    micro.append(&mut flat_splice(90, 2));
+    micro.append(&mut flat_splice(40, 1));
     micro.append(&mut lil_vid(1));
-    micro.append(&mut flat_splice(90, 1));
+    micro.append(&mut flat_splice(40, 1));
     micro.append(&mut lil_vid(1));
-    micro.append(&mut flat_splice(90, 1));
+    micro.append(&mut flat_splice(40, 1));
+    micro.append(&mut lil_vid(1));
+    micro.append(&mut flat_splice(40, 1));
+    micro.append(&mut lil_vid(1));
+    micro.append(&mut flat_splice(40, 1));
     micro
 }
 
