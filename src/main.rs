@@ -11,19 +11,17 @@ use std::time::Instant;
 async fn main() {
     let now = Instant::now();
 
-    zoom::zoom("io/lil_imgs/emoji_big_buffered/", &path::QUADRANT_A);
-    zoom::zoom("io/lil_imgs/emoji_big_buffered/", &path::QUADRANT_B);
+    zoom::make_zooms("io/lil_imgs/emoji_big_buffered");
     transpose_then_make_quadrants(false).await;
-
     let elapsed_time = now.elapsed();
     println!("main() took {} seconds.", elapsed_time.as_secs());
 }
 
 async fn transpose_then_make_quadrants(one_way: bool) {
     let instructions = instruct::get_instructions();
-    //transpose::transpose_every_frame(&instructions, true).await;
     transpose::transpose_every_frame(&instructions, one_way).await;
     if !one_way {
         quadrants::frames_into_quadrants();
     }
 }
+

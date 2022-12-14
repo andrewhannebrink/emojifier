@@ -440,7 +440,7 @@ pub fn get_instructions () -> Vec<FrameSequence> {
     //let bench = bench_instructions();
     let bench = concise_bench();
     //let bench = lil_video_micro_test();
-    for _i in 0..2 {
+    for _i in 0..1 {
         instructions.append(&mut bench.clone());
     }
     let mut total_frames = 0;

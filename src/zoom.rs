@@ -16,11 +16,17 @@ pub struct ZoomImageInfo {
     pub depth: f32,
 }
 
-fn wipe_input_dir() {
+pub fn wipe_input_dir() {
     fs::remove_dir_all(path::input_dir(&QUADRANT_A));
     fs::remove_dir_all(path::input_dir(&QUADRANT_B));
     fs::create_dir(path::input_dir(&QUADRANT_A));
     fs::create_dir(path::input_dir(&QUADRANT_B));
+}
+
+pub fn make_zooms(lil_imgs_dir: &str) {
+    wipe_input_dir();
+    zoom(lil_imgs_dir, &path::QUADRANT_A);
+    zoom(lil_imgs_dir, &path::QUADRANT_B);
 }
 
 fn plain_white_img() -> RgbaImage {
@@ -35,7 +41,6 @@ fn plain_white_img() -> RgbaImage {
 
 fn all_lil_imgs_img(lil_imgs_dir: &str, quadrant: &path::Quadrant) 
         -> (Vec<ZoomImageInfo>, Vec<mosaic::ImageInfo>) {
-    wipe_input_dir();
     let mut canvas_img: RgbaImage = plain_white_img();
     let lil_imgs = mosaic::get_lil_imgs_from_dir(&lil_imgs_dir.to_string(), 5);
     let mut zoom_imgs: Vec<ZoomImageInfo> = Vec::new();
@@ -110,6 +115,7 @@ pub fn zoom(lil_imgs_dir: &str, quadrant: &path::Quadrant) {
     let mut zoom_target = pickZoomTarget(&zoom_imgs, true);
     let mut zoom_return = 
             zoom_one_frame(2, &mut zoom_imgs, &mut canvas_img.clone(), zoom_target, quadrant);
+    //for i in 3..1801 {
     for i in 3..1801 {
         if zoom_return.depth < 200 {
             
