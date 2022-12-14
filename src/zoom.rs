@@ -118,14 +118,15 @@ pub fn zoom(lil_imgs_dir: &str, quadrant: &path::Quadrant, ins: &Vec<ZoomSequenc
     let mut zoom_return = 
             zoom_one_frame(2, &mut zoom_imgs, &mut canvas_img.clone(), zoom_target, quadrant);
     //for i in 3..1801 {
+    let mut first_frame_in_seq = 3;
     for sequence in ins {
-        for seq_frame_idx in 3..sequence.total_frames + 1 {
+        for seq_frame_idx in 0..sequence.total_frames + 1 {
             match &sequence.mode {
                 zoom_instruct::ZoomMode::Zoom(zoom_instructions) => {
                     if zoom_return.depth < zoom_instructions.max_depth {
                         println!("zoom_return = {}", zoom_return.depth);
                         zoom_return = zoom_one_frame(
-                            seq_frame_idx as i32, 
+                            seq_frame_idx as i32 + first_frame_in_seq, 
                             &mut zoom_imgs,
                             &mut canvas_img.clone(),
                             zoom_target,
@@ -145,8 +146,8 @@ pub fn zoom(lil_imgs_dir: &str, quadrant: &path::Quadrant, ins: &Vec<ZoomSequenc
                             },
                             quadrant.dir.to_string(),
                             quadrant.dir.to_string(),
-                            path::prepend_zeroes(seq_frame_idx as i32),
-                            path::prepend_zeroes(seq_frame_idx as i32),
+                            path::prepend_zeroes(seq_frame_idx as i32 + first_frame_in_seq),
+                            path::prepend_zeroes(seq_frame_idx as i32 + first_frame_in_seq),
                             true,
                             None);
                         zoom_imgs = mosaic_return.prev_parent_tiles.iter().map(|parent_tile| 
@@ -167,6 +168,7 @@ pub fn zoom(lil_imgs_dir: &str, quadrant: &path::Quadrant, ins: &Vec<ZoomSequenc
                 }
             }
         }
+        first_frame_in_seq += sequence.total_frames as i32;
     }
 }
 
