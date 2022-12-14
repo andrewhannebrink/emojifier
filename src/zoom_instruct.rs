@@ -25,7 +25,7 @@ pub fn get_zoom_a_instructions () -> Vec<ZoomSequence> {
     instructions.push(ZoomSequence {
         total_frames: 200,
         mode: ZoomMode::Zoom(ZoomInstructions {
-            max_depth: 40,
+            max_depth: 24,
             min_depth: 4,
             lil_imgs_dir: "io/lil_imgs/emoji_big_buffered".to_string()
         })
@@ -45,8 +45,8 @@ pub fn get_zoom_b_instructions () -> Vec<ZoomSequence> {
     instructions.push(ZoomSequence {
         total_frames: 200,
         mode: ZoomMode::Zoom(ZoomInstructions {
-            max_depth: 200,
-            min_depth: 16,
+            max_depth: 60,
+            min_depth: 20,
             lil_imgs_dir: "io/lil_imgs/emoji_big_buffered".to_string()
         })
     });
