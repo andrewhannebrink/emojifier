@@ -30,7 +30,7 @@ pub fn scroll_one_frame(
             if new_y_int + zoom_depth as i32 >= 0 && new_y_int <= zoom::DIMENSIONS.1 as i32 {
                 if new_x_int + zoom_depth as i32 >= 0 && new_x_int <= zoom::DIMENSIONS.0 as i32 {
                     zoom_depth = zoom_img.depth as u32;
-                    println!("zoom_depth 1 = {}", zoom_depth);
+                    //println!("zoom_depth 1 = {}", zoom_depth);
                     replace(canvas_img, &zoom_img.resized_img, new_x as i64, new_y as i64);
                     refill_coords.append(&mut get_refill_coords(
                         (new_x_int, new_y_int),
@@ -48,21 +48,22 @@ pub fn scroll_one_frame(
         }
     }
     for coords in refill_coords {
-        println!("COORDS TO REFILL = {}, {}", coords.0, coords.1);
-        println!("zoom_depth = {}", zoom_depth);
+        //println!("COORDS TO REFILL = {}, {}", coords.0, coords.1);
+        //println!("zoom_depth = {}", zoom_depth);
         //println!("zoom_imgs length = {}", &zoom_imgs.len());
         //TODO this should select an image from zoom_imgs randomly or methodically,
         //not hardcoded
-
-        let mut rng = rand::thread_rng();
-        let random_img_idx = rng.gen_range(0..zoom_imgs.len());
-        zoom_imgs[random_img_idx].zoom_coords.push((coords.0 as f32, coords.1 as f32));
-        zoom_imgs[random_img_idx].depth = zoom_depth as f32;
-        if zoom_imgs[random_img_idx].resized_img.dimensions().0 != zoom_depth {
-            zoom_imgs[random_img_idx].resized_img = zoom_imgs[random_img_idx].img.resize(
-                zoom_depth, zoom_depth, FilterType::Gaussian);
+        if !already_refilled(coords, &zoom_imgs) {
+            let mut rng = rand::thread_rng();
+            let random_img_idx = rng.gen_range(0..zoom_imgs.len());
+            zoom_imgs[random_img_idx].zoom_coords.push((coords.0 as f32, coords.1 as f32));
+            zoom_imgs[random_img_idx].depth = zoom_depth as f32;
+            if zoom_imgs[random_img_idx].resized_img.dimensions().0 != zoom_depth {
+                zoom_imgs[random_img_idx].resized_img = zoom_imgs[random_img_idx].img.resize(
+                    zoom_depth, zoom_depth, FilterType::Gaussian);
+            }
+            replace(canvas_img, &zoom_imgs[random_img_idx].resized_img, coords.0 as i64, coords.1 as i64);
         }
-        replace(canvas_img, &zoom_imgs[random_img_idx].resized_img, coords.0 as i64, coords.1 as i64);
     }
     let frame_number_str = path::prepend_zeroes(frame_int);
     canvas_img.save(path::zoom_output_path(&frame_number_str, quadrant)).unwrap();
@@ -71,6 +72,19 @@ pub fn scroll_one_frame(
         output_img: DynamicImage::ImageRgba8(canvas_img.clone()),
         depth: zoom_depth
     }
+}
+
+fn already_refilled(zoom_coords: (i32, i32), zoom_imgs: &Vec<zoom::ZoomImageInfo>) -> bool {
+    let mut already_refilled = false;
+    for zoom_img in zoom_imgs.iter() {
+        for coords in zoom_img.zoom_coords.iter() {
+            if (coords.0 as i32 - zoom_coords.0).abs() < 2 && 
+                    (coords.1 as i32 - zoom_coords.1).abs() < 2 {
+                already_refilled = true;
+            }
+        }
+    }
+    already_refilled 
 }
 
 fn get_refill_coords<'a>(
