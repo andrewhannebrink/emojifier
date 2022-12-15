@@ -206,7 +206,7 @@ fn zoom_one_frame(
         zoom_target: (u32, u32),
         quadrant: &path::Quadrant) -> ZoomOneFrameReturn {
     //let z = 1.05;
-    let z = 1.03;
+    let z = 1.02;
     //let (b, d) = (960_f32, 540_f32);
     //let (b, d) = (640_f32, 360_f32);
     let (b, d) = (zoom_target.0 as f32, zoom_target.1 as f32);
