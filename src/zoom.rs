@@ -29,7 +29,7 @@ pub fn wipe_input_dir() {
 pub fn make_zooms(lil_imgs_dir: &str) {
     wipe_input_dir();
     zoom(lil_imgs_dir, &path::QUADRANT_A, &zoom_instruct::get_zoom_a_instructions());
-    //zoom(lil_imgs_dir, &path::QUADRANT_B, &zoom_instruct::get_zoom_b_instructions());zoom
+    zoom(lil_imgs_dir, &path::QUADRANT_B, &zoom_instruct::get_zoom_b_instructions());
 }
 
 fn plain_white_img() -> RgbaImage {
@@ -206,7 +206,7 @@ fn zoom_one_frame(
         zoom_target: (u32, u32),
         quadrant: &path::Quadrant) -> ZoomOneFrameReturn {
     //let z = 1.05;
-    let z = 1.02;
+    let z = 1.03;
     //let (b, d) = (960_f32, 540_f32);
     //let (b, d) = (640_f32, 360_f32);
     let (b, d) = (zoom_target.0 as f32, zoom_target.1 as f32);
