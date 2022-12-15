@@ -72,30 +72,30 @@ pub fn get_zoom_a_instructions () -> Vec<ZoomSequence> {
 //          lil_imgs_dir: "io/lil_imgs/emoji_big_buffered".to_string()
 //      })
 //  });
-    instructions.append(&mut full_zoom(1));
-    instructions.append(&mut scroll(3, 180));
+    instructions.append(&mut full_zoom(10));
+    instructions.append(&mut scroll(6, 180));
     instructions.append(&mut skip_zoom(2));
-    instructions.append(&mut scroll(3, 120));
+    instructions.append(&mut scroll(6, 120));
     instructions.append(&mut full_zoom(2));
+    instructions.append(&mut scroll(6, 40));
+    instructions.append(&mut full_zoom(2));
+    instructions.append(&mut scroll(6, 40));
+    instructions.append(&mut skip_zoom(2));
+    instructions.append(&mut scroll(6, 40));
+    instructions.append(&mut skip_zoom(2));
+    instructions.append(&mut scroll(6, 120));
+    instructions.append(&mut full_zoom(2));
+    instructions.append(&mut scroll(6, 120));
+    instructions.append(&mut skip_zoom(2));
+    instructions.append(&mut scroll(3, 20));
+    instructions.append(&mut full_zoom(2));
+    instructions.append(&mut scroll(3, 30));
+    instructions.append(&mut skip_zoom(2));
     instructions.append(&mut scroll(3, 40));
-    instructions.append(&mut full_zoom(2));
-    instructions.append(&mut scroll(3, 40));
-    instructions.append(&mut skip_zoom(2));
-    instructions.append(&mut scroll(3, 40));
-    instructions.append(&mut skip_zoom(2));
-    instructions.append(&mut scroll(3, 120));
-    instructions.append(&mut full_zoom(2));
-    instructions.append(&mut scroll(3, 120));
-    instructions.append(&mut skip_zoom(2));
-    instructions.append(&mut scroll(3, 120));
-    instructions.append(&mut full_zoom(2));
-    instructions.append(&mut scroll(3, 120));
     instructions.append(&mut skip_zoom(2));
     instructions.append(&mut scroll(3, 60));
-    instructions.append(&mut skip_zoom(2));
-    instructions.append(&mut scroll(3, 60));
     instructions.append(&mut full_zoom(2));
-    instructions.append(&mut scroll(3, 60));
+    instructions.append(&mut scroll(6, 60));
     instructions.append(&mut skip_zoom(2));
 //  instructions.push(ZoomSequence {
 //      total_frames: 200,
