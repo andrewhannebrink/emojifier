@@ -4,6 +4,8 @@ use image::{RgbaImage, DynamicImage, GenericImageView};
 use image::imageops::replace;
 use image::imageops::FilterType;
 use crate::path::{QUADRANT_A, QUADRANT_B};
+use rand::seq::SliceRandom;
+use rand::Rng;
 
 
 pub fn scroll_one_frame(
@@ -51,7 +53,9 @@ pub fn scroll_one_frame(
         //println!("zoom_imgs length = {}", &zoom_imgs.len());
         //TODO this should select an image from zoom_imgs randomly or methodically,
         //not hardcoded
-        let random_img_idx = 60;
+
+        let mut rng = rand::thread_rng();
+        let random_img_idx = rng.gen_range(0..zoom_imgs.len());
         zoom_imgs[random_img_idx].zoom_coords.push((coords.0 as f32, coords.1 as f32));
         zoom_imgs[random_img_idx].depth = zoom_depth as f32;
         if zoom_imgs[random_img_idx].resized_img.dimensions().0 != zoom_depth {
