@@ -29,7 +29,7 @@ pub fn wipe_input_dir() {
 pub fn make_zooms(lil_imgs_dir: &str) {
     wipe_input_dir();
     zoom(lil_imgs_dir, &path::QUADRANT_A, &zoom_instruct::get_zoom_a_instructions());
-    //zoom(lil_imgs_dir, &path::QUADRANT_B, &zoom_instruct::get_zoom_b_instructions());
+    //zoom(lil_imgs_dir, &path::QUADRANT_B, &zoom_instruct::get_zoom_b_instructions());zoom
 }
 
 fn plain_white_img() -> RgbaImage {
@@ -171,13 +171,23 @@ pub fn zoom(lil_imgs_dir: &str, quadrant: &path::Quadrant, ins: &Vec<ZoomSequenc
                         scroll_ins.direction.0 / raw_magnitude,
                         scroll_ins.direction.1 / raw_magnitude
                     );
-                    zoom_return = scroll::scroll_one_frame(
-                        seq_frame_idx as i32 + first_frame_in_seq,
-                        &mut zoom_imgs,
-                        &mut canvas_img.clone(),
-                        unit_direction,
-                        scroll_ins.velocity,
-                        quadrant);
+                    if zoom_return.depth < scroll_ins.depth as u32 {
+                        zoom_return = zoom_one_frame(
+                            seq_frame_idx as i32 + first_frame_in_seq,
+                            &mut zoom_imgs,
+                            &mut canvas_img.clone(),
+                            zoom_target,
+                            quadrant
+                        );
+                    } else {
+                        zoom_return = scroll::scroll_one_frame(
+                            seq_frame_idx as i32 + first_frame_in_seq,
+                            &mut zoom_imgs,
+                            &mut canvas_img.clone(),
+                            unit_direction,
+                            scroll_ins.velocity,
+                            quadrant);
+                    }
                 }
             }
         }
@@ -195,7 +205,8 @@ fn zoom_one_frame(
         canvas_img: &mut RgbaImage,
         zoom_target: (u32, u32),
         quadrant: &path::Quadrant) -> ZoomOneFrameReturn {
-    let z = 1.05;
+    //let z = 1.05;
+    let z = 1.02;
     //let (b, d) = (960_f32, 540_f32);
     //let (b, d) = (640_f32, 360_f32);
     let (b, d) = (zoom_target.0 as f32, zoom_target.1 as f32);

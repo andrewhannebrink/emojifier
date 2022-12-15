@@ -8,6 +8,7 @@ pub struct ZoomInstructions {
 pub struct ScrollInstructions {
     pub direction: (f32, f32),
     pub velocity: f32,
+    pub depth: i32,
     pub lil_imgs_dir: String
 }
 
@@ -34,6 +35,33 @@ fn full_zoom(seconds: u32) -> Vec<ZoomSequence> {
     full_zoom
 }
 
+fn skip_zoom(seconds: u32) -> Vec<ZoomSequence> {
+    let mut skip_zoom: Vec<ZoomSequence> = Vec::new();
+    skip_zoom.push(ZoomSequence {
+        total_frames: 30*seconds,
+        mode: ZoomMode::Zoom(ZoomInstructions {
+            max_depth: 60,
+            min_depth: 40,
+            lil_imgs_dir: "io/lil_imgs/emoji_big_buffere".to_string() 
+        })
+    });
+    skip_zoom
+}
+
+fn scroll(seconds: u32, depth: i32) -> Vec<ZoomSequence> {
+    let mut scroll: Vec<ZoomSequence> = Vec::new();
+    scroll.push(ZoomSequence {
+        total_frames: seconds*30,
+        mode: ZoomMode::Scroll(ScrollInstructions {
+            direction: (1.0, 1.0),
+            velocity: 10.0,
+            depth,
+            lil_imgs_dir: "io/lil_imgs/emoji_big_buffered".to_string()
+        })
+    });
+    scroll
+}
+
 pub fn get_zoom_a_instructions () -> Vec<ZoomSequence> {
     let mut instructions: Vec<ZoomSequence> = Vec::new();
 //  instructions.push(ZoomSequence {
@@ -45,14 +73,30 @@ pub fn get_zoom_a_instructions () -> Vec<ZoomSequence> {
 //      })
 //  });
     instructions.append(&mut full_zoom(1));
-    instructions.push(ZoomSequence {
-        total_frames: 90,
-        mode: ZoomMode::Scroll(ScrollInstructions {
-            direction: (1.0, 0.5),
-            velocity: 10.0,
-            lil_imgs_dir: "io/lil_imgs/emoji_big_buffered".to_string()
-        })
-    });
+    instructions.append(&mut scroll(3, 180));
+    instructions.append(&mut skip_zoom(2));
+    instructions.append(&mut scroll(3, 120));
+    instructions.append(&mut full_zoom(2));
+    instructions.append(&mut scroll(3, 40));
+    instructions.append(&mut full_zoom(2));
+    instructions.append(&mut scroll(3, 40));
+    instructions.append(&mut skip_zoom(2));
+    instructions.append(&mut scroll(3, 40));
+    instructions.append(&mut skip_zoom(2));
+    instructions.append(&mut scroll(3, 120));
+    instructions.append(&mut full_zoom(2));
+    instructions.append(&mut scroll(3, 120));
+    instructions.append(&mut skip_zoom(2));
+    instructions.append(&mut scroll(3, 120));
+    instructions.append(&mut full_zoom(2));
+    instructions.append(&mut scroll(3, 120));
+    instructions.append(&mut skip_zoom(2));
+    instructions.append(&mut scroll(3, 60));
+    instructions.append(&mut skip_zoom(2));
+    instructions.append(&mut scroll(3, 60));
+    instructions.append(&mut full_zoom(2));
+    instructions.append(&mut scroll(3, 60));
+    instructions.append(&mut skip_zoom(2));
 //  instructions.push(ZoomSequence {
 //      total_frames: 200,
 //      mode: ZoomMode::Scroll(ScrollInstructions {

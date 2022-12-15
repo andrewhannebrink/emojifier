@@ -106,6 +106,12 @@ fn get_refill_coords<'a>(
                 //    zoom_int_coords.0 as i64, (zoom_int_coords.1 + depth as i32) as i64);
 
             }
+            if zoom_int_coords.0 > 0 && zoom_int_coords.0 <= depth as i32 {
+                coords_to_refill.push((
+                    zoom_int_coords.0 - depth as i32,
+                    zoom_int_coords.1
+                ))
+            }
 
         } else if scroll_direction.1 <= 0.0 {
 
