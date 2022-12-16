@@ -1,3 +1,6 @@
+static GCF_DEPTHS: &'static [u32] = &[12, 24, 30, 40, 60, 120];
+use rand::prelude::SliceRandom;
+
 #[derive(Clone)]
 pub struct MosaicInstructions {
     pub starting_depth: u32,
@@ -207,16 +210,36 @@ fn concise_bench() -> Vec<FrameSequence> {
     concise_bench.append(&mut lil_vid_wobble(30));
     concise_bench
 }
-fn concise_bench_2() -> Vec<FrameSequence> {
+fn concise_bench_2(size_opt_1: Option<u32>, size_opt_2: Option<u32>, size_opt_3: Option<u32>) -> Vec<FrameSequence> {
     let mut concise_bench_2: Vec<FrameSequence> = Vec::new();
-    concise_bench_2.append(&mut flat_splice(30, 12));
-    concise_bench_2.append(&mut lil_vid_wobble(12));
-    concise_bench_2.append(&mut flat_splice(30, 12));
-    concise_bench_2.append(&mut lil_vid_wobble(12));
+    let size_1 = match size_opt_1 {
+        Some(dest_sz) => { dest_sz },
+        None => { *GCF_DEPTHS.choose(&mut rand::thread_rng()).unwrap() }
+    };
+    let size_2 = match size_opt_2 {
+        Some(dest_sz) => { dest_sz },
+        None => { *GCF_DEPTHS.choose(&mut rand::thread_rng()).unwrap() }
+    };
+    let size_3 = match size_opt_3 {
+        Some(dest_sz) => { dest_sz },
+        None => { *GCF_DEPTHS.choose(&mut rand::thread_rng()).unwrap() }
+    };
+    concise_bench_2.append(&mut bump_splice(30, size_1));
+    concise_bench_2.append(&mut flat_splice(size_1, 11));
 
-    concise_bench_2.append(&mut bump_emoji(30, 20));
-    concise_bench_2.append(&mut flat_emoji(20, 10));
-    concise_bench_2.append(&mut bump_emoji(20, 30));
+    concise_bench_2.append(&mut lil_vid_wobble(size_1));
+
+    concise_bench_2.append(&mut bump_splice(size_1, size_2));
+    concise_bench_2.append(&mut flat_splice(size_2, 4));
+    concise_bench_2.append(&mut bump_splice(size_2, 4));
+    concise_bench_2.append(&mut no_mod(2));
+    concise_bench_2.append(&mut bump_splice(4, size_2));
+    concise_bench_2.append(&mut flat_splice(size_2, 3));
+
+    concise_bench_2.append(&mut lil_vid_wobble(size_2));
+    concise_bench_2.append(&mut bump_emoji(size_2, size_3));
+    concise_bench_2.append(&mut flat_emoji(10, size_3));
+    concise_bench_2.append(&mut bump_emoji(size_3, 30));
     concise_bench_2
 }
 
@@ -250,13 +273,10 @@ pub fn get_instructions () -> Vec<FrameSequence> {
     let mut instructions: Vec<FrameSequence> = Vec::new();
 
     //let bench = bench_instructions();
-    let bench = concise_bench();
-    let bench2 = concise_bench_2();
+    instructions.append(&mut concise_bench());
     //let bench = lil_video_micro_test();
-    instructions.append(&mut bench.clone());
     for _i in 0..2 {
-        instructions.append(&mut bench2.clone());
-        //instructions.append(&mut bench2.clone());
+        instructions.append(&mut concise_bench_2(None, None, None));
     }
     let mut total_frames = 0;
     for _instruction_set in instructions.iter() {
