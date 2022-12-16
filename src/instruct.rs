@@ -232,13 +232,15 @@ fn concise_bench_2(size_opt_1: Option<u32>, size_opt_2: Option<u32>, size_opt_3:
     concise_bench_2.append(&mut bump_splice(size_1, size_2));
     concise_bench_2.append(&mut flat_splice(size_2, 4));
     concise_bench_2.append(&mut bump_splice(size_2, 4));
+
     concise_bench_2.append(&mut no_mod(2));
     concise_bench_2.append(&mut bump_splice(4, size_2));
     concise_bench_2.append(&mut flat_splice(size_2, 3));
 
     concise_bench_2.append(&mut lil_vid_wobble(size_2));
+
     concise_bench_2.append(&mut bump_emoji(size_2, size_3));
-    concise_bench_2.append(&mut flat_emoji(10, size_3));
+    concise_bench_2.append(&mut flat_emoji(size_3, 10));
     concise_bench_2.append(&mut bump_emoji(size_3, 30));
     concise_bench_2
 }
