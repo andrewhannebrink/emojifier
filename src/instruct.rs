@@ -181,26 +181,18 @@ fn lil_vid_wobble(lil_video_depth: u32) -> Vec<FrameSequence> {
     wobble.append(&mut flat_splice(30, 2));
     wobble.append(&mut bump_splice(30, lil_video_depth));
     wobble.append(&mut flat_splice(lil_video_depth, 2));
-    wobble.append(&mut lil_vid(4));
-    wobble.append(&mut flat_splice(lil_video_depth, 2));
+    wobble.append(&mut lil_vid(3));
+    wobble.append(&mut flat_splice(lil_video_depth, 3));
     wobble.append(&mut bump_splice(lil_video_depth, 30));
     println!("lil_vid_wobble length = {}", total_frames(&wobble));
     wobble
 }
 fn splice_wave() -> Vec<FrameSequence> {
     let mut wave: Vec<FrameSequence> = Vec::new();
-    wave.append(&mut bump_splice(30, 8));
-    wave.append(&mut bump_splice(8, 120));
-    wave.append(&mut bump_splice(120, 8));
-    wave.append(&mut bump_splice(8, 120));
-    wave.append(&mut bump_splice(120, 8));
-    wave.append(&mut bump_splice(8, 120));
-    wave.append(&mut bump_splice(120, 8));
-    wave.append(&mut bump_splice(8, 120));
-    wave.append(&mut bump_splice(120, 8));
-    wave.append(&mut bump_splice(8, 120));
+    wave.append(&mut bump_splice(30, 16));
+    wave.append(&mut bump_splice(16, 120));
     wave.append(&mut bump_splice(120, 30));
-    wave.append(&mut flat_splice(30, 1));
+    wave.append(&mut flat_splice(30, 9));
     println!("splice_wave length = {}", total_frames(&wave));
     wave
 }
@@ -209,8 +201,8 @@ fn splice_wave() -> Vec<FrameSequence> {
 fn concise_bench() -> Vec<FrameSequence> {
     let mut concise_bench: Vec<FrameSequence> = Vec::new();
     concise_bench.append(&mut emoji_wobble());
-    concise_bench.append(&mut flat_emoji(30, 12));
     concise_bench.append(&mut lil_vid_wobble(120));
+    concise_bench.append(&mut flat_emoji(30, 12));
     concise_bench.append(&mut splice_wave());
     concise_bench.append(&mut lil_vid_wobble(30));
     concise_bench
@@ -218,14 +210,13 @@ fn concise_bench() -> Vec<FrameSequence> {
 fn concise_bench_2() -> Vec<FrameSequence> {
     let mut concise_bench_2: Vec<FrameSequence> = Vec::new();
     concise_bench_2.append(&mut flat_splice(30, 12));
-    concise_bench_2.append(&mut bump_splice(30, 40));
-    concise_bench_2.append(&mut flat_splice(40, 11));
-    concise_bench_2.append(&mut bump_splice(30, 40));
-    concise_bench_2.append(&mut flat_splice(40, 11));
-    concise_bench_2.append(&mut bump_splice(40, 60));
-    concise_bench_2.append(&mut flat_splice(40, 11));
-    concise_bench_2.append(&mut  bump_emoji(40, 20));
-    concise_bench_2.append(&mut flat_emoji(20, 11));
+    concise_bench_2.append(&mut lil_vid_wobble(12));
+    concise_bench_2.append(&mut flat_splice(30, 12));
+    concise_bench_2.append(&mut lil_vid_wobble(12));
+
+    concise_bench_2.append(&mut bump_emoji(30, 20));
+    concise_bench_2.append(&mut flat_emoji(20, 10));
+    concise_bench_2.append(&mut bump_emoji(20, 30));
     concise_bench_2
 }
 
@@ -262,8 +253,9 @@ pub fn get_instructions () -> Vec<FrameSequence> {
     let bench = concise_bench();
     let bench2 = concise_bench_2();
     //let bench = lil_video_micro_test();
-    for _i in 0..1 {
-        instructions.append(&mut bench.clone());
+    instructions.append(&mut bench.clone());
+    for _i in 0..2 {
+        instructions.append(&mut bench2.clone());
         //instructions.append(&mut bench2.clone());
     }
     let mut total_frames = 0;

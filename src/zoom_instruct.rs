@@ -64,29 +64,29 @@ fn scroll(seconds: u32, depth: i32) -> Vec<ZoomSequence> {
 
 pub fn get_zoom_a_instructions () -> Vec<ZoomSequence> {
     let mut instructions: Vec<ZoomSequence> = Vec::new();
-    for i in 0..1 {
+    for i in 0..3 {
         instructions.append(&mut full_zoom(3));
         instructions.append(&mut skip_zoom(9, 24, 40));
         instructions.append(&mut full_zoom(3));
 
-        instructions.append(&mut scroll(14, 800));
-        instructions.append(&mut full_zoom(2));
-        instructions.append(&mut scroll(14, 80));
+        instructions.append(&mut scroll(13, 1000));
+        instructions.append(&mut skip_zoom(4, 60, 120));
+        instructions.append(&mut scroll(13, 60));
 
-        instructions.append(&mut full_zoom(15));
+        instructions.append(&mut full_zoom(18));
     }
     instructions
 }
 
 pub fn get_zoom_b_instructions () -> Vec<ZoomSequence> {
     let mut instructions: Vec<ZoomSequence> = Vec::new();
-    for i in 0..1 {
+    for i in 0..3 {
         instructions.append(&mut full_zoom(3));
         instructions.append(&mut skip_zoom(9, 40, 60));
         instructions.append(&mut full_zoom(18));
-        instructions.append(&mut scroll(14, 80));
-        instructions.append(&mut full_zoom(2));
-        instructions.append(&mut scroll(14, 190));
+        instructions.append(&mut scroll(13, 400));
+        instructions.append(&mut skip_zoom(4, 15, 60));
+        instructions.append(&mut scroll(16, 190));
     }
     instructions
 }
