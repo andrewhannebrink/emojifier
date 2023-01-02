@@ -1,6 +1,8 @@
 mod transpose;
 mod mosaic;
 mod lil_videos;
+mod zoom_instruct;
+mod scroll;
 mod instruct;
 mod path;
 mod quadrants;
