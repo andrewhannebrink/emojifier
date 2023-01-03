@@ -73,7 +73,7 @@ pub fn get_zoom_a_instructions (minutes: u8) -> Vec<ZoomSequence> {
         instructions.append(&mut skip_zoom(4, 60, 120));
         instructions.append(&mut scroll(13, 60));
 
-        instructions.append(&mut full_zoom(18));
+        instructions.append(&mut full_zoom(15));
     }
     let total_frames = instructions.iter().fold(0, |acc, x| acc + x.total_frames);
     println!("Total frames in zoom_a_instructions: {}", total_frames);
@@ -88,7 +88,7 @@ pub fn get_zoom_b_instructions (minutes: u8) -> Vec<ZoomSequence> {
         instructions.append(&mut full_zoom(18));
         instructions.append(&mut scroll(13, 400));
         instructions.append(&mut skip_zoom(4, 15, 60));
-        instructions.append(&mut scroll(16, 190));
+        instructions.append(&mut scroll(13, 190));
     }
     let total_frames = instructions.iter().fold(0, |acc, x| acc + x.total_frames);
     println!("Total frames in zoom_b_instructions: {}", total_frames);
