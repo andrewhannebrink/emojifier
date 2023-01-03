@@ -271,13 +271,13 @@ pub fn quad_test() -> Vec<FrameSequence> {
     quad
 }
 
-pub fn get_instructions () -> Vec<FrameSequence> {
+pub fn get_instructions (minutes: u8) -> Vec<FrameSequence> {
     let mut instructions: Vec<FrameSequence> = Vec::new();
 
     //let bench = bench_instructions();
     instructions.append(&mut concise_bench());
     //let bench = lil_video_micro_test();
-    for _i in 0..19 {
+    for _i in 0..minutes {
         instructions.append(&mut concise_bench_2(None, None, None));
     }
     let mut total_frames = 0;

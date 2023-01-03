@@ -26,10 +26,10 @@ pub fn wipe_input_dir() {
     fs::create_dir(path::input_dir(&QUADRANT_B));
 }
 
-pub fn make_zooms(lil_imgs_dir: &str) {
+pub fn make_zooms(lil_imgs_dir: &str, minutes: u8) {
     wipe_input_dir();
-    zoom(lil_imgs_dir, &path::QUADRANT_A, &zoom_instruct::get_zoom_a_instructions());
-    zoom(lil_imgs_dir, &path::QUADRANT_B, &zoom_instruct::get_zoom_b_instructions());
+    zoom(lil_imgs_dir, &path::QUADRANT_A, &zoom_instruct::get_zoom_a_instructions(minutes));
+    zoom(lil_imgs_dir, &path::QUADRANT_B, &zoom_instruct::get_zoom_b_instructions(minutes));
 }
 
 fn plain_white_img() -> RgbaImage {

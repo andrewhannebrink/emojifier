@@ -51,14 +51,18 @@ async fn main() {
 //      .get_matches();
 
 
-    zoom::make_zooms("io/lil_imgs/emoji_big_buffered");
-    transpose_then_make_quadrants(false).await;
+    if !cli.transpose_only {
+        zoom::make_zooms("io/lil_imgs/emoji_big_buffered", cli.minutes);
+    }
+    if !cli.zoom_only {
+        transpose_then_make_quadrants(cli.one_way, cli.minutes).await;
+    }
     let elapsed_time = now.elapsed();
     println!("main() took {} seconds.", elapsed_time.as_secs());
 }
 
-async fn transpose_then_make_quadrants(one_way: bool) {
-    let instructions = instruct::get_instructions();
+async fn transpose_then_make_quadrants(one_way: bool, minutes: u8) {
+    let instructions = instruct::get_instructions(minutes);
     transpose::transpose_every_frame(&instructions, one_way).await;
     if !one_way {
         quadrants::frames_into_quadrants();
