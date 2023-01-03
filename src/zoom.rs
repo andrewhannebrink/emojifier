@@ -121,7 +121,7 @@ pub fn zoom(lil_imgs_dir: &str, quadrant: &path::Quadrant, ins: &Vec<ZoomSequenc
     //for i in 3..1801 {
     let mut first_frame_in_seq = 3;
     for sequence in ins {
-        for seq_frame_idx in 0..sequence.total_frames - 2 {
+        for seq_frame_idx in 0..sequence.total_frames + 1 {
             match &sequence.mode {
                 zoom_instruct::ZoomMode::Zoom(zoom_instructions) => {
                     if zoom_return.depth < zoom_instructions.max_depth {
