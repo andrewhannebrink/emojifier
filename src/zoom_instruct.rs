@@ -42,7 +42,7 @@ fn skip_zoom(seconds: u32, min_depth: u32, max_depth: u32) -> Vec<ZoomSequence> 
         mode: ZoomMode::Zoom(ZoomInstructions {
             max_depth,
             min_depth,
-            lil_imgs_dir: "io/lil_imgs/emoji_big_buffere".to_string() 
+            lil_imgs_dir: "io/lil_imgs/emoji_big_buffered".to_string() 
         })
     });
     skip_zoom
@@ -75,6 +75,8 @@ pub fn get_zoom_a_instructions (minutes: u8) -> Vec<ZoomSequence> {
 
         instructions.append(&mut full_zoom(18));
     }
+    let total_frames = instructions.iter().fold(0, |acc, x| acc + x.total_frames);
+    println!("Total frames in zoom_a_instructions: {}", total_frames);
     instructions
 }
 
@@ -88,5 +90,7 @@ pub fn get_zoom_b_instructions (minutes: u8) -> Vec<ZoomSequence> {
         instructions.append(&mut skip_zoom(4, 15, 60));
         instructions.append(&mut scroll(16, 190));
     }
+    let total_frames = instructions.iter().fold(0, |acc, x| acc + x.total_frames);
+    println!("Total frames in zoom_b_instructions: {}", total_frames);
     instructions
 }
