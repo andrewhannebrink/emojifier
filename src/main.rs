@@ -58,7 +58,7 @@ async fn main() {
             cli.benchmark_ten_sec).await;
     }
     //TODO put this at the end of transpose_every_frame()
-    ffmpeg_cmds::make_video_from_dir(&"todo".to_string(), &"todo".to_string()).await;
+    ffmpeg_cmds::make_video_from_dir(&path::QUADRANT_B, &"auto-test.mp4".to_string()).await;
     let elapsed_time = now.elapsed();
     println!("main() took {} seconds.", elapsed_time.as_secs());
 }
