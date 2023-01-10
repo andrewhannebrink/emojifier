@@ -275,7 +275,7 @@ pub fn get_instructions (minutes: u8) -> Vec<FrameSequence> {
     let mut instructions: Vec<FrameSequence> = Vec::new();
 
     //let bench = bench_instructions();
-    instructions.append(&mut concise_bench());
+    //instructions.append(&mut concise_bench());
     //let bench = lil_video_micro_test();
     for _i in 0..minutes {
         instructions.append(&mut concise_bench_2(None, None, None));
@@ -286,5 +286,11 @@ pub fn get_instructions (minutes: u8) -> Vec<FrameSequence> {
     }
     println!("total frames = {}", total_frames);
 
+    instructions
+}
+
+pub fn benchmark() -> Vec<FrameSequence> {
+    let mut instructions: Vec<FrameSequence> = Vec::new();
+    instructions.append(&mut flat_emoji(40, 10));
     instructions
 }
